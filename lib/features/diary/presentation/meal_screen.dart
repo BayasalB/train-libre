@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _MealScreenState extends State<MealScreen> {
   bool _loadingItems = true;
 
   // Totals (recomputed from `_items` whenever data changes).
-  int _totalKcal = 0;
+  double _totalKcal = 0;
   double _totalC = 0, _totalF = 0, _totalP = 0;
 
   @override
@@ -114,7 +115,7 @@ class _MealScreenState extends State<MealScreen> {
 
   /// Recomputes aggregate kcal / carbs / fat / protein totals.
   Future<void> _recomputeTotals() async {
-    int kcal = 0;
+    double kcal = 0;
     double c = 0, f = 0, p = 0;
 
     for (final it in _items) {
@@ -123,16 +124,11 @@ class _MealScreenState extends State<MealScreen> {
       final fi = await ProductLocalDataSource.instance.getProductByBarcode(bc);
       if (fi == null) continue;
 
-      final factor = qty / 100.0;
-      final itemKcal = (fi.calories.toDouble()) * factor;
-      final itemC = (fi.carbs) * factor;
-      final itemF = (fi.fat) * factor;
-      final itemP = (fi.protein) * factor;
-
-      kcal += itemKcal.round();
-      c += itemC;
-      f += itemF;
-      p += itemP;
+      final nutrition = fi.nutritionFor(qty);
+      kcal += nutrition.calories;
+      c += nutrition.carbs;
+      f += nutrition.fat;
+      p += nutrition.protein;
     }
 
     _totalKcal = kcal;
@@ -393,7 +389,7 @@ class _MealScreenState extends State<MealScreen> {
       );
       await DatabaseHelper.instance.clearMealItems(mealId);
       for (final it in _items) {
-        final grams = (it['quantity_in_grams'] as num?)?.toInt() ?? 0;
+        final grams = (it['quantity_in_grams'] as num?)?.toDouble() ?? 0;
         await DatabaseHelper.instance.addMealItem(
           mealId: mealId,
           barcode: it['barcode'] as String,
@@ -433,14 +429,14 @@ class _MealScreenState extends State<MealScreen> {
     if (pickedProduct == null) return;
 
     final String barcode = pickedProduct.barcode;
-    int quantity = -1;
+    double quantity = -1;
 
     // Ask for amount
     final displayName =
         pickedProduct.name.isNotEmpty ? pickedProduct.name : barcode;
     if (!mounted) return;
 
-    final qtyResult = await showGlassBottomMenu<int?>(
+    final qtyResult = await showGlassBottomMenu<double>(
       context: context,
       title: displayName,
       contentBuilder: (qtyCtx, closeQty) {
@@ -451,13 +447,14 @@ class _MealScreenState extends State<MealScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: qtyCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               autofocus: true,
               decoration: InputDecoration(
                 suffixText: '${l10n.unit_grams}/${l10n.unit_milliliters}',
               ),
               onSubmitted: (val) {
-                final q = int.tryParse(val);
+                final q = parseNutritionNumber(val);
                 closeQty();
                 Navigator.of(qtyCtx).pop(q);
               },
@@ -479,7 +476,7 @@ class _MealScreenState extends State<MealScreen> {
                 Expanded(
                   child: AppButton.primary(
                     onPressed: () {
-                      final val = int.tryParse(qtyCtrl.text);
+                      final val = parseNutritionNumber(qtyCtrl.text);
                       closeQty();
                       Navigator.of(qtyCtx).pop(val);
                     },
@@ -682,8 +679,8 @@ class _MealScreenState extends State<MealScreen> {
     for (final it in _items) {
       final bc = it['barcode'] as String;
       final ctrl = qtyCtrls[bc]!;
-      final qty =
-          int.tryParse(ctrl.text.trim()) ?? (it['quantity_in_grams'] as int);
+      final qty = parseNutritionNumber(ctrl.text.trim()) ??
+          (it['quantity_in_grams'] as num).toDouble();
 
       final newFoodEntryId = await DatabaseHelper.instance.insertFoodEntry(
         FoodEntry(
@@ -761,7 +758,7 @@ class _IngredientCard extends StatelessWidget {
   final Map<String, dynamic> item; // { barcode, quantity_in_grams }
   final bool editMode;
   final bool showPerIngredientMacros;
-  final ValueChanged<int> onQtyChanged;
+  final ValueChanged<double> onQtyChanged;
   final VoidCallback onDelete;
 
   const _IngredientCard({
@@ -797,14 +794,14 @@ class _IngredientCard extends StatelessWidget {
           (fi?.isLiquid == true) ? l10n.unit_milliliters : l10n.unit_grams;
 
       // per-ingredient macros & kcal
-      int kcal = 0;
+      double kcal = 0;
       double c = 0, f = 0, p = 0;
       if (fi != null) {
-        final factor = qty / 100.0;
-        kcal = ((fi.calories) * factor).round();
-        c = (fi.carbs) * factor;
-        f = (fi.fat) * factor;
-        p = (fi.protein) * factor;
+        final nutrition = fi.nutritionFor(qty);
+        kcal = nutrition.calories;
+        c = nutrition.carbs;
+        f = nutrition.fat;
+        p = nutrition.protein;
       }
 
       final titleWidget = InkWell(
@@ -824,7 +821,7 @@ class _IngredientCard extends StatelessWidget {
       );
 
       final trailingView = Text(
-        fi == null ? '–' : '$kcal ${l10n.unit_kcal}',
+        fi == null ? '–' : '${kcal.round()} ${l10n.unit_kcal}',
         style: theme.textTheme.labelLarge?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w700,
@@ -834,16 +831,16 @@ class _IngredientCard extends StatelessWidget {
       final trailingEdit = SizedBox(
         width: 96,
         child: TextFormField(
-          initialValue: '${qty.toInt()}',
+          initialValue: formatFoodQuantity(qty),
           textAlign: TextAlign.right,
-          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             isDense: true,
             suffixText: unit,
             border: const OutlineInputBorder(),
           ),
           onChanged: (v) {
-            final parsed = int.tryParse(v.trim());
+            final parsed = parseNutritionNumber(v.trim());
             if (parsed != null && parsed >= 0) onQtyChanged(parsed);
           },
         ),
@@ -862,7 +859,7 @@ class _IngredientCard extends StatelessWidget {
                           children: [
                             if (!editMode)
                               Text(
-                                '${qty.toInt()}$unit',
+                                '${formatFoodQuantity(qty)}$unit',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: theme.textTheme.bodySmall?.color,
                                 ),
@@ -879,8 +876,8 @@ class _IngredientCard extends StatelessWidget {
                         )
                       : AppMetadataRow(
                           items: [
-                            if (editMode) '$kcal ${l10n.unit_kcal}',
-                            if (!editMode) '${qty.toInt()}$unit',
+                            if (editMode) '${kcal.round()} ${l10n.unit_kcal}',
+                            if (!editMode) '${formatFoodQuantity(qty)}$unit',
                             '${p.toStringAsFixed(1)}g P',
                             '${c.toStringAsFixed(1)}g C',
                             '${f.toStringAsFixed(1)}g F',

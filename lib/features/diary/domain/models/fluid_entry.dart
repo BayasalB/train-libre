@@ -11,13 +11,13 @@ class FluidEntry {
   final DateTime timestamp;
 
   /// The quantity consumed in milliliters.
-  final int quantityInMl;
+  final double quantityInMl;
 
   /// The name of the beverage.
   final String name;
 
-  /// Calories per 100ml.
-  final int? kcal;
+  /// Total calories for this entry (not calories per 100ml).
+  final double? kcal;
 
   /// Sugar in grams per 100ml.
   final double? sugarPer100ml;
@@ -38,7 +38,7 @@ class FluidEntry {
   FluidEntry({
     this.id,
     required this.timestamp,
-    required this.quantityInMl,
+    required num quantityInMl,
     required this.name,
     this.kcal,
     this.sugarPer100ml,
@@ -46,7 +46,7 @@ class FluidEntry {
     this.caffeinePer100ml,
     this.linkedFoodEntryId, // *** New ***
     this.updatedAt,
-  });
+  }) : quantityInMl = quantityInMl.toDouble();
 
   /// Converts the [FluidEntry] instance to a Map for database storage.
   Map<String, dynamic> toMap() {
@@ -70,10 +70,10 @@ class FluidEntry {
       timestamp: DateTime.parse(map['timestamp']),
       quantityInMl: map['quantity_in_ml'],
       name: map['name'],
-      kcal: map['kcal'],
-      sugarPer100ml: map['sugar_per_100ml'],
-      carbsPer100ml: map['carbs_per_100ml'],
-      caffeinePer100ml: map['caffeine_per_100ml'],
+      kcal: (map['kcal'] as num?)?.toDouble(),
+      sugarPer100ml: (map['sugar_per_100ml'] as num?)?.toDouble(),
+      carbsPer100ml: (map['carbs_per_100ml'] as num?)?.toDouble(),
+      caffeinePer100ml: (map['caffeine_per_100ml'] as num?)?.toDouble(),
       linkedFoodEntryId: map['linked_food_entry_id'], // *** New ***
     );
   }
@@ -82,9 +82,9 @@ class FluidEntry {
   FluidEntry copyWith({
     int? id,
     DateTime? timestamp,
-    int? quantityInMl,
+    double? quantityInMl,
     String? name,
-    int? kcal,
+    double? kcal,
     double? sugarPer100ml,
     double? carbsPer100ml,
     double? caffeinePer100ml,

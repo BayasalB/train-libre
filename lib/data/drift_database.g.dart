@@ -7669,9 +7669,9 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   static const VerificationMeta _caloriesMeta =
       const VerificationMeta('calories');
   @override
-  late final GeneratedColumn<int> calories = GeneratedColumn<int>(
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
       'calories', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _proteinMeta =
       const VerificationMeta('protein');
   @override
@@ -8069,7 +8069,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       brand: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}brand']),
       calories: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}calories'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}calories'])!,
       protein: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}protein'])!,
       carbs: attachedDatabase.typeMapping
@@ -8139,7 +8139,7 @@ class Product extends DataClass implements Insertable<Product> {
   final String? nameDe;
   final String? nameEn;
   final String? brand;
-  final int calories;
+  final double calories;
   final double protein;
   final double carbs;
   final double fat;
@@ -8221,7 +8221,7 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || brand != null) {
       map['brand'] = Variable<String>(brand);
     }
-    map['calories'] = Variable<int>(calories);
+    map['calories'] = Variable<double>(calories);
     map['protein'] = Variable<double>(protein);
     map['carbs'] = Variable<double>(carbs);
     map['fat'] = Variable<double>(fat);
@@ -8370,7 +8370,7 @@ class Product extends DataClass implements Insertable<Product> {
       nameDe: serializer.fromJson<String?>(json['nameDe']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
       brand: serializer.fromJson<String?>(json['brand']),
-      calories: serializer.fromJson<int>(json['calories']),
+      calories: serializer.fromJson<double>(json['calories']),
       protein: serializer.fromJson<double>(json['protein']),
       carbs: serializer.fromJson<double>(json['carbs']),
       fat: serializer.fromJson<double>(json['fat']),
@@ -8414,7 +8414,7 @@ class Product extends DataClass implements Insertable<Product> {
       'nameDe': serializer.toJson<String?>(nameDe),
       'nameEn': serializer.toJson<String?>(nameEn),
       'brand': serializer.toJson<String?>(brand),
-      'calories': serializer.toJson<int>(calories),
+      'calories': serializer.toJson<double>(calories),
       'protein': serializer.toJson<double>(protein),
       'carbs': serializer.toJson<double>(carbs),
       'fat': serializer.toJson<double>(fat),
@@ -8454,7 +8454,7 @@ class Product extends DataClass implements Insertable<Product> {
           Value<String?> nameDe = const Value.absent(),
           Value<String?> nameEn = const Value.absent(),
           Value<String?> brand = const Value.absent(),
-          int? calories,
+          double? calories,
           double? protein,
           double? carbs,
           double? fat,
@@ -8715,7 +8715,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String?> nameDe;
   final Value<String?> nameEn;
   final Value<String?> brand;
-  final Value<int> calories;
+  final Value<double> calories;
   final Value<double> protein;
   final Value<double> carbs;
   final Value<double> fat;
@@ -8788,7 +8788,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.nameDe = const Value.absent(),
     this.nameEn = const Value.absent(),
     this.brand = const Value.absent(),
-    required int calories,
+    required double calories,
     required double protein,
     required double carbs,
     required double fat,
@@ -8830,7 +8830,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String>? nameDe,
     Expression<String>? nameEn,
     Expression<String>? brand,
-    Expression<int>? calories,
+    Expression<double>? calories,
     Expression<double>? protein,
     Expression<double>? carbs,
     Expression<double>? fat,
@@ -8908,7 +8908,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String?>? nameDe,
       Value<String?>? nameEn,
       Value<String?>? brand,
-      Value<int>? calories,
+      Value<double>? calories,
       Value<double>? protein,
       Value<double>? carbs,
       Value<double>? fat,
@@ -9007,7 +9007,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       map['brand'] = Variable<String>(brand.value);
     }
     if (calories.present) {
-      map['calories'] = Variable<int>(calories.value);
+      map['calories'] = Variable<double>(calories.value);
     }
     if (protein.present) {
       map['protein'] = Variable<double>(protein.value);
@@ -9195,9 +9195,9 @@ class $OffProductsArchiveTable extends OffProductsArchive
   static const VerificationMeta _caloriesMeta =
       const VerificationMeta('calories');
   @override
-  late final GeneratedColumn<int> calories = GeneratedColumn<int>(
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
       'calories', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _proteinMeta =
       const VerificationMeta('protein');
   @override
@@ -9492,7 +9492,7 @@ class $OffProductsArchiveTable extends OffProductsArchive
       brand: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}brand']),
       calories: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}calories'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}calories'])!,
       protein: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}protein'])!,
       carbs: attachedDatabase.typeMapping
@@ -9544,7 +9544,7 @@ class OffProductsArchiveData extends DataClass
   final String barcode;
   final String productName;
   final String? brand;
-  final int calories;
+  final double calories;
   final double protein;
   final double carbs;
   final double fat;
@@ -9602,7 +9602,7 @@ class OffProductsArchiveData extends DataClass
     if (!nullToAbsent || brand != null) {
       map['brand'] = Variable<String>(brand);
     }
-    map['calories'] = Variable<int>(calories);
+    map['calories'] = Variable<double>(calories);
     map['protein'] = Variable<double>(protein);
     map['carbs'] = Variable<double>(carbs);
     map['fat'] = Variable<double>(fat);
@@ -9695,7 +9695,7 @@ class OffProductsArchiveData extends DataClass
       barcode: serializer.fromJson<String>(json['barcode']),
       productName: serializer.fromJson<String>(json['productName']),
       brand: serializer.fromJson<String?>(json['brand']),
-      calories: serializer.fromJson<int>(json['calories']),
+      calories: serializer.fromJson<double>(json['calories']),
       protein: serializer.fromJson<double>(json['protein']),
       carbs: serializer.fromJson<double>(json['carbs']),
       fat: serializer.fromJson<double>(json['fat']),
@@ -9728,7 +9728,7 @@ class OffProductsArchiveData extends DataClass
       'barcode': serializer.toJson<String>(barcode),
       'productName': serializer.toJson<String>(productName),
       'brand': serializer.toJson<String?>(brand),
-      'calories': serializer.toJson<int>(calories),
+      'calories': serializer.toJson<double>(calories),
       'protein': serializer.toJson<double>(protein),
       'carbs': serializer.toJson<double>(carbs),
       'fat': serializer.toJson<double>(fat),
@@ -9757,7 +9757,7 @@ class OffProductsArchiveData extends DataClass
           String? barcode,
           String? productName,
           Value<String?> brand = const Value.absent(),
-          int? calories,
+          double? calories,
           double? protein,
           double? carbs,
           double? fat,
@@ -9948,7 +9948,7 @@ class OffProductsArchiveCompanion
   final Value<String> barcode;
   final Value<String> productName;
   final Value<String?> brand;
-  final Value<int> calories;
+  final Value<double> calories;
   final Value<double> protein;
   final Value<double> carbs;
   final Value<double> fat;
@@ -10001,7 +10001,7 @@ class OffProductsArchiveCompanion
     required String barcode,
     required String productName,
     this.brand = const Value.absent(),
-    required int calories,
+    required double calories,
     required double protein,
     required double carbs,
     required double fat,
@@ -10035,7 +10035,7 @@ class OffProductsArchiveCompanion
     Expression<String>? barcode,
     Expression<String>? productName,
     Expression<String>? brand,
-    Expression<int>? calories,
+    Expression<double>? calories,
     Expression<double>? protein,
     Expression<double>? carbs,
     Expression<double>? fat,
@@ -10092,7 +10092,7 @@ class OffProductsArchiveCompanion
       Value<String>? barcode,
       Value<String>? productName,
       Value<String?>? brand,
-      Value<int>? calories,
+      Value<double>? calories,
       Value<double>? protein,
       Value<double>? carbs,
       Value<double>? fat,
@@ -10166,7 +10166,7 @@ class OffProductsArchiveCompanion
       map['brand'] = Variable<String>(brand.value);
     }
     if (calories.present) {
-      map['calories'] = Variable<int>(calories.value);
+      map['calories'] = Variable<double>(calories.value);
     }
     if (protein.present) {
       map['protein'] = Variable<double>(protein.value);
@@ -12770,9 +12770,9 @@ class $FluidLogsTable extends FluidLogs
   static const VerificationMeta _amountMlMeta =
       const VerificationMeta('amountMl');
   @override
-  late final GeneratedColumn<int> amountMl = GeneratedColumn<int>(
+  late final GeneratedColumn<double> amountMl = GeneratedColumn<double>(
       'amount_ml', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -12780,9 +12780,9 @@ class $FluidLogsTable extends FluidLogs
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _kcalMeta = const VerificationMeta('kcal');
   @override
-  late final GeneratedColumn<int> kcal = GeneratedColumn<int>(
+  late final GeneratedColumn<double> kcal = GeneratedColumn<double>(
       'kcal', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _sugarPer100mlMeta =
       const VerificationMeta('sugarPer100ml');
   @override
@@ -12926,11 +12926,11 @@ class $FluidLogsTable extends FluidLogs
       consumedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}consumed_at'])!,
       amountMl: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}amount_ml'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}amount_ml'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       kcal: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}kcal']),
+          .read(DriftSqlType.double, data['${effectivePrefix}kcal']),
       sugarPer100ml: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}sugar_per100ml']),
       carbsPer100ml: attachedDatabase.typeMapping
@@ -12956,9 +12956,9 @@ class FluidLog extends DataClass implements Insertable<FluidLog> {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final DateTime consumedAt;
-  final int amountMl;
+  final double amountMl;
   final String name;
-  final int? kcal;
+  final double? kcal;
   final double? sugarPer100ml;
   final double? carbsPer100ml;
   final double? caffeinePer100ml;
@@ -12988,10 +12988,10 @@ class FluidLog extends DataClass implements Insertable<FluidLog> {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
     map['consumed_at'] = Variable<DateTime>(consumedAt);
-    map['amount_ml'] = Variable<int>(amountMl);
+    map['amount_ml'] = Variable<double>(amountMl);
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || kcal != null) {
-      map['kcal'] = Variable<int>(kcal);
+      map['kcal'] = Variable<double>(kcal);
     }
     if (!nullToAbsent || sugarPer100ml != null) {
       map['sugar_per100ml'] = Variable<double>(sugarPer100ml);
@@ -13046,9 +13046,9 @@ class FluidLog extends DataClass implements Insertable<FluidLog> {
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       consumedAt: serializer.fromJson<DateTime>(json['consumedAt']),
-      amountMl: serializer.fromJson<int>(json['amountMl']),
+      amountMl: serializer.fromJson<double>(json['amountMl']),
       name: serializer.fromJson<String>(json['name']),
-      kcal: serializer.fromJson<int?>(json['kcal']),
+      kcal: serializer.fromJson<double?>(json['kcal']),
       sugarPer100ml: serializer.fromJson<double?>(json['sugarPer100ml']),
       carbsPer100ml: serializer.fromJson<double?>(json['carbsPer100ml']),
       caffeinePer100ml: serializer.fromJson<double?>(json['caffeinePer100ml']),
@@ -13066,9 +13066,9 @@ class FluidLog extends DataClass implements Insertable<FluidLog> {
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'consumedAt': serializer.toJson<DateTime>(consumedAt),
-      'amountMl': serializer.toJson<int>(amountMl),
+      'amountMl': serializer.toJson<double>(amountMl),
       'name': serializer.toJson<String>(name),
-      'kcal': serializer.toJson<int?>(kcal),
+      'kcal': serializer.toJson<double?>(kcal),
       'sugarPer100ml': serializer.toJson<double?>(sugarPer100ml),
       'carbsPer100ml': serializer.toJson<double?>(carbsPer100ml),
       'caffeinePer100ml': serializer.toJson<double?>(caffeinePer100ml),
@@ -13083,9 +13083,9 @@ class FluidLog extends DataClass implements Insertable<FluidLog> {
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
           DateTime? consumedAt,
-          int? amountMl,
+          double? amountMl,
           String? name,
-          Value<int?> kcal = const Value.absent(),
+          Value<double?> kcal = const Value.absent(),
           Value<double?> sugarPer100ml = const Value.absent(),
           Value<double?> carbsPer100ml = const Value.absent(),
           Value<double?> caffeinePer100ml = const Value.absent(),
@@ -13199,9 +13199,9 @@ class FluidLogsCompanion extends UpdateCompanion<FluidLog> {
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<DateTime> consumedAt;
-  final Value<int> amountMl;
+  final Value<double> amountMl;
   final Value<String> name;
-  final Value<int?> kcal;
+  final Value<double?> kcal;
   final Value<double?> sugarPer100ml;
   final Value<double?> carbsPer100ml;
   final Value<double?> caffeinePer100ml;
@@ -13228,7 +13228,7 @@ class FluidLogsCompanion extends UpdateCompanion<FluidLog> {
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     required DateTime consumedAt,
-    required int amountMl,
+    required double amountMl,
     required String name,
     this.kcal = const Value.absent(),
     this.sugarPer100ml = const Value.absent(),
@@ -13245,9 +13245,9 @@ class FluidLogsCompanion extends UpdateCompanion<FluidLog> {
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? consumedAt,
-    Expression<int>? amountMl,
+    Expression<double>? amountMl,
     Expression<String>? name,
-    Expression<int>? kcal,
+    Expression<double>? kcal,
     Expression<double>? sugarPer100ml,
     Expression<double>? carbsPer100ml,
     Expression<double>? caffeinePer100ml,
@@ -13278,9 +13278,9 @@ class FluidLogsCompanion extends UpdateCompanion<FluidLog> {
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<DateTime>? consumedAt,
-      Value<int>? amountMl,
+      Value<double>? amountMl,
       Value<String>? name,
-      Value<int?>? kcal,
+      Value<double?>? kcal,
       Value<double?>? sugarPer100ml,
       Value<double?>? carbsPer100ml,
       Value<double?>? caffeinePer100ml,
@@ -13324,13 +13324,13 @@ class FluidLogsCompanion extends UpdateCompanion<FluidLog> {
       map['consumed_at'] = Variable<DateTime>(consumedAt.value);
     }
     if (amountMl.present) {
-      map['amount_ml'] = Variable<int>(amountMl.value);
+      map['amount_ml'] = Variable<double>(amountMl.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
     if (kcal.present) {
-      map['kcal'] = Variable<int>(kcal.value);
+      map['kcal'] = Variable<double>(kcal.value);
     }
     if (sugarPer100ml.present) {
       map['sugar_per100ml'] = Variable<double>(sugarPer100ml.value);
@@ -15336,9 +15336,9 @@ class $MealItemsTable extends MealItems
   static const VerificationMeta _quantityInGramsMeta =
       const VerificationMeta('quantityInGrams');
   @override
-  late final GeneratedColumn<int> quantityInGrams = GeneratedColumn<int>(
+  late final GeneratedColumn<double> quantityInGrams = GeneratedColumn<double>(
       'quantity_in_grams', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.double, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         localId,
@@ -15429,8 +15429,8 @@ class $MealItemsTable extends MealItems
           .read(DriftSqlType.string, data['${effectivePrefix}product_barcode']),
       productId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}product_id']),
-      quantityInGrams: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}quantity_in_grams'])!,
+      quantityInGrams: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}quantity_in_grams'])!,
     );
   }
 
@@ -15449,7 +15449,7 @@ class MealItem extends DataClass implements Insertable<MealItem> {
   final String mealId;
   final String? productBarcode;
   final String? productId;
-  final int quantityInGrams;
+  final double quantityInGrams;
   const MealItem(
       {required this.localId,
       required this.id,
@@ -15477,7 +15477,7 @@ class MealItem extends DataClass implements Insertable<MealItem> {
     if (!nullToAbsent || productId != null) {
       map['product_id'] = Variable<String>(productId);
     }
-    map['quantity_in_grams'] = Variable<int>(quantityInGrams);
+    map['quantity_in_grams'] = Variable<double>(quantityInGrams);
     return map;
   }
 
@@ -15513,7 +15513,7 @@ class MealItem extends DataClass implements Insertable<MealItem> {
       mealId: serializer.fromJson<String>(json['mealId']),
       productBarcode: serializer.fromJson<String?>(json['productBarcode']),
       productId: serializer.fromJson<String?>(json['productId']),
-      quantityInGrams: serializer.fromJson<int>(json['quantityInGrams']),
+      quantityInGrams: serializer.fromJson<double>(json['quantityInGrams']),
     );
   }
   @override
@@ -15528,7 +15528,7 @@ class MealItem extends DataClass implements Insertable<MealItem> {
       'mealId': serializer.toJson<String>(mealId),
       'productBarcode': serializer.toJson<String?>(productBarcode),
       'productId': serializer.toJson<String?>(productId),
-      'quantityInGrams': serializer.toJson<int>(quantityInGrams),
+      'quantityInGrams': serializer.toJson<double>(quantityInGrams),
     };
   }
 
@@ -15541,7 +15541,7 @@ class MealItem extends DataClass implements Insertable<MealItem> {
           String? mealId,
           Value<String?> productBarcode = const Value.absent(),
           Value<String?> productId = const Value.absent(),
-          int? quantityInGrams}) =>
+          double? quantityInGrams}) =>
       MealItem(
         localId: localId ?? this.localId,
         id: id ?? this.id,
@@ -15615,7 +15615,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
   final Value<String> mealId;
   final Value<String?> productBarcode;
   final Value<String?> productId;
-  final Value<int> quantityInGrams;
+  final Value<double> quantityInGrams;
   const MealItemsCompanion({
     this.localId = const Value.absent(),
     this.id = const Value.absent(),
@@ -15636,7 +15636,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
     required String mealId,
     this.productBarcode = const Value.absent(),
     this.productId = const Value.absent(),
-    required int quantityInGrams,
+    required double quantityInGrams,
   })  : mealId = Value(mealId),
         quantityInGrams = Value(quantityInGrams);
   static Insertable<MealItem> custom({
@@ -15648,7 +15648,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
     Expression<String>? mealId,
     Expression<String>? productBarcode,
     Expression<String>? productId,
-    Expression<int>? quantityInGrams,
+    Expression<double>? quantityInGrams,
   }) {
     return RawValuesInsertable({
       if (localId != null) 'local_id': localId,
@@ -15672,7 +15672,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
       Value<String>? mealId,
       Value<String?>? productBarcode,
       Value<String?>? productId,
-      Value<int>? quantityInGrams}) {
+      Value<double>? quantityInGrams}) {
     return MealItemsCompanion(
       localId: localId ?? this.localId,
       id: id ?? this.id,
@@ -15714,7 +15714,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
       map['product_id'] = Variable<String>(productId.value);
     }
     if (quantityInGrams.present) {
-      map['quantity_in_grams'] = Variable<int>(quantityInGrams.value);
+      map['quantity_in_grams'] = Variable<double>(quantityInGrams.value);
     }
     return map;
   }
@@ -18548,9 +18548,9 @@ class $UserFoodOverridesTable extends UserFoodOverrides
   static const VerificationMeta _caloriesMeta =
       const VerificationMeta('calories');
   @override
-  late final GeneratedColumn<int> calories = GeneratedColumn<int>(
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
       'calories', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _proteinMeta =
       const VerificationMeta('protein');
   @override
@@ -18838,7 +18838,7 @@ class $UserFoodOverridesTable extends UserFoodOverrides
       brand: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}brand']),
       calories: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}calories'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}calories'])!,
       protein: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}protein'])!,
       carbs: attachedDatabase.typeMapping
@@ -18891,7 +18891,7 @@ class UserFoodOverride extends DataClass
   final String barcode;
   final String name;
   final String? brand;
-  final int calories;
+  final double calories;
   final double protein;
   final double carbs;
   final double fat;
@@ -18949,7 +18949,7 @@ class UserFoodOverride extends DataClass
     if (!nullToAbsent || brand != null) {
       map['brand'] = Variable<String>(brand);
     }
-    map['calories'] = Variable<int>(calories);
+    map['calories'] = Variable<double>(calories);
     map['protein'] = Variable<double>(protein);
     map['carbs'] = Variable<double>(carbs);
     map['fat'] = Variable<double>(fat);
@@ -19055,7 +19055,7 @@ class UserFoodOverride extends DataClass
       barcode: serializer.fromJson<String>(json['barcode']),
       name: serializer.fromJson<String>(json['name']),
       brand: serializer.fromJson<String?>(json['brand']),
-      calories: serializer.fromJson<int>(json['calories']),
+      calories: serializer.fromJson<double>(json['calories']),
       protein: serializer.fromJson<double>(json['protein']),
       carbs: serializer.fromJson<double>(json['carbs']),
       fat: serializer.fromJson<double>(json['fat']),
@@ -19089,7 +19089,7 @@ class UserFoodOverride extends DataClass
       'barcode': serializer.toJson<String>(barcode),
       'name': serializer.toJson<String>(name),
       'brand': serializer.toJson<String?>(brand),
-      'calories': serializer.toJson<int>(calories),
+      'calories': serializer.toJson<double>(calories),
       'protein': serializer.toJson<double>(protein),
       'carbs': serializer.toJson<double>(carbs),
       'fat': serializer.toJson<double>(fat),
@@ -19119,7 +19119,7 @@ class UserFoodOverride extends DataClass
           String? barcode,
           String? name,
           Value<String?> brand = const Value.absent(),
-          int? calories,
+          double? calories,
           double? protein,
           double? carbs,
           double? fat,
@@ -19316,7 +19316,7 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
   final Value<String> barcode;
   final Value<String> name;
   final Value<String?> brand;
-  final Value<int> calories;
+  final Value<double> calories;
   final Value<double> protein;
   final Value<double> carbs;
   final Value<double> fat;
@@ -19369,7 +19369,7 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     required String barcode,
     required String name,
     this.brand = const Value.absent(),
-    required int calories,
+    required double calories,
     required double protein,
     required double carbs,
     required double fat,
@@ -19401,7 +19401,7 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     Expression<String>? barcode,
     Expression<String>? name,
     Expression<String>? brand,
-    Expression<int>? calories,
+    Expression<double>? calories,
     Expression<double>? protein,
     Expression<double>? carbs,
     Expression<double>? fat,
@@ -19459,7 +19459,7 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
       Value<String>? barcode,
       Value<String>? name,
       Value<String?>? brand,
-      Value<int>? calories,
+      Value<double>? calories,
       Value<double>? protein,
       Value<double>? carbs,
       Value<double>? fat,
@@ -19534,7 +19534,7 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
       map['brand'] = Variable<String>(brand.value);
     }
     if (calories.present) {
-      map['calories'] = Variable<int>(calories.value);
+      map['calories'] = Variable<double>(calories.value);
     }
     if (protein.present) {
       map['protein'] = Variable<double>(protein.value);
@@ -28682,7 +28682,7 @@ typedef $$ProductsTableCreateCompanionBuilder = ProductsCompanion Function({
   Value<String?> nameDe,
   Value<String?> nameEn,
   Value<String?> brand,
-  required int calories,
+  required double calories,
   required double protein,
   required double carbs,
   required double fat,
@@ -28719,7 +28719,7 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<String?> nameDe,
   Value<String?> nameEn,
   Value<String?> brand,
-  Value<int> calories,
+  Value<double> calories,
   Value<double> protein,
   Value<double> carbs,
   Value<double> fat,
@@ -28818,7 +28818,7 @@ class $$ProductsTableFilterComposer
   ColumnFilters<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get calories => $composableBuilder(
+  ColumnFilters<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get protein => $composableBuilder(
@@ -28980,7 +28980,7 @@ class $$ProductsTableOrderingComposer
   ColumnOrderings<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get calories => $composableBuilder(
+  ColumnOrderings<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get protein => $composableBuilder(
@@ -29101,7 +29101,7 @@ class $$ProductsTableAnnotationComposer
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
 
-  GeneratedColumn<int> get calories =>
+  GeneratedColumn<double> get calories =>
       $composableBuilder(column: $table.calories, builder: (column) => column);
 
   GeneratedColumn<double> get protein =>
@@ -29252,7 +29252,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<String?> nameDe = const Value.absent(),
             Value<String?> nameEn = const Value.absent(),
             Value<String?> brand = const Value.absent(),
-            Value<int> calories = const Value.absent(),
+            Value<double> calories = const Value.absent(),
             Value<double> protein = const Value.absent(),
             Value<double> carbs = const Value.absent(),
             Value<double> fat = const Value.absent(),
@@ -29326,7 +29326,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<String?> nameDe = const Value.absent(),
             Value<String?> nameEn = const Value.absent(),
             Value<String?> brand = const Value.absent(),
-            required int calories,
+            required double calories,
             required double protein,
             required double carbs,
             required double fat,
@@ -29461,7 +29461,7 @@ typedef $$OffProductsArchiveTableCreateCompanionBuilder
   required String barcode,
   required String productName,
   Value<String?> brand,
-  required int calories,
+  required double calories,
   required double protein,
   required double carbs,
   required double fat,
@@ -29489,7 +29489,7 @@ typedef $$OffProductsArchiveTableUpdateCompanionBuilder
   Value<String> barcode,
   Value<String> productName,
   Value<String?> brand,
-  Value<int> calories,
+  Value<double> calories,
   Value<double> protein,
   Value<double> carbs,
   Value<double> fat,
@@ -29564,7 +29564,7 @@ class $$OffProductsArchiveTableFilterComposer
   ColumnFilters<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get calories => $composableBuilder(
+  ColumnFilters<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get protein => $composableBuilder(
@@ -29674,7 +29674,7 @@ class $$OffProductsArchiveTableOrderingComposer
   ColumnOrderings<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get calories => $composableBuilder(
+  ColumnOrderings<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get protein => $composableBuilder(
@@ -29763,7 +29763,7 @@ class $$OffProductsArchiveTableAnnotationComposer
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
 
-  GeneratedColumn<int> get calories =>
+  GeneratedColumn<double> get calories =>
       $composableBuilder(column: $table.calories, builder: (column) => column);
 
   GeneratedColumn<double> get protein =>
@@ -29869,7 +29869,7 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             Value<String> barcode = const Value.absent(),
             Value<String> productName = const Value.absent(),
             Value<String?> brand = const Value.absent(),
-            Value<int> calories = const Value.absent(),
+            Value<double> calories = const Value.absent(),
             Value<double> protein = const Value.absent(),
             Value<double> carbs = const Value.absent(),
             Value<double> fat = const Value.absent(),
@@ -29923,7 +29923,7 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             required String barcode,
             required String productName,
             Value<String?> brand = const Value.absent(),
-            required int calories,
+            required double calories,
             required double protein,
             required double carbs,
             required double fat,
@@ -32000,9 +32000,9 @@ typedef $$FluidLogsTableCreateCompanionBuilder = FluidLogsCompanion Function({
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   required DateTime consumedAt,
-  required int amountMl,
+  required double amountMl,
   required String name,
-  Value<int?> kcal,
+  Value<double?> kcal,
   Value<double?> sugarPer100ml,
   Value<double?> carbsPer100ml,
   Value<double?> caffeinePer100ml,
@@ -32015,9 +32015,9 @@ typedef $$FluidLogsTableUpdateCompanionBuilder = FluidLogsCompanion Function({
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<DateTime> consumedAt,
-  Value<int> amountMl,
+  Value<double> amountMl,
   Value<String> name,
-  Value<int?> kcal,
+  Value<double?> kcal,
   Value<double?> sugarPer100ml,
   Value<double?> carbsPer100ml,
   Value<double?> caffeinePer100ml,
@@ -32072,13 +32072,13 @@ class $$FluidLogsTableFilterComposer
   ColumnFilters<DateTime> get consumedAt => $composableBuilder(
       column: $table.consumedAt, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get amountMl => $composableBuilder(
+  ColumnFilters<double> get amountMl => $composableBuilder(
       column: $table.amountMl, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get kcal => $composableBuilder(
+  ColumnFilters<double> get kcal => $composableBuilder(
       column: $table.kcal, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get sugarPer100ml => $composableBuilder(
@@ -32139,13 +32139,13 @@ class $$FluidLogsTableOrderingComposer
   ColumnOrderings<DateTime> get consumedAt => $composableBuilder(
       column: $table.consumedAt, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get amountMl => $composableBuilder(
+  ColumnOrderings<double> get amountMl => $composableBuilder(
       column: $table.amountMl, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get kcal => $composableBuilder(
+  ColumnOrderings<double> get kcal => $composableBuilder(
       column: $table.kcal, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get sugarPer100ml => $composableBuilder(
@@ -32208,13 +32208,13 @@ class $$FluidLogsTableAnnotationComposer
   GeneratedColumn<DateTime> get consumedAt => $composableBuilder(
       column: $table.consumedAt, builder: (column) => column);
 
-  GeneratedColumn<int> get amountMl =>
+  GeneratedColumn<double> get amountMl =>
       $composableBuilder(column: $table.amountMl, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<int> get kcal =>
+  GeneratedColumn<double> get kcal =>
       $composableBuilder(column: $table.kcal, builder: (column) => column);
 
   GeneratedColumn<double> get sugarPer100ml => $composableBuilder(
@@ -32276,9 +32276,9 @@ class $$FluidLogsTableTableManager extends RootTableManager<
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<DateTime> consumedAt = const Value.absent(),
-            Value<int> amountMl = const Value.absent(),
+            Value<double> amountMl = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<int?> kcal = const Value.absent(),
+            Value<double?> kcal = const Value.absent(),
             Value<double?> sugarPer100ml = const Value.absent(),
             Value<double?> carbsPer100ml = const Value.absent(),
             Value<double?> caffeinePer100ml = const Value.absent(),
@@ -32306,9 +32306,9 @@ class $$FluidLogsTableTableManager extends RootTableManager<
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             required DateTime consumedAt,
-            required int amountMl,
+            required double amountMl,
             required String name,
-            Value<int?> kcal = const Value.absent(),
+            Value<double?> kcal = const Value.absent(),
             Value<double?> sugarPer100ml = const Value.absent(),
             Value<double?> carbsPer100ml = const Value.absent(),
             Value<double?> caffeinePer100ml = const Value.absent(),
@@ -33603,7 +33603,7 @@ typedef $$MealItemsTableCreateCompanionBuilder = MealItemsCompanion Function({
   required String mealId,
   Value<String?> productBarcode,
   Value<String?> productId,
-  required int quantityInGrams,
+  required double quantityInGrams,
 });
 typedef $$MealItemsTableUpdateCompanionBuilder = MealItemsCompanion Function({
   Value<int> localId,
@@ -33614,7 +33614,7 @@ typedef $$MealItemsTableUpdateCompanionBuilder = MealItemsCompanion Function({
   Value<String> mealId,
   Value<String?> productBarcode,
   Value<String?> productId,
-  Value<int> quantityInGrams,
+  Value<double> quantityInGrams,
 });
 
 final class $$MealItemsTableReferences
@@ -33678,7 +33678,7 @@ class $$MealItemsTableFilterComposer
       column: $table.productBarcode,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get quantityInGrams => $composableBuilder(
+  ColumnFilters<double> get quantityInGrams => $composableBuilder(
       column: $table.quantityInGrams,
       builder: (column) => ColumnFilters(column));
 
@@ -33751,7 +33751,7 @@ class $$MealItemsTableOrderingComposer
       column: $table.productBarcode,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get quantityInGrams => $composableBuilder(
+  ColumnOrderings<double> get quantityInGrams => $composableBuilder(
       column: $table.quantityInGrams,
       builder: (column) => ColumnOrderings(column));
 
@@ -33823,7 +33823,7 @@ class $$MealItemsTableAnnotationComposer
   GeneratedColumn<String> get productBarcode => $composableBuilder(
       column: $table.productBarcode, builder: (column) => column);
 
-  GeneratedColumn<int> get quantityInGrams => $composableBuilder(
+  GeneratedColumn<double> get quantityInGrams => $composableBuilder(
       column: $table.quantityInGrams, builder: (column) => column);
 
   $$MealsTableAnnotationComposer get mealId {
@@ -33898,7 +33898,7 @@ class $$MealItemsTableTableManager extends RootTableManager<
             Value<String> mealId = const Value.absent(),
             Value<String?> productBarcode = const Value.absent(),
             Value<String?> productId = const Value.absent(),
-            Value<int> quantityInGrams = const Value.absent(),
+            Value<double> quantityInGrams = const Value.absent(),
           }) =>
               MealItemsCompanion(
             localId: localId,
@@ -33920,7 +33920,7 @@ class $$MealItemsTableTableManager extends RootTableManager<
             required String mealId,
             Value<String?> productBarcode = const Value.absent(),
             Value<String?> productId = const Value.absent(),
-            required int quantityInGrams,
+            required double quantityInGrams,
           }) =>
               MealItemsCompanion.insert(
             localId: localId,
@@ -35674,7 +35674,7 @@ typedef $$UserFoodOverridesTableCreateCompanionBuilder
   required String barcode,
   required String name,
   Value<String?> brand,
-  required int calories,
+  required double calories,
   required double protein,
   required double carbs,
   required double fat,
@@ -35702,7 +35702,7 @@ typedef $$UserFoodOverridesTableUpdateCompanionBuilder
   Value<String> barcode,
   Value<String> name,
   Value<String?> brand,
-  Value<int> calories,
+  Value<double> calories,
   Value<double> protein,
   Value<double> carbs,
   Value<double> fat,
@@ -35780,7 +35780,7 @@ class $$UserFoodOverridesTableFilterComposer
   ColumnFilters<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get calories => $composableBuilder(
+  ColumnFilters<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get protein => $composableBuilder(
@@ -35894,7 +35894,7 @@ class $$UserFoodOverridesTableOrderingComposer
   ColumnOrderings<String> get brand => $composableBuilder(
       column: $table.brand, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get calories => $composableBuilder(
+  ColumnOrderings<double> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get protein => $composableBuilder(
@@ -35985,7 +35985,7 @@ class $$UserFoodOverridesTableAnnotationComposer
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
 
-  GeneratedColumn<int> get calories =>
+  GeneratedColumn<double> get calories =>
       $composableBuilder(column: $table.calories, builder: (column) => column);
 
   GeneratedColumn<double> get protein =>
@@ -36094,7 +36094,7 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             Value<String> barcode = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> brand = const Value.absent(),
-            Value<int> calories = const Value.absent(),
+            Value<double> calories = const Value.absent(),
             Value<double> protein = const Value.absent(),
             Value<double> carbs = const Value.absent(),
             Value<double> fat = const Value.absent(),
@@ -36148,7 +36148,7 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             required String barcode,
             required String name,
             Value<String?> brand = const Value.absent(),
-            required int calories,
+            required double calories,
             required double protein,
             required double carbs,
             required double fat,

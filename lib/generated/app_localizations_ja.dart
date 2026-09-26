@@ -946,7 +946,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String foodListSubtitle(int grams, String time) {
+  String foodListSubtitle(num grams, String time) {
     return '${grams}g - $time';
   }
 
@@ -5711,7 +5711,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get nutritionPer100g => '100gあたりの栄養成分';
 
   @override
-  String nutritionPerPortion(int grams) {
+  String nutritionPerPortion(num grams) {
     return '1食分（${grams}g）あたりの栄養成分';
   }
 

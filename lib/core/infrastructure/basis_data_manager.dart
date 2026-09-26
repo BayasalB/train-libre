@@ -2201,7 +2201,7 @@ class BasisDataManager {
       nameIt: drift.Value(rawNameIt),
       nameJa: drift.Value(rawNameJa),
       brand: drift.Value(_parseString(row['brand'])),
-      calories: drift.Value(_parseInt(row['calories'])),
+      calories: drift.Value(_parseDouble(row['calories'])),
       protein: drift.Value(_parseDouble(row['protein'])),
       carbs: drift.Value(_parseDouble(row['carbs'])),
       fat: drift.Value(_parseDouble(row['fat'])),

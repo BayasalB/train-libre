@@ -57,7 +57,7 @@ class FoodItemSearchTile extends StatelessWidget {
           children: [
             Text(
               l10n
-                  .foodItemSubtitle('', item.calories)
+                  .foodItemSubtitle('', item.calories.round())
                   .replaceFirst(RegExp(r'^.*?-\s*'), ''),
             ),
             if (item.brand.isNotEmpty &&

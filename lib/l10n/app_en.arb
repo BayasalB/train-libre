@@ -342,7 +342,7 @@
   "@foodListSubtitle": {
     "placeholders": {
       "grams": {
-        "type": "int"
+        "type": "num"
       },
       "time": {
         "type": "String"
@@ -2746,7 +2746,7 @@
   "@nutritionPerPortion": {
     "placeholders": {
       "grams": {
-        "type": "int"
+        "type": "num"
       }
     }
   },

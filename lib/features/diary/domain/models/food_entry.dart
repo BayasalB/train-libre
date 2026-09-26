@@ -14,7 +14,7 @@ class FoodEntry {
   final DateTime timestamp;
 
   /// The amount consumed in grams.
-  final int quantityInGrams;
+  final double quantityInGrams;
 
   /// The type of meal (e.g., "Breakfast", "Lunch", "Dinner", "Snack").
   final String mealType;
@@ -33,12 +33,12 @@ class FoodEntry {
     this.id,
     required this.barcode,
     required this.timestamp,
-    required this.quantityInGrams,
+    required num quantityInGrams,
     required this.mealType,
     this.updatedAt,
     this.archiveLocalId,
     this.mealEntryId,
-  });
+  }) : quantityInGrams = quantityInGrams.toDouble();
 
   /// Converts the [FoodEntry] instance to a Map for database storage.
   Map<String, dynamic> toMap() {
@@ -57,7 +57,7 @@ class FoodEntry {
     int? id,
     String? barcode,
     DateTime? timestamp,
-    int? quantityInGrams,
+    double? quantityInGrams,
     String? mealType,
     DateTime? updatedAt,
     int? archiveLocalId,

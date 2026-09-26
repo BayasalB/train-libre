@@ -84,7 +84,7 @@ class CalculateDailyNutritionUseCase {
     }
 
     // Food and cache properties for O(1) quantity matching
-    final Map<int, List<int>> fluidFoodSignatures = {};
+    final Map<double, List<int>> fluidFoodSignatures = {};
     final Map<String, List<TrackedFoodItem>> groupedEntries = {
       'mealtypeBreakfast': [],
       'mealtypeLunch': [],
@@ -108,14 +108,14 @@ class CalculateDailyNutritionUseCase {
           }
         }
 
-        final ratio = entry.quantityInGrams / 100.0;
-        summary.calories += (foodItem.calories * ratio).round();
-        summary.protein += (foodItem.protein * ratio).round();
-        summary.carbs += (foodItem.carbs * ratio).round();
-        summary.fat += (foodItem.fat * ratio).round();
-        summary.sugar += (foodItem.sugar ?? 0) * ratio;
-        summary.fiber += (foodItem.fiber ?? 0) * ratio;
-        summary.salt += (foodItem.salt ?? 0) * ratio;
+        final nutrition = foodItem.nutritionFor(entry.quantityInGrams);
+        summary.calories += nutrition.calories;
+        summary.protein += nutrition.protein;
+        summary.carbs += nutrition.carbs;
+        summary.fat += nutrition.fat;
+        summary.sugar += nutrition.sugar;
+        summary.fiber += nutrition.fiber;
+        summary.salt += nutrition.salt;
 
         final trackedItem = TrackedFoodItem(entry: entry, item: foodItem);
         groupedEntries[entry.mealType]?.add(trackedItem);
@@ -151,7 +151,7 @@ class CalculateDailyNutritionUseCase {
       summary.calories += entry.kcal ?? 0;
       final factor = entry.quantityInMl / 100.0;
       summary.sugar += (entry.sugarPer100ml ?? 0) * factor;
-      summary.carbs += ((entry.carbsPer100ml ?? 0) * factor).round();
+      summary.carbs += (entry.carbsPer100ml ?? 0) * factor;
     }
 
     for (var meal in groupedEntries.values) {
@@ -221,13 +221,12 @@ class CalculateDailyNutritionUseCase {
         caffeineSupplement = s;
       }
 
-      if (unaccountedDoses > 0 && s.id != null &&
+      if (unaccountedDoses > 0 &&
+          s.id != null &&
           todaysDoses.containsKey(s.id) &&
           !trackedSuppIds.contains(s.id)) {
         var supplementToUse = s;
-        if (isCaffeine &&
-            s.dailyGoal == null &&
-            s.dailyLimit == null) {
+        if (isCaffeine && s.dailyGoal == null && s.dailyLimit == null) {
           supplementToUse = Supplement(
             id: s.id,
             code: s.code,
@@ -241,7 +240,8 @@ class CalculateDailyNutritionUseCase {
           );
         }
         trackedSupps.add(
-          TrackedSupplement(supplement: supplementToUse, totalDosedToday: todaysDoses[s.id]!),
+          TrackedSupplement(
+              supplement: supplementToUse, totalDosedToday: todaysDoses[s.id]!),
         );
         trackedSuppIds.add(s.id!);
         unaccountedDoses--;

@@ -1,13 +1,14 @@
 // lib/services/ai_repair_candidate.dart
 
 import '../features/diary/domain/models/food_item.dart';
+import '../features/diary/domain/models/nutrition_values.dart';
 
 /// A compact representation of a real database food entity,
 /// formatted for injection into an AI repair prompt.
 class AiRepairCandidate {
   final String exactName; // The exact DB product name the AI must use
   final String? barcode; // For direct barcode matching after repair
-  final int kcalPer100g;
+  final double kcalPer100g;
   final double proteinPer100g;
   final double carbsPer100g;
   final double fatPer100g;
@@ -26,7 +27,7 @@ class AiRepairCandidate {
   /// Formats this candidate as a single line for prompt injection.
   /// Example: '  - "Hahnchenfleisch, zubereitet" (165 kcal | P31 C0 F4 per 100g) [base]'
   String toPromptLine() {
-    return '  - "$exactName" ($kcalPer100g kcal | '
+    return '  - "$exactName" (${formatFoodQuantity(kcalPer100g)} kcal | '
         'P${proteinPer100g.round()} C${carbsPer100g.round()} '
         'F${fatPer100g.round()} per 100g) [$source]'
         '${barcode == null || barcode!.isEmpty ? '' : ' [id:$barcode]'}';
@@ -44,7 +45,7 @@ class AiRepairCandidate {
     return AiRepairCandidate(
       exactName: food.getLocalizedName(null),
       barcode: food.barcode,
-      kcalPer100g: food.calories.round(),
+      kcalPer100g: food.calories,
       proteinPer100g: food.protein,
       carbsPer100g: food.carbs,
       fatPer100g: food.fat,

@@ -214,7 +214,7 @@ void main() {
             items: [
               AiMealCandidateItem(
                 name: 'Unknown',
-                grams: 100 + attempts,
+                grams: 100.0 + attempts,
               ),
             ],
           );

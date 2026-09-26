@@ -9,10 +9,11 @@ class WaterEntry {
   final DateTime timestamp;
 
   /// The quantity consumed in milliliters.
-  final int quantityInMl;
+  final double quantityInMl;
 
   /// Creates a new [WaterEntry] instance.
-  WaterEntry({this.id, required this.timestamp, required this.quantityInMl});
+  WaterEntry({this.id, required this.timestamp, required num quantityInMl})
+      : quantityInMl = quantityInMl.toDouble();
 
   /// Creates a [WaterEntry] instance from a Map, typically from a database row.
   factory WaterEntry.fromMap(Map<String, dynamic> map) {

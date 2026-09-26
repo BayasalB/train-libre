@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 // lib/features/diary/presentation/meal_entry_screen.dart
 
 import '../data/meal_photo_store.dart';
@@ -72,41 +73,14 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
     _repo ??= context.read<IDiaryRepository>();
   }
 
-  int get _totalKcal {
-    int sum = 0;
-    for (final it in _items) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      sum += (it.item.calories * factor).round();
-    }
-    return sum;
-  }
-
-  double get _totalProtein {
-    double sum = 0;
-    for (final it in _items) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      sum += it.item.protein * factor;
-    }
-    return sum;
-  }
-
-  double get _totalCarbs {
-    double sum = 0;
-    for (final it in _items) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      sum += it.item.carbs * factor;
-    }
-    return sum;
-  }
-
-  double get _totalFat {
-    double sum = 0;
-    for (final it in _items) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      sum += it.item.fat * factor;
-    }
-    return sum;
-  }
+  NutritionValues get _totals => _items.fold(
+        const NutritionValues(),
+        (sum, item) => sum + item.item.nutritionFor(item.entry.quantityInGrams),
+      );
+  double get _totalKcal => _totals.calories;
+  double get _totalProtein => _totals.protein;
+  double get _totalCarbs => _totals.carbs;
+  double get _totalFat => _totals.fat;
 
   String _getLocalizedMealName(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
@@ -138,7 +112,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
     setState(() {
       final current = _items[index];
       final newQuantity =
-          (current.entry.quantityInGrams + delta).clamp(5, 5000);
+          (current.entry.quantityInGrams + delta).clamp(5, 5000).toDouble();
       _items[index] = TrackedFoodItem(
         item: current.item,
         entry: current.entry.copyWith(quantityInGrams: newQuantity),
@@ -154,7 +128,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
         TextEditingController(text: '${current.entry.quantityInGrams}');
     final l10n = AppLocalizations.of(context)!;
 
-    final result = await showGlassBottomMenu<int>(
+    final result = await showGlassBottomMenu<double>(
       context: context,
       title: current.item.name,
       contentBuilder: (ctx, close) {
@@ -165,7 +139,8 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
             TextField(
               controller: controller,
               autofocus: true,
-              keyboardType: TextInputType.number,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: l10n.mealDetailAmountInGrams,
                 suffixText: 'g',
@@ -178,7 +153,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
             const SizedBox(height: DesignConstants.spacingM),
             AppButton.primary(
               onPressed: () {
-                final val = int.tryParse(controller.text);
+                final val = parseNutritionNumber(controller.text);
                 Navigator.of(ctx).pop(val);
               },
               label: l10n.mealDetailApply,
@@ -714,7 +689,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '$_totalKcal kcal',
+                                    '${_totalKcal.round()} kcal',
                                     style: TextStyle(
                                       fontFamily: 'Plus Jakarta Sans',
                                       fontWeight: FontWeight.w800,
@@ -725,15 +700,17 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                   const Spacer(),
                                   _buildMacroPill(
                                       'P',
-                                      '${_totalProtein.round()}g',
+                                      '${_totalProtein.toStringAsFixed(1)}g',
                                       const Color(0xFFFF453A)),
                                   const SizedBox(width: 8),
                                   _buildMacroPill(
                                       'C',
-                                      '${_totalCarbs.round()}g',
+                                      '${_totalCarbs.toStringAsFixed(1)}g',
                                       const Color(0xFF30D158)),
                                   const SizedBox(width: 8),
-                                  _buildMacroPill('F', '${_totalFat.round()}g',
+                                  _buildMacroPill(
+                                      'F',
+                                      '${_totalFat.toStringAsFixed(1)}g',
                                       const Color(0xFFBF5AF2)),
                                 ],
                               ),
@@ -757,8 +734,8 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                     ..._items.asMap().entries.map((entry) {
                                       final idx = entry.key;
                                       final tracked = entry.value;
-                                      final factor =
-                                          tracked.entry.quantityInGrams / 100.0;
+                                      final scaled = tracked.item.nutritionFor(
+                                          tracked.entry.quantityInGrams);
 
                                       return MealReviewComparisonCard(
                                         dismissibleKey: ValueKey(
@@ -772,11 +749,10 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                         matchedFood: tracked.item,
                                         issues: const [],
                                         nutrition: AiNutritionTotals(
-                                          kcal: tracked.item.calories * factor,
-                                          protein:
-                                              tracked.item.protein * factor,
-                                          carbs: tracked.item.carbs * factor,
-                                          fat: tracked.item.fat * factor,
+                                          kcal: scaled.calories,
+                                          protein: scaled.protein,
+                                          carbs: scaled.carbs,
+                                          fat: scaled.fat,
                                         ),
                                         onDismissed: () => _deleteItem(tracked),
                                         onTap: () => _openItemDetail(tracked),
@@ -806,7 +782,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                         (item) => MealIngredientSummaryItem(
                                           name: item.item.name,
                                           grams: item.entry.quantityInGrams,
-                                          kcal: item.calculatedCalories,
+                                          kcal: item.calculatedCalories.round(),
                                         ),
                                       )
                                       .toList(growable: false),

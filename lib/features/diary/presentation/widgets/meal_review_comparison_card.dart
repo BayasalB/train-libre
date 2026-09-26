@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 import 'package:flutter/material.dart';
 import '../../../../generated/app_localizations.dart';
 import '../../../../services/ai_meal_validation.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 class MealReviewComparisonCard extends StatelessWidget {
   final Key dismissibleKey;
   final String name;
-  final int estimatedGrams;
+  final double estimatedGrams;
   final double confidence;
 
   /// Optional badge shown before the name — the numbered pin that matches the
@@ -283,7 +284,7 @@ class MealReviewComparisonCard extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 child: Text(
-                                  '${estimatedGrams}g',
+                                  '${formatFoodQuantity(estimatedGrams)}g',
                                   style: theme.textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),

@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 // lib/features/diary/presentation/widgets/meal_entry_card.dart
 
 import 'dart:io';
@@ -84,10 +85,9 @@ class _MealEntryCardState extends State<MealEntryCard> {
         isDark ? const Color(0xFF33332E) : const Color(0xFFD6D6C8);
 
     // Compute totals
-    int totalKcal = 0;
+    double totalKcal = 0;
     for (final it in widget.items) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      totalKcal += (it.item.calories * factor).round();
+      totalKcal += it.item.nutritionFor(it.entry.quantityInGrams).calories;
     }
 
     final timeStr = DateFormat('HH:mm').format(widget.mealEntry.consumedAt);
@@ -217,7 +217,7 @@ class _MealEntryCardState extends State<MealEntryCard> {
                         SizedBox(
                           width: kDiaryEnergyColumnWidth,
                           child: Text(
-                            '$totalKcal kcal',
+                            '${totalKcal.round()} kcal',
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
@@ -289,12 +289,13 @@ class _MealEntryCardState extends State<MealEntryCard> {
                                     Key('meal_item_${tracked.entry.id}'),
                                 onEdit: () => widget.onEditItem?.call(tracked),
                                 onDelete: () => tracked.entry.id != null
-                                    ? widget.onDeleteItem?.call(tracked.entry.id!)
+                                    ? widget.onDeleteItem
+                                        ?.call(tracked.entry.id!)
                                     : null,
                                 child: DiaryFoodRow(
                                   name: tracked.item.name,
                                   amountLabel:
-                                      '${tracked.entry.quantityInGrams} g',
+                                      '${formatFoodQuantity(tracked.entry.quantityInGrams)} g',
                                   energyLabel: '$itemKcal kcal',
                                   isNested: true,
                                 ),

@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../data/sources/product_local_data_source.dart';
@@ -59,7 +60,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   bool _isLoading = false;
 
   late FoodItem _displayItem;
-  int? _trackedQuantity;
+  double? _trackedQuantity;
   bool get _hasPortionInfo => _trackedQuantity != null;
 
   /// True when the food item carries a declared serving size > 1g.
@@ -98,7 +99,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       _showPer100g = _trackedQuantity == 0;
     } else {
       _displayItem = widget.foodItem!;
-      _trackedQuantity = _displayItem.productQuantity?.round();
+      _trackedQuantity = _displayItem.productQuantity;
       _showPer100g = _trackedQuantity == null || _trackedQuantity == 0;
     }
     _checkIfFavorite();
@@ -149,7 +150,8 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
         'category_key':
             _catCtrl.text.trim().isEmpty ? null : _catCtrl.text.trim(),
         // Nutrients
-        'calories_100g': int.tryParse(_calCtrl.text.trim()),
+        'calories_100g':
+            double.tryParse(_calCtrl.text.trim().replaceAll(',', '.')),
         'protein_100g': double.tryParse(_proCtrl.text.trim()),
         'carbs_100g': double.tryParse(_carbCtrl.text.trim()),
         'fat_100g': double.tryParse(_fatCtrl.text.trim()),
@@ -254,7 +256,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
     if (_showPer100g || !_hasPortionInfo) {
       return valuePer100g;
     }
-    return (valuePer100g / 100 * _trackedQuantity!);
+    return scaleNutritionValue(valuePer100g, _trackedQuantity!);
   }
 
   String _getCopyPrefix(String languageCode) {
@@ -663,7 +665,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             ? l10n.nutritionPer100g
                             : l10n.nutritionPerPortion(
                                 _trackedQuantity ??
-                                    _displayItem.productQuantity?.round() ??
+                                    _displayItem.productQuantity ??
                                     100,
                               ),
                         style: textTheme.titleLarge,

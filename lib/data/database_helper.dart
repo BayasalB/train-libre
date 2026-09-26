@@ -225,7 +225,7 @@ class DatabaseHelper {
       diaryLocalDataSource.deleteFluidEntryByLinkedFoodId(id);
   Future<db.DailyGoalsHistoryData?> getGoalsForDate(DateTime date) =>
       diaryLocalDataSource.getGoalsForDate(date);
-  Future<Map<String, int>> getRemainingMacrosForDate(DateTime date) =>
+  Future<Map<String, double>> getRemainingMacrosForDate(DateTime date) =>
       diaryLocalDataSource.getRemainingMacrosForDate(date);
   Future<List<FoodEntry>> getAllFoodEntries() =>
       diaryLocalDataSource.getAllFoodEntries();

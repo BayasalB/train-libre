@@ -1692,7 +1692,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{grams}g - {time}'**
-  String foodListSubtitle(int grams, String time);
+  String foodListSubtitle(num grams, String time);
 
   /// No description provided for @foodListTrailingKcal.
   ///
@@ -10331,7 +10331,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Nutrition per Portion ({grams}g)'**
-  String nutritionPerPortion(int grams);
+  String nutritionPerPortion(num grams);
 
   /// No description provided for @workoutConflictTitle.
   ///

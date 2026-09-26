@@ -50,7 +50,7 @@ class MealCardNutritionTotals {
   });
 
   final int ingredientCount;
-  final int kcal;
+  final double kcal;
   final double carbs;
   final double fat;
   final double protein;
@@ -60,7 +60,7 @@ MealCardNutritionTotals calculateMealCardNutritionTotals({
   required List<Map<String, dynamic>> items,
   required Map<String, FoodItem> productsByBarcode,
 }) {
-  var kcal = 0;
+  var kcal = 0.0;
   var carbs = 0.0;
   var fat = 0.0;
   var protein = 0.0;
@@ -72,11 +72,11 @@ MealCardNutritionTotals calculateMealCardNutritionTotals({
     final foodItem = productsByBarcode[barcode];
     if (foodItem == null) continue;
 
-    final factor = quantity / 100.0;
-    kcal += (foodItem.calories * factor).round();
-    carbs += foodItem.carbs * factor;
-    fat += foodItem.fat * factor;
-    protein += foodItem.protein * factor;
+    final nutrition = foodItem.nutritionFor(quantity);
+    kcal += nutrition.calories;
+    carbs += nutrition.carbs;
+    fat += nutrition.fat;
+    protein += nutrition.protein;
   }
 
   return MealCardNutritionTotals(
@@ -597,7 +597,9 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                             sourceContext: fabCtx,
                             sourceBuilder: (_) => buildFab(),
                             onSourceVisibilityChanged: (hidden) {
-                              if (mounted) setState(() => _isFabHidden = hidden);
+                              if (mounted) {
+                                setState(() => _isFabHidden = hidden);
+                              }
                             },
                           );
                         } else {
@@ -605,7 +607,9 @@ class _AddFoodScreenState extends State<AddFoodScreen>
                             sourceContext: fabCtx,
                             sourceBuilder: (_) => buildFab(),
                             onSourceVisibilityChanged: (hidden) {
-                              if (mounted) setState(() => _isFabHidden = hidden);
+                              if (mounted) {
+                                setState(() => _isFabHidden = hidden);
+                              }
                             },
                           );
                         }
@@ -1167,7 +1171,8 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           onSave: (date, mealType, quantities) async {
             for (final it in rawItems) {
               final bc = it['barcode'] as String;
-              final qty = quantities[bc] ?? (it['quantity_in_grams'] as int);
+              final qty =
+                  quantities[bc] ?? (it['quantity_in_grams'] as num).toDouble();
 
               final newFoodEntryId =
                   await DatabaseHelper.instance.insertFoodEntry(

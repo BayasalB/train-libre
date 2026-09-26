@@ -150,10 +150,10 @@ class AiSuggestedItem {
   String name;
 
   /// Estimated weight in grams.
-  int estimatedGrams;
+  double estimatedGrams;
 
   /// The visible portion when [estimatedGrams] is a raw-equivalent amount.
-  int? servedGrams;
+  double? servedGrams;
 
   /// Confidence score between 0.0 and 1.0.
   double confidence;
@@ -178,8 +178,8 @@ class AiSuggestedItem {
   factory AiSuggestedItem.fromJson(Map<String, dynamic> json) {
     return AiSuggestedItem(
       name: json['name'] as String? ?? 'Unknown',
-      estimatedGrams: (json['estimatedGrams'] as num?)?.toInt() ?? 100,
-      servedGrams: (json['servedGrams'] as num?)?.toInt(),
+      estimatedGrams: (json['estimatedGrams'] as num?)?.toDouble() ?? 100,
+      servedGrams: (json['servedGrams'] as num?)?.toDouble(),
       confidence:
           (json['confidence'] as num?)?.toDouble().clamp(0.0, 1.0) ?? 0.5,
       matchedBarcode: json['matchedBarcode'] as String?,

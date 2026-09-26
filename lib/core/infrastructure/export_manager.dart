@@ -25,7 +25,7 @@ class NutritionRowDto {
   final String timestampStr;
   final String name;
   final String type;
-  final int quantity;
+  final double quantity;
   final double calories;
   final double protein;
   final double carbs;
@@ -33,7 +33,7 @@ class NutritionRowDto {
   final double sugar;
   final double fiber;
   final double caffeine;
-  final int water;
+  final double water;
 
   const NutritionRowDto({
     required this.timestampStr,
@@ -310,17 +310,18 @@ class ExportManager {
           : legacyProductsMap[entry.barcode];
       if (p != null) {
         final ratio = entry.quantityInGrams / 100.0;
+        final nutrition = p.nutritionFor(entry.quantityInGrams);
         nutritionRows.add(NutritionRowDto(
           timestampStr: DateFormat('yyyy-MM-dd HH:mm').format(entry.timestamp),
           name: p.name,
           type: 'Essen',
-          quantity: entry.quantityInGrams.toInt(),
-          calories: p.calories * ratio,
-          protein: p.protein * ratio,
-          carbs: p.carbs * ratio,
-          fat: p.fat * ratio,
-          sugar: (p.sugar ?? 0.0) * ratio,
-          fiber: (p.fiber ?? 0.0) * ratio,
+          quantity: entry.quantityInGrams,
+          calories: nutrition.calories,
+          protein: nutrition.protein,
+          carbs: nutrition.carbs,
+          fat: nutrition.fat,
+          sugar: nutrition.sugar,
+          fiber: nutrition.fiber,
           caffeine:
               (p.caffeineMgPer100g ?? p.caffeineMgPer100ml ?? 0.0) * ratio,
           water: 0,
@@ -334,15 +335,15 @@ class ExportManager {
         timestampStr: DateFormat('yyyy-MM-dd HH:mm').format(entry.timestamp),
         name: entry.name,
         type: 'Trinken',
-        quantity: entry.quantityInMl.toInt(),
-        calories: (entry.kcal ?? 0) * ratio,
+        quantity: entry.quantityInMl,
+        calories: entry.kcal ?? 0.0,
         protein: 0.0,
         carbs: (entry.carbsPer100ml ?? 0.0) * ratio,
         fat: 0.0,
         sugar: (entry.sugarPer100ml ?? 0.0) * ratio,
         fiber: 0.0,
         caffeine: (entry.caffeinePer100ml ?? 0.0) * ratio,
-        water: entry.quantityInMl.toInt(),
+        water: entry.quantityInMl,
       ));
     }
 
@@ -623,7 +624,7 @@ class ExportManager {
           nutritionSheet, 0, rowIndex, TextCellValue(rowData.timestampStr));
       writeCell(nutritionSheet, 1, rowIndex, TextCellValue(rowData.name));
       writeCell(nutritionSheet, 2, rowIndex, TextCellValue(rowData.type));
-      writeCell(nutritionSheet, 3, rowIndex, IntCellValue(rowData.quantity));
+      writeCell(nutritionSheet, 3, rowIndex, DoubleCellValue(rowData.quantity));
       writeCell(nutritionSheet, 4, rowIndex, DoubleCellValue(rowData.calories));
       writeCell(nutritionSheet, 5, rowIndex, DoubleCellValue(rowData.protein));
       writeCell(nutritionSheet, 6, rowIndex, DoubleCellValue(rowData.carbs));
@@ -632,7 +633,7 @@ class ExportManager {
       writeCell(nutritionSheet, 9, rowIndex, DoubleCellValue(rowData.fiber));
       writeCell(
           nutritionSheet, 10, rowIndex, DoubleCellValue(rowData.caffeine));
-      writeCell(nutritionSheet, 11, rowIndex, IntCellValue(rowData.water));
+      writeCell(nutritionSheet, 11, rowIndex, DoubleCellValue(rowData.water));
     }
 
     // -------------------------------------------------------------------------

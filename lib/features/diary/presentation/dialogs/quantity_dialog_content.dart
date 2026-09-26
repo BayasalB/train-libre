@@ -15,7 +15,7 @@ import '../meal_editor_screen.dart';
 /// and optional nutrient overrides for liquids.
 class QuantityDialogContent extends StatefulWidget {
   final FoodItem item;
-  final int? initialQuantity;
+  final double? initialQuantity;
   final DateTime? initialTimestamp;
   final String? initialMealType;
   final bool? initialIsLiquid;
@@ -64,19 +64,18 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
     super.initState();
     _quantityController = TextEditingController(
       text: widget.initialQuantity?.toString() ??
-          widget.item.productQuantity?.round().toString() ??
+          widget.item.productQuantity?.toString() ??
           '100',
     );
     _sugarController = TextEditingController(
-      text: widget.initialSugar?.toStringAsFixed(1).replaceAll('.0', '') ??
-          widget.item.sugar?.toStringAsFixed(1).replaceAll('.0', '') ??
+      text: widget.initialSugar?.toString() ??
+          widget.item.sugar?.toString() ??
           '',
     );
     _caffeineController = TextEditingController(
-      text: widget.initialCaffeine?.toStringAsFixed(1).replaceAll('.0', '') ??
+      text: widget.initialCaffeine?.toString() ??
           (widget.item.caffeineMgPer100g ?? widget.item.caffeineMgPer100ml)
-              ?.toStringAsFixed(1)
-              .replaceAll('.0', '') ??
+              ?.toString() ??
           '',
     );
     _selectedDateTime = widget.initialTimestamp ?? DateTime.now();
@@ -163,7 +162,7 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
       children: [
         TextField(
           controller: _quantityController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText:
                 _isLiquid ? l10n.amount_in_milliliters : l10n.amount_in_grams,

@@ -190,9 +190,8 @@ class BodyNutritionAnalyticsDataAdapter {
       final product = entry.archiveLocalId != null
           ? archiveProductsMap[entry.archiveLocalId!]
           : legacyProductsMap[entry.barcode];
-      final caloriesPer100g = product?.calories ?? 0;
-      final amountGrams = entry.quantityInGrams.toDouble();
-      final added = caloriesPer100g * (amountGrams / 100.0);
+      final added =
+          product?.nutritionFor(entry.quantityInGrams).calories ?? 0.0;
       map[day] = (map[day] ?? 0.0) + added;
     }
 

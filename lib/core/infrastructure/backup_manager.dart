@@ -46,7 +46,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 5;
+  static const int currentSchemaVersion = 6;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -1522,10 +1522,12 @@ class BackupManager {
     return null;
   }
 
-  Future<bool> exportNutritionAsCsv() async {
+  /// Builds the same full-precision CSV used by the share/export action.
+  /// Kept separate from platform sharing so the data can be verified offline.
+  Future<String?> buildNutritionCsv() async {
     final entries = await _diaryDb.getAllFoodEntries();
     final fluidEntries = await _diaryDb.getAllFluidEntries();
-    if (entries.isEmpty && fluidEntries.isEmpty) return false;
+    if (entries.isEmpty && fluidEntries.isEmpty) return null;
 
     // O(N) single-pass iteration to extract unique IDs without intermediate list allocations
     final Set<int> archiveIdsSet = {};
@@ -1581,12 +1583,13 @@ class BackupManager {
           : legacyProductsMap[e.barcode];
       if (p != null) {
         final ratio = e.quantityInGrams / 100.0;
-        final calories = p.calories * ratio;
-        final protein = p.protein * ratio;
-        final carbs = p.carbs * ratio;
-        final fat = p.fat * ratio;
-        final sugar = (p.sugar ?? 0.0) * ratio;
-        final fiber = (p.fiber ?? 0.0) * ratio;
+        final nutrition = p.nutritionFor(e.quantityInGrams);
+        final calories = nutrition.calories;
+        final protein = nutrition.protein;
+        final carbs = nutrition.carbs;
+        final fat = nutrition.fat;
+        final sugar = nutrition.sugar;
+        final fiber = nutrition.fiber;
         final caffeine =
             (p.caffeineMgPer100g ?? p.caffeineMgPer100ml ?? 0.0) * ratio;
 
@@ -1596,13 +1599,13 @@ class BackupManager {
           p.name,
           'Essen',
           e.quantityInGrams,
-          calories.toStringAsFixed(1),
-          protein.toStringAsFixed(1),
-          carbs.toStringAsFixed(1),
-          fat.toStringAsFixed(1),
-          sugar.toStringAsFixed(1),
-          fiber.toStringAsFixed(1),
-          caffeine.toStringAsFixed(1),
+          calories.toString(),
+          protein.toString(),
+          carbs.toString(),
+          fat.toString(),
+          sugar.toString(),
+          fiber.toString(),
+          caffeine.toString(),
           0
         ]);
       }
@@ -1610,7 +1613,7 @@ class BackupManager {
 
     for (final f in fluidEntries) {
       final ratio = f.quantityInMl / 100.0;
-      final calories = (f.kcal ?? 0) * ratio;
+      final calories = f.kcal ?? 0.0;
       final carbs = (f.carbsPer100ml ?? 0.0) * ratio;
       final sugar = (f.sugarPer100ml ?? 0.0) * ratio;
       final caffeine = (f.caffeinePer100ml ?? 0.0) * ratio;
@@ -1621,18 +1624,23 @@ class BackupManager {
         f.name,
         'Trinken',
         f.quantityInMl,
-        calories.toStringAsFixed(1),
-        0.0.toStringAsFixed(1),
-        carbs.toStringAsFixed(1),
-        0.0.toStringAsFixed(1),
-        sugar.toStringAsFixed(1),
-        0.0.toStringAsFixed(1),
-        caffeine.toStringAsFixed(1),
+        calories.toString(),
+        0.0.toString(),
+        carbs.toString(),
+        0.0.toString(),
+        sugar.toString(),
+        0.0.toString(),
+        caffeine.toString(),
         f.quantityInMl
       ]);
     }
 
-    final csvData = csv.encode(rows);
+    return csv.encode(rows);
+  }
+
+  Future<bool> exportNutritionAsCsv() async {
+    final csvData = await buildNutritionCsv();
+    if (csvData == null) return false;
     final tempDir = await getTemporaryDirectory();
     final file = File('${tempDir.path}/nutrition_history.csv');
     await file.writeAsString(csvData);

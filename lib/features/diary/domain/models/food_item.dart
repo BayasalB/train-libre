@@ -1,5 +1,6 @@
 // lib/models/food_item.dart
 import 'dart:convert';
+import 'nutrition_values.dart';
 
 import 'package:flutter/widgets.dart'; // Added for BuildContext
 
@@ -41,7 +42,7 @@ class FoodItem {
   final String brand;
 
   /// Calories per 100g or 100ml.
-  final int calories; // pro 100g
+  final double calories; // per 100g/ml, including decimal label values
 
   /// Protein in grams per 100g or 100ml.
   final double protein; // pro 100g
@@ -117,7 +118,7 @@ class FoodItem {
     this.nameIt = '',
     this.nameJa = '',
     this.brand = '',
-    required this.calories,
+    required num calories,
     required this.protein,
     required this.carbs,
     required this.fat,
@@ -138,7 +139,17 @@ class FoodItem {
     this.additivesTags,
     this.productQuantity,
     this.productQuantityUnit,
-  });
+  }) : calories = calories.toDouble();
+
+  NutritionValues nutritionFor(num amount) => NutritionValues(
+        calories: calories,
+        protein: protein,
+        carbs: carbs,
+        fat: fat,
+        sugar: sugar ?? 0,
+        fiber: fiber ?? 0,
+        salt: salt ?? 0,
+      ).forAmount(amount);
 
   /// Returns the name of the food item localized to the user's language.
   ///
@@ -190,7 +201,7 @@ class FoodItem {
       nameIt: map['name_it'] ?? map['nameIt'] ?? map['name'] ?? '',
       nameJa: map['name_ja'] ?? map['nameJa'] ?? map['name'] ?? '',
       brand: map['brand'] ?? '',
-      calories: (map['calories_100g'] as num?)?.round() ?? 0,
+      calories: (map['calories_100g'] as num?)?.toDouble() ?? 0,
       protein: (map['protein_100g'] as num?)?.toDouble() ?? 0.0,
       carbs: (map['carbs_100g'] as num?)?.toDouble() ?? 0.0,
       fat: (map['fat_100g'] as num?)?.toDouble() ?? 0.0,

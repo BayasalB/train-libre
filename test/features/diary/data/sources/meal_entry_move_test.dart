@@ -36,7 +36,7 @@ void main() {
   Future<int> insertProduct({
     required String barcode,
     required String name,
-    int calories = 200,
+    double calories = 200,
   }) async {
     return database.into(database.products).insert(
           db.ProductsCompanion.insert(

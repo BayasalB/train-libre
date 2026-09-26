@@ -60,11 +60,11 @@ class AiMealCandidateItem {
 
   /// Gram amount used against the local nutrition database. For a cooked item
   /// matched to a raw database entry this is the AI-estimated raw equivalent.
-  final int grams;
+  final double grams;
 
   /// Portion visible to the user (for example cooked rice on a plate). Kept
   /// separate from [grams] so validation can reason about both bases.
-  final int? servedGrams;
+  final double? servedGrams;
   final double? confidence;
   final String? matchedBarcode;
   final String? stateHint;
@@ -84,8 +84,8 @@ class AiMealCandidateItem {
 
   AiMealCandidateItem copyWith({
     String? name,
-    int? grams,
-    int? servedGrams,
+    double? grams,
+    double? servedGrams,
     double? confidence,
     String? matchedBarcode,
     String? stateHint,
@@ -138,13 +138,13 @@ class AiNutritionTotals {
     fat: 0,
   );
 
-  factory AiNutritionTotals.fromFood(FoodItem food, int grams) {
-    final factor = grams / 100.0;
+  factory AiNutritionTotals.fromFood(FoodItem food, num grams) {
+    final nutrition = food.nutritionFor(grams);
     return AiNutritionTotals(
-      kcal: food.calories * factor,
-      protein: food.protein * factor,
-      carbs: food.carbs * factor,
-      fat: food.fat * factor,
+      kcal: nutrition.calories,
+      protein: nutrition.protein,
+      carbs: nutrition.carbs,
+      fat: nutrition.fat,
     );
   }
 

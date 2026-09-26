@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 import 'package:flutter/material.dart';
 import '../../../../util/design_constants.dart';
 
@@ -22,7 +23,7 @@ class ConfirmLogMealBottomSheet extends StatefulWidget {
   final void Function(
     DateTime date,
     String mealType,
-    Map<String, int> quantities,
+    Map<String, double> quantities,
   ) onSave;
 
   const ConfirmLogMealBottomSheet({
@@ -163,7 +164,8 @@ class _ConfirmLogMealBottomSheetState extends State<ConfirmLogMealBottomSheet> {
             isDense: true,
             filled: true,
             fillColor: Theme.of(context).brightness == Brightness.dark
-                ? (Theme.of(context).inputDecorationTheme.fillColor ?? const Color(0xFF2C2C2E))
+                ? (Theme.of(context).inputDecorationTheme.fillColor ??
+                    const Color(0xFF2C2C2E))
                 : Colors.white,
           ),
           items: _internalTypes
@@ -233,7 +235,10 @@ class _ConfirmLogMealBottomSheetState extends State<ConfirmLogMealBottomSheet> {
                         filled: true,
                         fillColor:
                             Theme.of(context).brightness == Brightness.dark
-                                ? (Theme.of(context).inputDecorationTheme.fillColor ?? const Color(0xFF2C2C2E))
+                                ? (Theme.of(context)
+                                        .inputDecorationTheme
+                                        .fillColor ??
+                                    const Color(0xFF2C2C2E))
                                 : Colors.black.withValues(alpha: 0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -272,12 +277,12 @@ class _ConfirmLogMealBottomSheetState extends State<ConfirmLogMealBottomSheet> {
               child: AppButton.primary(
                 onPressed: () {
                   // Build final quantities map to hand over
-                  final Map<String, int> finalQuantities = {};
+                  final Map<String, double> finalQuantities = {};
                   for (final it in widget.rawItems) {
                     final bc = it['barcode'] as String;
                     final ctrl = _qtyCtrls[bc]!;
-                    final qty = int.tryParse(ctrl.text.trim()) ??
-                        (it['quantity_in_grams'] as int);
+                    final qty = parseNutritionNumber(ctrl.text.trim()) ??
+                        (it['quantity_in_grams'] as num).toDouble();
                     finalQuantities[bc] = qty;
                   }
 

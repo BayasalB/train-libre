@@ -1,3 +1,4 @@
+import '../../diary/domain/models/nutrition_values.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -386,7 +387,7 @@ class _MainScreenState extends State<MainScreen>
 
         if (result == null || !mounted) return;
 
-        final int quantity = result.quantity;
+        final double quantity = result.quantity;
         final DateTime timestamp = result.timestamp;
         final String mealType = result.mealType;
         final bool isLiquid = result.isLiquid;
@@ -410,7 +411,7 @@ class _MainScreenState extends State<MainScreen>
               timestamp: timestamp,
               quantityInMl: quantity,
               name: foodItem.name,
-              kcal: (foodItem.calories / 100 * quantity).round(),
+              kcal: foodItem.nutritionFor(quantity).calories,
               sugarPer100ml: result.sugarPer100ml,
               carbsPer100ml: result.sugarPer100ml,
               caffeinePer100ml: result.caffeinePer100ml,
@@ -805,7 +806,7 @@ class _MainScreenState extends State<MainScreen>
 
     if (result == null || !mounted) return;
 
-    final int quantity = result.quantity;
+    final double quantity = result.quantity;
     final DateTime timestamp =
         result.timestamp; // This now comes correctly from the dialog.
     final String mealType = result.mealType;
@@ -836,7 +837,7 @@ class _MainScreenState extends State<MainScreen>
           timestamp: timestamp,
           quantityInMl: quantity,
           name: selectedFoodItem.name,
-          kcal: (selectedFoodItem.calories / 100 * quantity).round(),
+          kcal: selectedFoodItem.nutritionFor(quantity).calories,
           sugarPer100ml: result.sugarPer100ml,
           carbsPer100ml: result.sugarPer100ml,
           caffeinePer100ml: result.caffeinePer100ml,
@@ -901,7 +902,7 @@ class _MainScreenState extends State<MainScreen>
                     onPressed: () async {
                       final state = key.currentState;
                       if (state == null) return;
-                      final quantity = int.tryParse(state.quantityText);
+                      final quantity = parseNutritionNumber(state.quantityText);
                       if (quantity == null || quantity <= 0) return;
 
                       final name = state.nameText;
@@ -912,7 +913,7 @@ class _MainScreenState extends State<MainScreen>
                         state.caffeineText.replaceAll(',', '.'),
                       );
                       final kcal = (sugarPer100ml != null)
-                          ? ((sugarPer100ml / 100) * quantity * 4).round()
+                          ? ((sugarPer100ml / 100) * quantity * 4)
                           : null;
 
                       final newEntry = FluidEntry(
@@ -995,7 +996,7 @@ class _MainScreenState extends State<MainScreen>
 
   Future<
       ({
-        int quantity,
+        double quantity,
         DateTime timestamp,
         String mealType,
         bool isLiquid,
@@ -1050,7 +1051,8 @@ class _MainScreenState extends State<MainScreen>
                     onPressed: () {
                       final state = dialogStateKey.currentState;
                       if (state != null) {
-                        final quantity = int.tryParse(state.quantityText);
+                        final quantity =
+                            parseNutritionNumber(state.quantityText);
                         final sugar = double.tryParse(
                           state.sugarText.replaceAll(',', '.'),
                         );

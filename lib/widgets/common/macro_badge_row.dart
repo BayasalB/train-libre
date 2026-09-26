@@ -9,13 +9,13 @@ import 'app_metadata_row.dart';
 ///
 /// Colors for the badges are looked up via the [MacroColors] theme extension.
 class MacroBadgeRow extends StatelessWidget {
-  final int? kcal;
+  final num? kcal;
   final double? protein;
   final double? carbs;
   final double? fat;
   final double? sugar;
   final double? caffeine;
-  final int? waterMl;
+  final num? waterMl;
 
   /// Whether to render as colorful badges or plain metadata text.
   final bool useBadges;
@@ -46,14 +46,14 @@ class MacroBadgeRow extends StatelessWidget {
 
   Widget _buildPlainRow(BuildContext context) {
     final items = <String>[];
-    if (kcal != null) items.add('$kcal kcal');
+    if (kcal != null) items.add('${kcal!.round()} kcal');
     if (protein != null && protein! > 0) {
-      items.add('${protein!.toStringAsFixed(0)}g P');
+      items.add('${protein!.toStringAsFixed(1)}g P');
     }
     if (carbs != null && carbs! > 0) {
-      items.add('${carbs!.toStringAsFixed(0)}g C');
+      items.add('${carbs!.toStringAsFixed(1)}g C');
     }
-    if (fat != null && fat! > 0) items.add('${fat!.toStringAsFixed(0)}g F');
+    if (fat != null && fat! > 0) items.add('${fat!.toStringAsFixed(1)}g F');
     if (sugar != null && sugar! > 0) {
       items.add('${sugar!.toStringAsFixed(0)}g Sugar');
     }
@@ -84,18 +84,18 @@ class MacroBadgeRow extends StatelessWidget {
     final badges = <Widget>[];
 
     if (kcal != null) {
-      badges.add(_badge('$kcal', 'kcal', kcalColor, theme));
+      badges.add(_badge('${kcal!.round()}', 'kcal', kcalColor, theme));
     }
     if (protein != null && protein! > 0) {
       badges.add(
-          _badge('P ${protein!.toStringAsFixed(0)}', 'g', proteinColor, theme));
+          _badge('P ${protein!.toStringAsFixed(1)}', 'g', proteinColor, theme));
     }
     if (carbs != null && carbs! > 0) {
       badges.add(
-          _badge('C ${carbs!.toStringAsFixed(0)}', 'g', carbsColor, theme));
+          _badge('C ${carbs!.toStringAsFixed(1)}', 'g', carbsColor, theme));
     }
     if (fat != null && fat! > 0) {
-      badges.add(_badge('F ${fat!.toStringAsFixed(0)}', 'g', fatColor, theme));
+      badges.add(_badge('F ${fat!.toStringAsFixed(1)}', 'g', fatColor, theme));
     }
     if (sugar != null && sugar! > 0) {
       badges.add(

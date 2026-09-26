@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 // lib/features/diary/presentation/dialogs/quantity_log_flow.dart
 
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ import 'quantity_dialog_content.dart';
 
 /// What the quantity sheet hands back once the user confirms.
 typedef QuantitySelection = ({
-  int quantity,
+  double quantity,
   DateTime timestamp,
   String mealType,
   bool isLiquid,
@@ -81,7 +82,7 @@ Future<QuantitySelection?> showQuantityMenu(
                   onPressed: () {
                     final state = dialogStateKey.currentState;
                     if (state == null) return;
-                    final quantity = int.tryParse(state.quantityText);
+                    final quantity = parseNutritionNumber(state.quantityText);
                     if (quantity == null || quantity <= 0) return;
                     final sugar = double.tryParse(
                       state.sugarText.replaceAll(',', '.'),
@@ -145,7 +146,7 @@ Future<bool> logFoodItemWithQuantity(
         timestamp: selection.timestamp,
         quantityInMl: selection.quantity,
         name: item.name,
-        kcal: (item.calories / 100 * selection.quantity).round(),
+        kcal: item.nutritionFor(selection.quantity).calories,
         sugarPer100ml: selection.sugarPer100ml,
         carbsPer100ml: selection.sugarPer100ml,
         caffeinePer100ml: selection.caffeinePer100ml,

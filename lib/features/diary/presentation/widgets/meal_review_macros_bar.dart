@@ -38,9 +38,9 @@ class MealReviewMacrosBar extends StatelessWidget {
 
     return MacroBadgeRow(
       kcal: nutrition.kcalRounded,
-      protein: nutrition.proteinRounded.toDouble(),
-      carbs: nutrition.carbsRounded.toDouble(),
-      fat: nutrition.fatRounded.toDouble(),
+      protein: nutrition.protein,
+      carbs: nutrition.carbs,
+      fat: nutrition.fat,
       useBadges: Provider.of<ThemeService>(context, listen: false)
           .useColorfulMacroBadges,
     );

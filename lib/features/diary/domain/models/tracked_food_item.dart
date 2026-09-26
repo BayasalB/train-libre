@@ -11,7 +11,6 @@ class TrackedFoodItem {
   TrackedFoodItem({required this.entry, required this.item});
 
   // Small helper property for the calculated calories of this entry.
-  int get calculatedCalories {
-    return (item.calories / 100 * entry.quantityInGrams).round();
-  }
+  double get calculatedCalories =>
+      item.nutritionFor(entry.quantityInGrams).calories;
 }

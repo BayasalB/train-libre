@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 // lib/features/diary/presentation/widgets/meal_reanalysis_comparison_dialog.dart
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import '../../domain/models/tracked_food_item.dart';
 
 class ReanalysisItemDiff {
   final String name;
-  final int grams;
+  final double grams;
   final bool isNew;
   final bool isChanged;
   final String? diffBadge;
@@ -68,14 +69,13 @@ class MealReanalysisComparisonDialog extends StatelessWidget {
         isDark ? const Color(0xFF8A8A82) : const Color(0xFF5C5C55);
     final lime = const Color(0xFFC9EF00);
 
-    int prevKcal = 0;
+    double prevKcal = 0;
     for (final it in previousItems) {
-      final factor = it.entry.quantityInGrams / 100.0;
-      prevKcal += (it.item.calories * factor).round();
+      prevKcal += it.item.nutritionFor(it.entry.quantityInGrams).calories;
     }
 
     // Estimate new kcal (or estimate proportional)
-    int newKcal = prevKcal;
+    double newKcal = prevKcal;
 
     return Container(
       decoration: BoxDecoration(
@@ -159,7 +159,7 @@ class MealReanalysisComparisonDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '$prevKcal kcal',
+                          '${prevKcal.round()} kcal',
                           style: TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontWeight: FontWeight.w800,
@@ -186,7 +186,7 @@ class MealReanalysisComparisonDialog extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  '${it.entry.quantityInGrams} g',
+                                  '${formatFoodQuantity(it.entry.quantityInGrams)} g',
                                   style: TextStyle(
                                     fontFamily: 'Plus Jakarta Sans',
                                     fontWeight: FontWeight.w500,
@@ -237,7 +237,7 @@ class MealReanalysisComparisonDialog extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              '$newKcal kcal',
+                              '${newKcal.round()} kcal',
                               style: TextStyle(
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontWeight: FontWeight.w800,
@@ -278,7 +278,7 @@ class MealReanalysisComparisonDialog extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    '${it.grams} g${it.diffBadge != null ? " · ${it.diffBadge}" : ""}',
+                                    '${formatFoodQuantity(it.grams)} g${it.diffBadge != null ? " · ${it.diffBadge}" : ""}',
                                     style: TextStyle(
                                       fontFamily: 'Plus Jakarta Sans',
                                       fontWeight: isHighlighted

@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 // lib/screens/create_food_screen.dart (Final & De-Materialisiert)
 
 import 'package:flutter/material.dart';
@@ -80,13 +81,14 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
   void _calculateCaloriesFromMacros() {
     HapticFeedbackService.instance.selectionFeedback();
     final protein =
-        double.tryParse(_proteinController.text.replaceAll(',', '.')) ?? 0.0;
+        parseNutritionNumber(_proteinController.text.replaceAll(',', '.')) ??
+            0.0;
     final carbs =
-        double.tryParse(_carbsController.text.replaceAll(',', '.')) ?? 0.0;
+        parseNutritionNumber(_carbsController.text.replaceAll(',', '.')) ?? 0.0;
     final fat =
-        double.tryParse(_fatController.text.replaceAll(',', '.')) ?? 0.0;
+        parseNutritionNumber(_fatController.text.replaceAll(',', '.')) ?? 0.0;
     final calories = (protein * 4) + (carbs * 4) + (fat * 9);
-    _caloriesController.text = calories.round().toString();
+    _caloriesController.text = calories.toString();
   }
 
   Future<void> _saveFoodItem() async {
@@ -94,7 +96,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
       final l10n = AppLocalizations.of(context)!;
       final isLiquidOrFluid = widget.foodItemToEdit?.isLiquid == true ||
           widget.foodItemToEdit?.isFluid == true;
-      final caffeineVal = double.tryParse(_caffeineController.text);
+      final caffeineVal = parseNutritionNumber(_caffeineController.text);
 
       final foodData = FoodItem(
         id: widget.foodItemToEdit?.id,
@@ -103,13 +105,15 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
             : "user_created_${DateTime.now().millisecondsSinceEpoch}",
         name: _nameController.text,
         brand: _brandController.text,
-        calories: int.tryParse(_caloriesController.text) ?? 0,
-        protein: double.tryParse(_proteinController.text) ?? 0.0,
-        carbs: double.tryParse(_carbsController.text) ?? 0.0,
-        fat: double.tryParse(_fatController.text) ?? 0.0,
-        sugar: double.tryParse(_sugarController.text),
-        fiber: double.tryParse(_fiberController.text),
-        salt: double.tryParse(_saltController.text),
+        calories: parseNutritionNumber(
+                _caloriesController.text.replaceAll(',', '.')) ??
+            0,
+        protein: parseNutritionNumber(_proteinController.text) ?? 0.0,
+        carbs: parseNutritionNumber(_carbsController.text) ?? 0.0,
+        fat: parseNutritionNumber(_fatController.text) ?? 0.0,
+        sugar: parseNutritionNumber(_sugarController.text),
+        fiber: parseNutritionNumber(_fiberController.text),
+        salt: parseNutritionNumber(_saltController.text),
         caffeineMgPer100g: isLiquidOrFluid ? null : caffeineVal,
         caffeineMgPer100ml: isLiquidOrFluid ? caffeineVal : null,
         isLiquid: widget.foodItemToEdit?.isLiquid,
@@ -275,7 +279,8 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
           if (isNumeric &&
               value != null &&
               value.isNotEmpty &&
-              double.tryParse(value.replaceAll(',', '.')) == null) {
+              (parseNutritionNumber(value) == null ||
+                  parseNutritionNumber(value)! < 0)) {
             return l10n.validatorPleaseEnterNumber;
           }
           return null;

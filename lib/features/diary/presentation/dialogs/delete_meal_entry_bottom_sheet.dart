@@ -17,7 +17,7 @@ class DeleteMealEntryBottomSheet {
     BuildContext context, {
     required String mealTitle,
     required int itemCount,
-    required int totalKcal,
+    required double totalKcal,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF222220) : Colors.white;
@@ -126,7 +126,7 @@ class DeleteMealEntryBottomSheet {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      l10n.mealDeleteAllBody(itemCount, totalKcal),
+                      l10n.mealDeleteAllBody(itemCount, totalKcal.round()),
                       style: TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
                         fontWeight: FontWeight.w500,

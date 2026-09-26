@@ -477,7 +477,7 @@ class Products extends Table with HybridId, MetaColumns {
   TextColumn get brand => text().nullable()();
 
   // Nutrients per 100g/ml
-  IntColumn get calories => integer()();
+  RealColumn get calories => real()();
   RealColumn get protein => real()();
   RealColumn get carbs => real()();
   RealColumn get fat => real()();
@@ -522,7 +522,7 @@ class OffProductsArchive extends Table with HybridId, MetaColumns {
   TextColumn get brand => text().nullable()();
 
   // Nutrients per 100g/ml
-  IntColumn get calories => integer()();
+  RealColumn get calories => real()();
   RealColumn get protein => real()();
   RealColumn get carbs => real()();
   RealColumn get fat => real()();
@@ -620,11 +620,11 @@ class SupplementLogs extends Table with HybridId, MetaColumns {
 @TableIndex(name: 'idx_fluid_consumed_at', columns: {#consumedAt})
 class FluidLogs extends Table with HybridId, MetaColumns {
   DateTimeColumn get consumedAt => dateTime()();
-  IntColumn get amountMl => integer()();
+  RealColumn get amountMl => real()();
   TextColumn get name => text()(); // "Water", "Coke", etc.
 
-  // Macros for fluids (carried over from old code)
-  IntColumn get kcal => integer().nullable()();
+  // Total calories for the fluid entry, without per-entry rounding.
+  RealColumn get kcal => real().nullable()();
   RealColumn get sugarPer100ml => real().nullable()();
   RealColumn get carbsPer100ml => real().nullable()();
   RealColumn get caffeinePer100ml => real().nullable()();
@@ -681,7 +681,7 @@ class MealItems extends Table with HybridId, MetaColumns {
   TextColumn get productBarcode => text().nullable()();
   TextColumn get productId => text().nullable().references(Products, #id)();
 
-  IntColumn get quantityInGrams => integer()();
+  RealColumn get quantityInGrams => real()();
 }
 
 class FoodCategories extends Table {
@@ -752,7 +752,7 @@ class UserFoodOverrides extends Table with HybridId, MetaColumns {
   TextColumn get barcode => text().unique()();
   TextColumn get name => text()();
   TextColumn get brand => text().nullable()();
-  IntColumn get calories => integer()();
+  RealColumn get calories => real()();
   RealColumn get protein => real()();
   RealColumn get carbs => real()();
   RealColumn get fat => real()();
@@ -834,7 +834,53 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
+
+  /// v32 changes numeric affinities only. Copies every column, ID, timestamp
+  /// and archive hash unchanged; it never reconstructs lost fractional data.
+  Future<void> _migrateDecimalNutrition(Migrator migrator) async {
+    // SQLite cannot change this pragma within a transaction. Disabling it
+    // prevents table reconstruction from cascading into referencing logs.
+    await customStatement('PRAGMA foreign_keys = OFF');
+    try {
+      await transaction(() async {
+        // Some v31 builds added nullable/defaulted columns without a bump.
+        await reconcileSchema();
+        for (final table in <TableInfo>[
+          products,
+          userFoodOverrides,
+          offProductsArchive,
+          mealItems,
+          fluidLogs
+        ]) {
+          final name = table.actualTableName;
+          final sequence = await customSelect(
+            'SELECT seq FROM sqlite_sequence WHERE name = ?',
+            variables: [Variable.withString(name)],
+          ).getSingleOrNull();
+          await migrator.alterTable(TableMigration(table));
+          if (sequence != null) {
+            await customStatement(
+              'INSERT INTO sqlite_sequence(name, seq) '
+              'SELECT ?, ? WHERE NOT EXISTS '
+              '(SELECT 1 FROM sqlite_sequence WHERE name = ?)',
+              [name, sequence.read<int>('seq'), name],
+            );
+            await customStatement(
+              'UPDATE sqlite_sequence SET seq = MAX(seq, ?) WHERE name = ?',
+              [sequence.read<int>('seq'), name],
+            );
+          }
+        }
+        final violations = await customSelect('PRAGMA foreign_key_check').get();
+        if (violations.isNotEmpty) {
+          throw StateError('Nutrition migration failed foreign-key validation');
+        }
+      });
+    } finally {
+      await customStatement('PRAGMA foreign_keys = ON');
+    }
+  }
 
   /// Adds whatever the file is missing compared to the generated tables.
   ///
@@ -902,6 +948,7 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
         beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
           await reconcileSchema();
         },
         onCreate: (Migrator m) async {
@@ -1213,7 +1260,7 @@ class AppDatabase extends _$AppDatabase {
                 final barcode = row.read<String>('barcode');
                 final pName = row.read<String>('name');
                 final pBrand = row.read<String?>('brand');
-                final pCalories = row.read<int>('calories');
+                final pCalories = row.read<double>('calories');
                 final pProtein = row.read<double>('protein');
                 final pCarbs = row.read<double>('carbs');
                 final pFat = row.read<double>('fat');
@@ -1236,7 +1283,7 @@ class AppDatabase extends _$AppDatabase {
 
                 final name = o?.read<String>('name') ?? pName;
                 final brand = o?.read<String?>('brand') ?? pBrand;
-                final calories = o?.read<int>('calories') ?? pCalories;
+                final calories = o?.read<double>('calories') ?? pCalories;
                 final protein = o?.read<double>('protein') ?? pProtein;
                 final carbs = o?.read<double>('carbs') ?? pCarbs;
                 final fat = o?.read<double>('fat') ?? pFat;
@@ -1510,6 +1557,9 @@ class AppDatabase extends _$AppDatabase {
                 await m.addColumn(setLogs, setLogs.progressionData);
               }
             }
+            if (from < 32) {
+              await _migrateDecimalNutrition(m);
+            }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(
               fromVersion: from,
               toVersion: to,
@@ -1716,7 +1766,7 @@ String calculateProductContentHash({
   required String barcode,
   required String name,
   required String? brand,
-  required int calories,
+  required num calories,
   required double protein,
   required double carbs,
   required double fat,
@@ -1735,7 +1785,10 @@ String calculateProductContentHash({
     barcode,
     name,
     brand ?? 'null',
-    calories.toString(),
+    // Keep v31 whole-calorie hashes stable (288 and 288.0 are identical).
+    calories == calories.roundToDouble()
+        ? calories.toInt().toString()
+        : calories.toString(),
     protein.toString(),
     carbs.toString(),
     fat.toString(),

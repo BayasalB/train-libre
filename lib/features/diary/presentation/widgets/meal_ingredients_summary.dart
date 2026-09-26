@@ -1,3 +1,4 @@
+import '../../domain/models/nutrition_values.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
@@ -7,7 +8,7 @@ import '../../../../widgets/common/summary_card.dart';
 
 class MealIngredientSummaryItem {
   final String name;
-  final int grams;
+  final double grams;
   final int kcal;
 
   const MealIngredientSummaryItem({
@@ -91,7 +92,7 @@ class MealIngredientsSummary extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${entry.value.grams} g',
+                                '${formatFoodQuantity(entry.value.grams)} g',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),

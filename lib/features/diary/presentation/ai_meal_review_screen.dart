@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -113,11 +114,11 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
   late String _selectedMealType;
   late DateTime _selectedTimestamp;
 
-  int get _totalKcal {
-    if (_validation != null) return _validation!.totals.kcalRounded;
-    int sum = 0;
+  double get _totalKcal {
+    if (_validation != null) return _validation!.totals.kcal;
+    double sum = 0;
     for (final item in _items) {
-      sum += item.nutrition.kcalRounded;
+      sum += item.nutrition.kcal;
     }
     return sum;
   }
@@ -271,12 +272,12 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
     final item = _items[index];
     final food = item.matchedFood;
     if (food != null) {
-      final factor = item.suggestion.estimatedGrams / 100.0;
+      final scaled = food.nutritionFor(item.suggestion.estimatedGrams);
       item.nutrition = AiNutritionTotals(
-        kcal: food.calories * factor,
-        protein: food.protein * factor,
-        carbs: food.carbs * factor,
-        fat: food.fat * factor,
+        kcal: scaled.calories,
+        protein: scaled.protein,
+        carbs: scaled.carbs,
+        fat: scaled.fat,
       );
     }
   }
@@ -354,7 +355,8 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
 
   void _adjustQuantityBy(int index, int delta) {
     final item = _items[index];
-    final newGrams = (item.suggestion.estimatedGrams + delta).clamp(10, 5000);
+    final newGrams =
+        (item.suggestion.estimatedGrams + delta).clamp(10, 5000).toDouble();
     if (newGrams != item.suggestion.estimatedGrams) {
       setState(() {
         item.suggestion.estimatedGrams = newGrams;
@@ -371,7 +373,7 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
       text: item.suggestion.estimatedGrams.toString(),
     );
 
-    final result = await showGlassBottomMenu<int?>(
+    final result = await showGlassBottomMenu<double>(
       context: context,
       title: item.suggestion.name,
       contentBuilder: (ctx, close) {
@@ -380,7 +382,8 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
           children: [
             TextField(
               controller: controller,
-              keyboardType: TextInputType.number,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: l10n.amount_in_grams,
                 suffixText: l10n.unit_grams,
@@ -403,7 +406,7 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
                 Expanded(
                   child: AppButton.primary(
                     onPressed: () {
-                      final val = int.tryParse(controller.text);
+                      final val = parseNutritionNumber(controller.text);
                       if (val != null && val > 0) {
                         close();
                         Navigator.of(ctx).pop(val);
@@ -1099,7 +1102,7 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '$_totalKcal kcal',
+                                '${_totalKcal.round()} kcal',
                                 style: TextStyle(
                                   fontFamily: 'Plus Jakarta Sans',
                                   fontWeight: FontWeight.w800,

@@ -13,7 +13,7 @@ import '../../../../widgets/common/common.dart';
 ///
 /// Allows users to specify name, quantity, timestamp, sugar, and caffeine content.
 class FluidDialogContent extends StatefulWidget {
-  final int? initialQuantity;
+  final double? initialQuantity;
   final DateTime? initialTimestamp;
   final String? initialName;
   final double? initialSugar;
@@ -56,11 +56,10 @@ class FluidDialogContentState extends State<FluidDialogContent> {
       text: widget.initialQuantity?.toString() ?? '',
     );
     _caffeineController = TextEditingController(
-      text:
-          widget.initialCaffeine?.toStringAsFixed(1).replaceAll('.0', '') ?? '',
+      text: widget.initialCaffeine?.toString() ?? '',
     );
     _sugarController = TextEditingController(
-      text: widget.initialSugar?.toStringAsFixed(1).replaceAll('.0', '') ?? '',
+      text: widget.initialSugar?.toString() ?? '',
     );
     _selectedDateTime = widget.initialTimestamp ?? DateTime.now();
   }
@@ -143,7 +142,7 @@ class FluidDialogContentState extends State<FluidDialogContent> {
         const SizedBox(height: DesignConstants.spacingL),
         TextField(
           controller: _quantityController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: l10n.amount_in_milliliters,
             suffixText: unitService.suffixFor(UnitDimension.liquid),

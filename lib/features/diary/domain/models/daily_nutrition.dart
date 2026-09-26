@@ -6,19 +6,19 @@
 class DailyNutrition {
   // Consumed nutrients
   /// Total calories consumed today.
-  int calories;
+  double calories;
 
   /// Total water consumed today in milliliters.
-  int water;
+  double water;
 
   /// Total protein consumed today in grams.
-  int protein;
+  double protein;
 
   /// Total carbohydrates consumed today in grams.
-  int carbs;
+  double carbs;
 
   /// Total fat consumed today in grams.
-  int fat;
+  double fat;
 
   /// Total fiber consumed today in grams.
   double fiber;

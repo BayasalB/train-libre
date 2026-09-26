@@ -79,7 +79,7 @@ class DiaryLocalDataSource {
               id: row.localId,
               barcode: row.legacyBarcode ?? 'UNKNOWN',
               timestamp: row.consumedAt,
-              quantityInGrams: row.amount.toInt(),
+              quantityInGrams: row.amount,
               mealType: row.mealType,
               updatedAt: row.updatedAt,
               archiveLocalId: row.archiveLocalId,
@@ -186,7 +186,7 @@ class DiaryLocalDataSource {
             id: row.localId,
             barcode: row.legacyBarcode ?? 'UNKNOWN',
             timestamp: row.consumedAt,
-            quantityInGrams: row.amount.toInt(),
+            quantityInGrams: row.amount,
             mealType: row.mealType,
             updatedAt: row.updatedAt,
             archiveLocalId: row.archiveLocalId,
@@ -330,12 +330,21 @@ class DiaryLocalDataSource {
   Future<void> updateFoodEntry(FoodEntry entry) async {
     if (entry.id == null) return;
 
+    final previous = await (_db.select(_db.nutritionLogs)
+          ..where((tbl) => tbl.localId.equals(entry.id!)))
+        .getSingleOrNull();
+    if (previous == null) return;
+
     final product = await (_db.select(_db.products)
           ..where((tbl) => tbl.barcode.equals(entry.barcode))
           ..limit(1))
         .getSingleOrNull();
 
-    int? archiveId = entry.archiveLocalId;
+    // Quantity/time edits must keep the original nutrition even when a caller
+    // constructs an entry without carrying its archive reference.
+    int? archiveId = previous.legacyBarcode == entry.barcode
+        ? previous.archiveLocalId ?? entry.archiveLocalId
+        : null;
 
     if (archiveId == null && product != null) {
       final override = await (_db.select(_db.userFoodOverrides)
@@ -623,7 +632,7 @@ class DiaryLocalDataSource {
       id: row.localId,
       barcode: row.legacyBarcode ?? 'UNKNOWN',
       timestamp: row.consumedAt,
-      quantityInGrams: row.amount.toInt(),
+      quantityInGrams: row.amount,
       mealType: row.mealType,
       updatedAt: row.updatedAt,
       archiveLocalId: row.archiveLocalId,
@@ -641,7 +650,7 @@ class DiaryLocalDataSource {
     }
   }
 
-  Future<Map<String, int>> getRemainingMacrosForDate(DateTime date) async {
+  Future<Map<String, double>> getRemainingMacrosForDate(DateTime date) async {
     final res = await getFoodCaloriesByDayForDateRange(date, date);
     final kcal = res.caloriesByDay.values.fold(0.0, (a, b) => a + b);
 
@@ -649,7 +658,7 @@ class DiaryLocalDataSource {
     final targetKcal = goals?.targetCalories ?? 2000;
 
     return {
-      'kcal': (targetKcal - kcal).toInt().clamp(0, 99999),
+      'kcal': (targetKcal - kcal).clamp(0, 99999).toDouble(),
       'protein': 0,
       'carbs': 0,
       'fat': 0,
@@ -689,7 +698,7 @@ class DiaryLocalDataSource {
             id: row.localId,
             barcode: row.legacyBarcode ?? 'UNKNOWN',
             timestamp: row.consumedAt,
-            quantityInGrams: row.amount.toInt(),
+            quantityInGrams: row.amount,
             mealType: row.mealType,
             updatedAt: row.updatedAt,
             archiveLocalId: row.archiveLocalId,
@@ -725,7 +734,7 @@ class DiaryLocalDataSource {
         id: log.localId,
         barcode: barcode,
         timestamp: log.consumedAt,
-        quantityInGrams: log.amount.toInt(),
+        quantityInGrams: log.amount,
         mealType: log.mealType,
         updatedAt: log.updatedAt,
         archiveLocalId: log.archiveLocalId,
@@ -758,7 +767,7 @@ class DiaryLocalDataSource {
             id: row.localId,
             barcode: row.legacyBarcode ?? 'UNKNOWN',
             timestamp: row.consumedAt,
-            quantityInGrams: row.amount.toInt(),
+            quantityInGrams: row.amount,
             mealType: row.mealType,
             updatedAt: row.updatedAt,
             archiveLocalId: row.archiveLocalId,

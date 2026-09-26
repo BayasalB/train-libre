@@ -91,8 +91,8 @@ The JSON object must have exactly these two fields:
 2. "items": An array where each element has:
    - "name": string (individual food component name in user UI language)
    - "catalogSearchTerm": string or null (optional search keyword in catalog language if different from UI language)
-   - "servedGrams": integer (visible/eaten portion in grams)
-   - "estimatedGrams": integer (raw-equivalent grams used for database nutrition)
+   - "servedGrams": number (decimals allowed) (visible/eaten portion in grams)
+   - "estimatedGrams": number (decimals allowed) (raw-equivalent grams used for database nutrition)
    - "confidence": number (0.0 to 1.0)
    - "stateHint": string or null (e.g. "cooked", "raw", "boiled")
    - "searchTerms": array of 1-3 short strings for local catalog retrieval

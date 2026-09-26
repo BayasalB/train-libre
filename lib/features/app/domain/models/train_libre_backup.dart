@@ -119,7 +119,7 @@ class TrainLibreBackup {
                   id: e['id'],
                   barcode: e['barcode'],
                   timestamp: DateTime.parse(e['timestamp']),
-                  quantityInGrams: e['quantity_in_grams'],
+                  quantityInGrams: (e['quantity_in_grams'] as num).toDouble(),
                   mealType: e['meal_type'],
                   archiveLocalId: e['archive_local_id'],
                   // Dropped until now, which meant every restored AI meal came

@@ -73,7 +73,7 @@ class MealLocalDataSource {
           db.MealItemsCompanion(
             mealId: drift.Value(mealRow.id),
             productBarcode: drift.Value(barcode),
-            quantityInGrams: drift.Value(amount.round()),
+            quantityInGrams: drift.Value(amount),
           ),
         );
     return row.localId;
@@ -175,7 +175,7 @@ class MealLocalDataSource {
           final item = Map<String, dynamic>.from(raw);
           final barcode = (item['barcode'] as String?)?.trim();
           final gramsRaw = item['quantityInGrams'] ?? item['quantity_in_grams'];
-          final grams = (gramsRaw is num) ? gramsRaw.toInt() : null;
+          final grams = (gramsRaw is num) ? gramsRaw.toDouble() : null;
           if (barcode == null ||
               barcode.isEmpty ||
               grams == null ||

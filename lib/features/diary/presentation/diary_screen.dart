@@ -1,3 +1,4 @@
+import '../domain/models/nutrition_values.dart';
 import '../../../services/unit_service.dart';
 import 'dart:async';
 
@@ -466,7 +467,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                       final vm = viewModel;
                       final state = key.currentState;
                       if (state == null) return;
-                      final quantity = int.tryParse(state.quantityText);
+                      final quantity = parseNutritionNumber(state.quantityText);
                       if (quantity == null || quantity <= 0) return;
 
                       final name = state.nameText;
@@ -477,7 +478,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                         state.caffeineText.replaceAll(',', '.'),
                       );
                       final kcal = (sugar != null)
-                          ? ((sugar / 100) * quantity * 4).round()
+                          ? ((sugar / 100) * quantity * 4)
                           : null;
 
                       final updated = FluidEntry(
@@ -529,7 +530,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
 
     final result = await showGlassBottomMenu<
         ({
-          int quantity,
+          double quantity,
           DateTime timestamp,
           String mealType,
           bool isLiquid,
@@ -572,7 +573,8 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                     onPressed: () {
                       final state = dialogStateKey.currentState;
                       if (state != null) {
-                        final quantity = int.tryParse(state.quantityText);
+                        final quantity =
+                            parseNutritionNumber(state.quantityText);
                         final caffeine = double.tryParse(
                           state.caffeineText.replaceAll(',', '.'),
                         );
@@ -627,7 +629,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
           timestamp: result.timestamp,
           quantityInMl: result.quantity,
           name: trackedItem.item.name,
-          kcal: (trackedItem.item.calories / 100 * result.quantity).round(),
+          kcal: trackedItem.item.nutritionFor(result.quantity).calories,
           sugarPer100ml: result.sugarPer100ml,
           carbsPer100ml: result.sugarPer100ml, // Spiegeln
           caffeinePer100ml: result.caffeinePer100ml,
@@ -730,7 +732,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
     if (result == null || !mounted) return;
 
     // ... (rest of the logic stays the same, uses result.timestamp) ...
-    final int quantity = result.quantity;
+    final double quantity = result.quantity;
     final DateTime timestamp = result.timestamp;
     final String resultMealType = result.mealType;
     final bool isLiquid = result.isLiquid;
@@ -754,7 +756,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
         timestamp: timestamp,
         quantityInMl: quantity,
         name: selectedFoodItem.name,
-        kcal: (selectedFoodItem.calories / 100 * quantity).round(),
+        kcal: selectedFoodItem.nutritionFor(quantity).calories,
         sugarPer100ml: result.sugarPer100ml,
         carbsPer100ml: result.sugarPer100ml,
         caffeinePer100ml: result.caffeinePer100ml,
@@ -778,7 +780,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
 
   Future<
       ({
-        int quantity,
+        double quantity,
         DateTime timestamp,
         String mealType,
         bool isLiquid,
@@ -835,7 +837,8 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                     onPressed: () {
                       final state = dialogStateKey.currentState;
                       if (state != null) {
-                        final quantity = int.tryParse(state.quantityText);
+                        final quantity =
+                            parseNutritionNumber(state.quantityText);
                         // ... parsing ...
                         final sugar = double.tryParse(
                           state.sugarText.replaceAll(',', '.'),
@@ -1213,7 +1216,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                       final state = key.currentState;
                       if (state == null) return;
                       final diaryDate = vm.selectedDate;
-                      final quantity = int.tryParse(state.quantityText);
+                      final quantity = parseNutritionNumber(state.quantityText);
                       if (quantity == null || quantity <= 0) return;
 
                       final name = state.nameText;
@@ -1224,7 +1227,7 @@ class DiaryScreenState extends State<_DiaryScreenContent> {
                         state.caffeineText.replaceAll(',', '.'),
                       );
                       final kcal = (sugarPer100ml != null)
-                          ? ((sugarPer100ml / 100) * quantity * 4).round()
+                          ? ((sugarPer100ml / 100) * quantity * 4)
                           : null;
 
                       final newEntry = FluidEntry(
@@ -1745,11 +1748,11 @@ class _MealCardState extends State<_MealCard> {
         final solidItems = <TrackedFoodItem>[];
 
         for (var item in items) {
-          final factor = item.entry.quantityInGrams / 100.0;
-          mealMacros.calories += (item.item.calories * factor).toDouble();
-          mealMacros.protein += (item.item.protein * factor).toDouble();
-          mealMacros.carbs += (item.item.carbs * factor).toDouble();
-          mealMacros.fat += (item.item.fat * factor).toDouble();
+          final scaled = item.item.nutritionFor(item.entry.quantityInGrams);
+          mealMacros.calories += scaled.calories;
+          mealMacros.protein += scaled.protein;
+          mealMacros.carbs += scaled.carbs;
+          mealMacros.fat += scaled.fat;
 
           final fi = item.item;
           if (fi.isLiquid != true && !fi.isFluid) {
@@ -1836,9 +1839,9 @@ class _MealCardState extends State<_MealCard> {
                       // largest first — meals and standalone entries alike, and
                       // the ingredients within a meal too. What contributed
                       // most is what the user is looking for.
-                      int kcalOf(TrackedFoodItem item) =>
+                      double kcalOf(TrackedFoodItem item) =>
                           item.calculatedCalories;
-                      int kcalOfGroup(List<TrackedFoodItem> group) =>
+                      double kcalOfGroup(List<TrackedFoodItem> group) =>
                           group.fold(0, (sum, item) => sum + kcalOf(item));
 
                       for (final group in groupedByMealEntry.values) {
@@ -1884,13 +1887,12 @@ class _MealCardState extends State<_MealCard> {
                                         final meal = mealEntriesById[entryId]!;
                                         final childItems =
                                             groupedByMealEntry[entryId]!;
-                                        int mealKcal = 0;
+                                        double mealKcal = 0;
                                         for (final it in childItems) {
-                                          final factor =
-                                              it.entry.quantityInGrams / 100.0;
-                                          mealKcal +=
-                                              (it.item.calories * factor)
-                                                  .round();
+                                          mealKcal += it.item
+                                              .nutritionFor(
+                                                  it.entry.quantityInGrams)
+                                              .calories;
                                         }
                                         return await DeleteMealEntryBottomSheet
                                             .show(
@@ -2109,8 +2111,8 @@ class _FluidsCardState extends State<_FluidsCard> {
                   const SizedBox(height: DesignConstants.spacingXS),
                   Builder(
                     builder: (ctx) {
-                      int totalMl = 0;
-                      int totalKcal = 0;
+                      double totalMl = 0;
+                      double totalKcal = 0;
                       double totalSugar = 0;
                       double totalCaffeine = 0;
                       for (var entry in fluids) {

@@ -38,9 +38,9 @@ extension AiParsing on AiService {
           final items = rawItems
               .map((e) => AiMealCandidateItem(
                     name: (e['name'] as String?) ?? '',
-                    grams: (e['estimatedGrams'] as num?)?.toInt() ?? 0,
+                    grams: (e['estimatedGrams'] as num?)?.toDouble() ?? 0,
                     confidence: (e['confidence'] as num?)?.toDouble(),
-                    servedGrams: (e['servedGrams'] as num?)?.toInt(),
+                    servedGrams: (e['servedGrams'] as num?)?.toDouble(),
                     matchedBarcode: e['matchedBarcode'] as String?,
                     stateHint: e['stateHint'] as String?,
                     catalogSearchTerm: e['catalogSearchTerm'] as String?,
@@ -58,9 +58,9 @@ extension AiParsing on AiService {
         final items = decoded
             .map((e) => AiMealCandidateItem(
                   name: (e['name'] as String?) ?? '',
-                  grams: (e['estimatedGrams'] as num?)?.toInt() ?? 0,
+                  grams: (e['estimatedGrams'] as num?)?.toDouble() ?? 0,
                   confidence: (e['confidence'] as num?)?.toDouble(),
-                  servedGrams: (e['servedGrams'] as num?)?.toInt(),
+                  servedGrams: (e['servedGrams'] as num?)?.toDouble(),
                   matchedBarcode: e['matchedBarcode'] as String?,
                   stateHint: e['stateHint'] as String?,
                   catalogSearchTerm: e['catalogSearchTerm'] as String?,
@@ -88,9 +88,9 @@ extension AiParsing on AiService {
           final items = rawItems
               .map((e) => AiMealCandidateItem(
                     name: (e['name'] as String?) ?? '',
-                    grams: (e['estimatedGrams'] as num?)?.toInt() ?? 0,
+                    grams: (e['estimatedGrams'] as num?)?.toDouble() ?? 0,
                     confidence: (e['confidence'] as num?)?.toDouble(),
-                    servedGrams: (e['servedGrams'] as num?)?.toInt(),
+                    servedGrams: (e['servedGrams'] as num?)?.toDouble(),
                     matchedBarcode: e['matchedBarcode'] as String?,
                     stateHint: e['stateHint'] as String?,
                     catalogSearchTerm: e['catalogSearchTerm'] as String?,
@@ -114,9 +114,9 @@ extension AiParsing on AiService {
         final items = itemsList
             .map((e) => AiMealCandidateItem(
                   name: (e['name'] as String?) ?? '',
-                  grams: (e['estimatedGrams'] as num?)?.toInt() ?? 0,
+                  grams: (e['estimatedGrams'] as num?)?.toDouble() ?? 0,
                   confidence: (e['confidence'] as num?)?.toDouble(),
-                  servedGrams: (e['servedGrams'] as num?)?.toInt(),
+                  servedGrams: (e['servedGrams'] as num?)?.toDouble(),
                   matchedBarcode: e['matchedBarcode'] as String?,
                   stateHint: e['stateHint'] as String?,
                   catalogSearchTerm: e['catalogSearchTerm'] as String?,

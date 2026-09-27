@@ -229,6 +229,7 @@ void main() {
 
     // Verify schemaVersion getter
     expect(db.schemaVersion, 34);
+    expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
 
     // 4. Verify all 15 new columns exist
     final migratedAppSettingsCols = await _columnsOf(db, 'app_settings');

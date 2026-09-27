@@ -599,6 +599,10 @@ class BackupManager {
       _importBackupPayload(payload);
 
   bool _isAcceptedBackupMetadata(Map<String, dynamic> payload) {
+    final version = payload['schemaVersion'];
+    // Backup format revisions 6-8 are distinct from the SQLite user_version.
+    // A future revision may contain fields this build cannot restore safely.
+    if (version is int && version > currentSchemaVersion) return false;
     final rawAppName = payload['appName']?.toString().trim();
     final rawApplicationId = payload['applicationId']?.toString().trim();
     final rawFilePrefix = payload['backupFilePrefix']?.toString().trim();
@@ -723,6 +727,48 @@ class BackupManager {
       return false;
     }
     final backup = TrainLibreBackup.fromJson(payload);
+    final supportedKeys = <String>{
+      ...backup.toJson().keys,
+      'appName',
+      'applicationId',
+      'backupFilePrefix',
+      'generatedAtUtc',
+      'sleep_raw_imports',
+      'sleep_canonical_sessions',
+      'sleep_canonical_stage_segments',
+      'sleep_canonical_heart_rate_samples',
+      'sleep_nightly_analyses',
+      'pulse_hourly_aggregates',
+      'pulse_aggregate_metadata',
+      'meal_entries',
+      'cardio_activities',
+      'cardio_samples',
+      'daily_records',
+      'nutrition_target_profiles',
+      'food_aliases',
+      'saved_food_products',
+      'user_food_overrides',
+      'user_food_override_translations',
+    };
+    final unknownKeys = payload.keys.toSet().difference(supportedKeys);
+    if (unknownKeys.isNotEmpty) {
+      debugPrint('Backup contains unsupported fields: $unknownKeys');
+      return false;
+    }
+    // The typed sections are deserialized before restore. For this format,
+    // reject fields their models would otherwise discard, including nested
+    // food, measurement and workout fields.
+    if (payload['schemaVersion'] == currentSchemaVersion) {
+      final roundTrip = backup.toJson();
+      for (final key in roundTrip.keys) {
+        final unsupported =
+            _firstUnsupportedBackupField(payload[key], roundTrip[key], key);
+        if (unsupported != null) {
+          debugPrint('Backup contains unsupported field: $unsupported');
+          return false;
+        }
+      }
+    }
     final prefs = await _prefsLoader();
 
     // Capture the original preference state to rollback on failure
@@ -1324,31 +1370,57 @@ class BackupManager {
     if (rows == null || rows.isEmpty) return;
 
     final validIdentifier = RegExp(r'^[a-zA-Z0-9_]+$');
-    if (!validIdentifier.hasMatch(tableName)) return;
+    if (!validIdentifier.hasMatch(tableName)) {
+      throw FormatException('Invalid backup table name: $tableName');
+    }
 
     final dbInst = _dbHelper.dbInstance;
     await dbInst.customStatement('DELETE FROM $tableName');
     for (final row in rows) {
-      if (row is! Map) continue;
+      if (row is! Map) {
+        throw FormatException('Invalid $tableName backup row');
+      }
       final map = Map<String, dynamic>.from(row);
 
       final validColumns = <String>[];
       final values = <dynamic>[];
 
       for (final entry in map.entries) {
-        if (validIdentifier.hasMatch(entry.key)) {
-          validColumns.add(entry.key);
-          values.add(entry.value);
+        if (!validIdentifier.hasMatch(entry.key)) {
+          throw FormatException('Invalid $tableName backup column');
         }
+        validColumns.add(entry.key);
+        values.add(entry.value);
       }
 
-      if (validColumns.isEmpty) continue;
+      if (validColumns.isEmpty) {
+        throw FormatException('Empty $tableName backup row');
+      }
 
       final placeholders = List.filled(validColumns.length, '?').join(', ');
       final sql =
           'INSERT OR REPLACE INTO $tableName (${validColumns.join(', ')}) VALUES ($placeholders)';
       await dbInst.customStatement(sql, values);
     }
+  }
+
+  String? _firstUnsupportedBackupField(
+      Object? input, Object? decoded, String path) {
+    if (input is Map && decoded is Map) {
+      for (final entry in input.entries) {
+        if (!decoded.containsKey(entry.key)) return '$path.${entry.key}';
+        final nested = _firstUnsupportedBackupField(
+            entry.value, decoded[entry.key], '$path.${entry.key}');
+        if (nested != null) return nested;
+      }
+    } else if (input is List && decoded is List) {
+      for (var i = 0; i < input.length && i < decoded.length; i++) {
+        final nested =
+            _firstUnsupportedBackupField(input[i], decoded[i], '$path[$i]');
+        if (nested != null) return nested;
+      }
+    }
+    return null;
   }
 
   Future<bool> runAutoBackupIfDue({

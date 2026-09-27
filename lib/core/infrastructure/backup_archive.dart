@@ -161,41 +161,39 @@ class BackupArchive {
     String? passphrase,
   }) async {
     final input = InputFileStream(path);
-    final Archive archive;
     try {
-      archive = ZipDecoder().decodeStream(input);
-    } catch (e) {
+      final archive = ZipDecoder().decodeStream(input);
+
+      BackupCipher? cipher;
+      final header = archive.findFile(keyHeaderEntry);
+      if (header != null) {
+        if (passphrase == null || passphrase.isEmpty) {
+          throw const BackupPassphraseRequired();
+        }
+        final headerMap =
+            jsonDecode(utf8.decode(header.content)) as Map<String, dynamic>;
+        cipher = await EncryptionUtil.cipherFromHeader(headerMap, passphrase);
+      }
+
+      final payloadFile = archive.findFile(
+        cipher == null ? payloadEntry : encryptedPayloadEntry,
+      );
+      if (payloadFile == null) {
+        throw const BackupArchiveMalformed();
+      }
+
+      final payloadBytes = cipher == null
+          ? payloadFile.content
+          : await cipher.decrypt(payloadFile.content);
+      final payload = await compute(jsonDecode, utf8.decode(payloadBytes))
+          as Map<String, dynamic>;
+
+      return BackupArchiveContents._(archive, input, payload, cipher);
+    } catch (_) {
+      // Invalid credentials or malformed JSON must not leave the archive open.
       await input.close();
       rethrow;
     }
-
-    BackupCipher? cipher;
-    final header = archive.findFile(keyHeaderEntry);
-    if (header != null) {
-      if (passphrase == null || passphrase.isEmpty) {
-        await input.close();
-        throw const BackupPassphraseRequired();
-      }
-      final headerMap =
-          jsonDecode(utf8.decode(header.content)) as Map<String, dynamic>;
-      cipher = await EncryptionUtil.cipherFromHeader(headerMap, passphrase);
-    }
-
-    final payloadFile = archive.findFile(
-      cipher == null ? payloadEntry : encryptedPayloadEntry,
-    );
-    if (payloadFile == null) {
-      await input.close();
-      throw const BackupArchiveMalformed();
-    }
-
-    final payloadBytes = cipher == null
-        ? payloadFile.content
-        : await cipher.decrypt(payloadFile.content);
-    final payload = await compute(jsonDecode, utf8.decode(payloadBytes))
-        as Map<String, dynamic>;
-
-    return BackupArchiveContents._(archive, input, payload, cipher);
   }
 }
 

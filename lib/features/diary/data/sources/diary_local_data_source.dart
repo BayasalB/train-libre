@@ -292,7 +292,10 @@ class DiaryLocalDataSource {
     }
   }
 
-  Future<void> updateFluidEntry(FluidEntry entry) async {
+  Future<void> updateFluidEntry(FluidEntry entry) =>
+      _db.transaction(() => _updateFluidEntryInTransaction(entry));
+
+  Future<void> _updateFluidEntryInTransaction(FluidEntry entry) async {
     if (entry.id == null) return;
     final old = await (_db.select(_db.fluidLogs)
           ..where((t) => t.localId.equals(entry.id!)))
@@ -330,7 +333,11 @@ class DiaryLocalDataSource {
     }
   }
 
-  Future<void> updateFoodEntry(FoodEntry entry) async {
+  /// The archive row and edited log must commit together.
+  Future<void> updateFoodEntry(FoodEntry entry) =>
+      _db.transaction(() => _updateFoodEntryInTransaction(entry));
+
+  Future<void> _updateFoodEntryInTransaction(FoodEntry entry) async {
     if (entry.id == null) return;
 
     final previous = await (_db.select(_db.nutritionLogs)
@@ -506,6 +513,13 @@ class DiaryLocalDataSource {
   Future<int> insertFoodEntry(
     FoodEntry entry, {
     String telemetrySource = FoodLogSource.manualSearch,
+  }) =>
+      _db.transaction(() => _insertFoodEntryInTransaction(entry,
+          telemetrySource: telemetrySource));
+
+  Future<int> _insertFoodEntryInTransaction(
+    FoodEntry entry, {
+    String telemetrySource = FoodLogSource.manualSearch,
   }) async {
     unawaited(TelemetryService.instance.incrementFoodLogCount(
       source: FoodLogSource.sanitize(telemetrySource),
@@ -630,7 +644,11 @@ class DiaryLocalDataSource {
     return await _db.into(_db.nutritionLogs).insert(companion);
   }
 
-  Future<void> deleteFluidEntry(int id) async {
+  /// A linked food and its fluid/supplement rows must disappear together.
+  Future<void> deleteFluidEntry(int id) =>
+      _db.transaction(() => _deleteFluidEntryInTransaction(id));
+
+  Future<void> _deleteFluidEntryInTransaction(int id) async {
     final fluidLog = await (_db.select(_db.fluidLogs)
           ..where((t) => t.localId.equals(id)))
         .getSingleOrNull();
@@ -648,7 +666,10 @@ class DiaryLocalDataSource {
         .go();
   }
 
-  Future<void> deleteFoodEntry(int id) async {
+  Future<void> deleteFoodEntry(int id) =>
+      _db.transaction(() => _deleteFoodEntryInTransaction(id));
+
+  Future<void> _deleteFoodEntryInTransaction(int id) async {
     final log = await (_db.select(_db.nutritionLogs)
           ..where((t) => t.localId.equals(id)))
         .getSingleOrNull();

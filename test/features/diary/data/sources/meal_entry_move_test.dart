@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:train_libre/data/drift_database.dart' as db;
 import 'package:train_libre/features/diary/data/sources/diary_local_data_source.dart';
 import 'package:train_libre/features/diary/domain/models/meal_entry.dart';
+import 'package:train_libre/features/diary/domain/models/food_entry.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -81,8 +82,7 @@ void main() {
   /// The kcal the diary attributes to [day].
   ///
   /// [getFoodCaloriesByDayForDateRange] takes literal bounds rather than a
-  /// calendar day, so the end has to be spelled out the way the day queries
-  /// elsewhere in the data source do.
+  /// calendar day, so this test passes explicit bounds.
   Future<double> kcalOn(DateTime day) async {
     final result = await dataSource.getFoodCaloriesByDayForDateRange(
       DateTime(day.year, day.month, day.day),
@@ -94,6 +94,41 @@ void main() {
   group('moveMealEntryTo — day switch', () {
     setUp(() async {
       await insertProduct(barcode: '1001', name: 'Reis');
+    });
+
+    test('moving a meal retains its logged nutrition snapshot after food edits',
+        () async {
+      final consumedAt = DateTime(2026, 3, 10, 12, 30);
+      final mealId = await dataSource.insertMealEntry(MealEntry(
+          id: 'archived-meal',
+          consumedAt: consumedAt,
+          mealType: 'mealtypeLunch',
+          source: 'manual'));
+      await dataSource.insertFoodEntry(FoodEntry(
+          barcode: '1001',
+          timestamp: consumedAt,
+          quantityInGrams: 21.3,
+          mealType: 'mealtypeLunch',
+          mealEntryId: mealId));
+      final archivedId = (await database.select(database.nutritionLogs).get())
+          .single
+          .archiveLocalId;
+      expect(archivedId, isNotNull);
+      await (database.update(database.products)
+            ..where((t) => t.barcode.equals('1001')))
+          .write(const db.ProductsCompanion(calories: drift.Value(800)));
+      await dataSource.moveMealEntryTo(mealId, DateTime(2026, 3, 12, 19));
+      final moved =
+          (await database.select(database.nutritionLogs).get()).single;
+      expect(moved.archiveLocalId, archivedId);
+      expect(moved.amount, 21.3);
+      expect(
+          (await database.select(database.offProductsArchive).get())
+              .single
+              .calories,
+          200);
+      expect(await database.customSelect('PRAGMA foreign_key_check').get(),
+          isEmpty);
     });
 
     test('meal entry leaves the old day and appears on the new one', () async {

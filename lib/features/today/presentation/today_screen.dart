@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../../data/database_helper.dart';
 import '../../diary/domain/models/nutrition_values.dart';
 import '../../diary/presentation/food_detail_screen.dart';
+import '../../workout/presentation/workout_log_detail_screen.dart';
+import '../../workout/presentation/widgets/workout_day_card.dart';
 import '../data/today_repository.dart';
 import '../domain/daily_record_models.dart';
 import 'target_profiles_screen.dart';
@@ -282,16 +284,19 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                             const Text(
                                 'No workout logged. Training type stays as you selected.'),
                           for (final workout in data.workouts)
-                            ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                    workout.routineNameSnapshot ?? 'Workout'),
-                                subtitle: Text(workout.endTime == null
-                                    ? 'In progress'
-                                    : '${workout.endTime!.difference(workout.startTime).inMinutes} min · ${workout.status}')),
-                          if (data.nutrition.workoutSummary case final summary?)
-                            Text(
-                                '${summary['sets']} sets · ${(summary['volume'] as double).toStringAsFixed(1)} kg volume'),
+                            WorkoutDayCard(
+                                workout: workout,
+                                summary:
+                                    data.workoutDetails.summaries[workout.id],
+                                compact: true,
+                                onOpen: workout.status == 'completed'
+                                    ? () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) =>
+                                                WorkoutLogDetailScreen(
+                                                    logId: workout.localId)))
+                                    : widget.onOpenWorkout),
                           if (widget.onOpenWorkout != null)
                             TextButton(
                                 onPressed: widget.onOpenWorkout,

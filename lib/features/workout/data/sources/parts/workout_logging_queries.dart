@@ -858,6 +858,9 @@ extension WorkoutLoggingQueries on WorkoutLocalDataSource {
     ])
       ..where(
         exercisePredicate(dbInstance.setLogs) &
+            dbInstance.setLogs.isCompleted.equals(true) &
+            dbInstance.setLogs.deletedAt.isNull() &
+            dbInstance.workoutLogs.deletedAt.isNull() &
             dbInstance.workoutLogs.status.equals('completed'),
       )
       ..orderBy([
@@ -878,7 +881,11 @@ extension WorkoutLoggingQueries on WorkoutLocalDataSource {
 
     final setRows = await (dbInstance.select(dbInstance.setLogs)
           ..where(
-            (tbl) => tbl.workoutLogId.equals(logUuid) & exercisePredicate(tbl),
+            (tbl) =>
+                tbl.workoutLogId.equals(logUuid) &
+                exercisePredicate(tbl) &
+                tbl.isCompleted.equals(true) &
+                tbl.deletedAt.isNull(),
           )
           ..orderBy([(t) => drift.OrderingTerm(expression: t.logOrder)]))
         .get();

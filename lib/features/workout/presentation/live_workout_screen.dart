@@ -36,6 +36,7 @@ import '../domain/classification/workout_set_position.dart';
 import 'widgets/exercise_e1rm_summary.dart';
 import 'widgets/log_mask_labels.dart';
 import 'widgets/live_workout_set_row.dart';
+import 'widgets/previous_performance_strip.dart';
 import 'widgets/exercise_notes_dialog.dart';
 import 'widgets/routine_pause_time_dialog.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -1376,6 +1377,9 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                                                                                 child: Column(
                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                   children: [
+                                                                                    PreviousPerformanceStrip(
+                                                                                      sets: manager.lastPerformances[routineExercise.exercise.canonicalName] ?? const [],
+                                                                                    ),
                                                                                     // FIX: Insert header row dynamically.
                                                                                     _buildHeaderRow(
                                                                                       routineExercise,

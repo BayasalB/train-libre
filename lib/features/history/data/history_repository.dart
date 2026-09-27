@@ -89,6 +89,8 @@ class HistoryRepository {
         database.userFoodOverrides,
         database.workoutLogs,
         database.setLogs,
+        database.workoutExerciseLogs,
+        database.exercises,
         database.measurements,
       })
       .watch()
@@ -112,18 +114,6 @@ class HistoryRepository {
                   t.date.isSmallerThanValue(end))
               ..orderBy([(t) => OrderingTerm.desc(t.date)]))
             .get();
-        final ids = data.workouts.map((workout) => workout.id).toList();
-        final sets = ids.isEmpty
-            ? <db.SetLog>[]
-            : await (database.select(database.setLogs)
-                  ..where(
-                      (t) => t.workoutLogId.isIn(ids) & t.deletedAt.isNull())
-                  ..orderBy([(t) => OrderingTerm.asc(t.logOrder)]))
-                .get();
-        final byWorkout = <String, List<db.SetLog>>{};
-        for (final set in sets) {
-          byWorkout.putIfAbsent(set.workoutLogId, () => []).add(set);
-        }
         final mealIds = data.foods
             .map((food) => food.entry.mealEntryId)
             .whereType<String>()
@@ -140,8 +130,8 @@ class HistoryRepository {
                 ? meal.title!.trim()
                 : meal.mealType
         };
-        return HistoryDayDetail(
-            data, measurements, byWorkout, mealTitles, unavailableFoods);
+        return HistoryDayDetail(data, measurements,
+            data.workoutDetails.setsByWorkoutId, mealTitles, unavailableFoods);
       });
 
   Future<List<HistoryDaySummary>> loadMonth(DateTime month) =>

@@ -6,6 +6,7 @@ import '../../diary/domain/calculate_daily_nutrition_use_case.dart';
 import '../../diary/domain/models/tracked_food_item.dart';
 import '../../diary/domain/models/fluid_entry.dart';
 import '../../workout/data/sources/workout_local_data_source.dart';
+import '../../workout/data/workout_day_read_model.dart';
 import '../domain/daily_record_models.dart';
 import 'daily_record_repository.dart';
 
@@ -18,6 +19,7 @@ class TodayData {
   final List<FluidEntry> fluids;
   final db.Measurement? weight;
   final List<db.WorkoutLog> workouts;
+  final WorkoutDayReadModel workoutDetails;
   final int missingFoods;
   const TodayData(
       {required this.date,
@@ -28,6 +30,7 @@ class TodayData {
       required this.fluids,
       required this.weight,
       required this.workouts,
+      required this.workoutDetails,
       required this.missingFoods});
   TrainingType get trainingType =>
       TrainingType.values.byName(record?.trainingType ?? 'unset');
@@ -54,6 +57,8 @@ class TodayRepository {
         database.measurements,
         database.workoutLogs,
         database.setLogs,
+        database.workoutExerciseLogs,
+        database.exercises,
       })
       .watch()
       .asyncMap((_) => load(date));
@@ -120,6 +125,8 @@ class TodayRepository {
                   t.startTime.isSmallerThanValue(end))
               ..orderBy([(t) => OrderingTerm.asc(t.startTime)]))
             .get();
+        final workoutDetails =
+            await WorkoutDayReadModel.load(database, workouts);
         final record = await records.getDay(start);
         return TodayData(
             date: start,
@@ -130,6 +137,7 @@ class TodayRepository {
             fluids: fluids,
             weight: weight,
             workouts: workouts,
+            workoutDetails: workoutDetails,
             missingFoods: entries.length - foods.length);
       });
 }

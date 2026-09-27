@@ -6,6 +6,7 @@ import '../../diary/domain/models/nutrition_values.dart';
 import '../../diary/domain/models/tracked_food_item.dart';
 import '../../today/domain/daily_record_models.dart';
 import '../../workout/presentation/workout_log_detail_screen.dart';
+import '../../workout/presentation/widgets/workout_day_card.dart';
 import '../data/history_repository.dart';
 
 class DayDetailScreen extends StatefulWidget {
@@ -222,30 +223,24 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                         _card(context, 'Workouts', [
                           if (day.workouts.isEmpty)
                             const Text('No workout logged'),
-                          for (final workout in day.workouts) ...[
-                            ListTile(
-                                title: Text(
-                                    workout.routineNameSnapshot ?? 'Workout'),
-                                subtitle: Text(workout.endTime == null
-                                    ? workout.status
-                                    : '${workout.endTime!.difference(workout.startTime).inMinutes} min · ${detail.setsByWorkoutId[workout.id]?.length ?? 0} sets · ${workout.status}'),
-                                onTap: workout.status != 'completed'
-                                    ? null
-                                    : () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                WorkoutLogDetailScreen(
-                                                    logId: workout.localId)))),
-                            for (final set
-                                in detail.setsByWorkoutId[workout.id] ??
-                                    const [])
-                              Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 16, bottom: 4),
-                                  child: Text(
-                                      '${set.exerciseNameSnapshot ?? 'Exercise'} · ${set.weight == null ? '' : '${formatFoodQuantity(set.weight!)} kg × '}${set.reps ?? 0} reps${set.durationSeconds == null ? '' : ' · ${set.durationSeconds} sec'}')),
-                          ],
+                          for (final workout in day.workouts)
+                            WorkoutDayCard(
+                              workout: workout,
+                              summary: day.workoutDetails.summaries[workout.id],
+                              sets: detail.setsByWorkoutId[workout.id] ??
+                                  const [],
+                              exerciseNotes: day.workoutDetails
+                                      .exerciseNotesByWorkoutId[workout.id] ??
+                                  const [],
+                              onOpen: workout.status == 'completed'
+                                  ? () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              WorkoutLogDetailScreen(
+                                                  logId: workout.localId)))
+                                  : null,
+                            ),
                         ]),
                         _card(context, 'Body measurements', [
                           if (detail.measurements.isEmpty)

@@ -184,4 +184,31 @@ void main() {
     expect(sets.single.durationSeconds, isNull);
     expect(sets.single.distanceKm, isNull);
   });
+
+  test('previous performance ignores unfinished and deleted sets', () async {
+    await logSet('Press', weight: 60.5, reps: 12);
+    await db.into(db.setLogs).insert(SetLogsCompanion.insert(
+          workoutLogId: 'log-Press',
+          exerciseNameSnapshot: const Value('Press'),
+          weight: const Value(90),
+          reps: const Value(1),
+          isCompleted: const Value(false),
+        ));
+    await db.into(db.setLogs).insert(SetLogsCompanion.insert(
+          workoutLogId: 'log-Press',
+          exerciseNameSnapshot: const Value('Press'),
+          weight: const Value(100),
+          reps: const Value(1),
+          isCompleted: const Value(true),
+          deletedAt: Value(DateTime.now()),
+        ));
+
+    final sets = await source.getLastSetsForExercise(
+      exerciseId: null,
+      exerciseNameSnapshot: 'Press',
+    );
+    expect(sets, hasLength(1));
+    expect(sets.single.weightKg, 60.5);
+    expect(sets.single.reps, 12);
+  });
 }

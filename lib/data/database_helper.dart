@@ -69,6 +69,8 @@ class DatabaseHelper {
     await dbInst.customStatement('PRAGMA foreign_keys = OFF');
     try {
       await dbInst.transaction(() async {
+        await dbInst.delete(dbInst.dailyRecords).go();
+        await dbInst.delete(dbInst.nutritionTargetProfiles).go();
         await dbInst.delete(dbInst.dailyGoalsHistory).go();
         await dbInst.delete(dbInst.supplementSettingsHistory).go();
         await dbInst.customStatement('DELETE FROM health_step_segments');

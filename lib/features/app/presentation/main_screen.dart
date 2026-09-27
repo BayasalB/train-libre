@@ -1,3 +1,7 @@
+import 'main_tab_navigation.dart';
+import '../../today/presentation/today_screen.dart';
+import '../../today/presentation/target_profiles_screen.dart';
+import '../../settings/presentation/settings_screen.dart';
 import '../../diary/domain/models/nutrition_values.dart';
 import 'dart:async';
 import 'dart:io';
@@ -64,7 +68,7 @@ import '../../home_widgets/home_widget_deep_link.dart';
 /// The root scaffold containing the main navigation structure.
 ///
 /// Hosts the bottom navigation bar and manages switching between primary tabs:
-/// Diary, Workout, Statistics, and Nutrition Hub. Also provides the global Speed Dial.
+/// Today, Food, Workout, Progress and More. Also provides the global Speed Dial.
 class MainScreen extends StatefulWidget {
   /// The optional index of the tab to be displayed initially.
   final int? initialTabIndex;
@@ -90,6 +94,7 @@ class _MainScreenState extends State<MainScreen>
     with TickerProviderStateMixin, RouteAware, WidgetsBindingObserver {
   late PageController _pageController;
   int _currentIndex = 0;
+  final _todayKey = GlobalKey<TodayScreenState>();
   final GlobalKey<DiaryScreenState> _tagebuchKey =
       GlobalKey<DiaryScreenState>();
   final GlobalKey<StatisticsHubScreenState> _statsKey =
@@ -100,6 +105,7 @@ class _MainScreenState extends State<MainScreen>
   final GlobalKey _tourWorkoutTabKey = GlobalKey();
   final GlobalKey _tourStatisticsTabKey = GlobalKey();
   final GlobalKey _tourNutritionTabKey = GlobalKey();
+  final GlobalKey _tourMoreTabKey = GlobalKey();
   bool _isAddMenuOpen = false;
   bool _isTourActive = false;
   final bool _isTourOfferVisible = false;
@@ -117,20 +123,21 @@ class _MainScreenState extends State<MainScreen>
   double kBarFabGap = 12.0;
 
   DateTime get _currentActiveDate {
-    if (_currentIndex == 0 && _tagebuchKey.currentState != null) {
-      return _tagebuchKey.currentState!.selectedDateNotifier.value.dateOnly;
+    if (_currentIndex == 0 && _todayKey.currentState != null) {
+      return _todayKey.currentState!.selectedDate;
     }
     return DateTime.now().dateOnly;
   }
 
   /// Tab switches happen inside one route, so the navigator observer never
-  /// sees them. Without this the four main tabs would all be recorded as a
+  /// sees them. Without this the five main tabs would all be recorded as a
   /// single screen — exactly the ones the user spends most time on.
   static const List<String> _tabPerfNames = [
-    'DiaryTab',
+    'TodayTab',
     'WorkoutTab',
     'StatisticsTab',
     'NutritionTab',
+    'MoreTab',
   ];
 
   static const List<String> _tabScreenNames = [
@@ -138,14 +145,18 @@ class _MainScreenState extends State<MainScreen>
     ScreenName.workoutTab,
     ScreenName.analyticsTab,
     ScreenName.nutritionTab,
+    'more_tab',
   ];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _currentIndex = widget.initialTabIndex ?? 0;
-    _pageController = PageController(initialPage: _currentIndex);
+    _currentIndex = mainTabOrder.contains(widget.initialTabIndex)
+        ? widget.initialTabIndex!
+        : 0;
+    _pageController =
+        PageController(initialPage: mainTabPosition(_currentIndex));
     _menuController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -311,7 +322,7 @@ class _MainScreenState extends State<MainScreen>
 
   void _onNavigationTapped(int index) {
     if (!_pageController.hasClients) return;
-    _pageController.jumpToPage(index);
+    _pageController.jumpToPage(mainTabPosition(index));
   }
 
   void _toggleAddMenu() {
@@ -447,7 +458,7 @@ class _MainScreenState extends State<MainScreen>
 
   Future<void> _refreshHomeScreen() async {
     refreshHomeWidgets();
-    if (_currentIndex == 0) {
+    if (_currentIndex == 0 && _tagebuchKey.currentState != null) {
       await _tagebuchKey.currentState?.syncHealthData(
         forceStepsRefresh: false, // Don't force 30-day refresh on every log
       );
@@ -1096,6 +1107,62 @@ class _MainScreenState extends State<MainScreen>
   }
 
   // Replace this method
+  void _openDiary(DateTime date) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => Scaffold(
+                  extendBodyBehindAppBar: true,
+                  appBar: GlobalAppBar(
+                      titleWidget: DiaryAppBar(diaryKey: _tagebuchKey),
+                      actions: [
+                        IconButton(
+                            tooltip: 'Share food log',
+                            icon: const Icon(Icons.share),
+                            onPressed: () =>
+                                _tagebuchKey.currentState?.shareAsText()),
+                      ]),
+                  body:
+                      DiaryScreen(initialDate: date, contentKey: _tagebuchKey),
+                )));
+  }
+
+  Widget _buildMore() => SafeArea(
+      bottom: false,
+      child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 8, 16, 170),
+          children: [
+            ListTile(
+                leading: const Icon(Icons.flag),
+                title: const Text('Manual nutrition targets'),
+                subtitle:
+                    const Text('Training and rest day profiles for Today'),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const TargetProfilesScreen()))),
+            ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                subtitle: const Text('Preferences, data and backups'),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()))),
+            ListTile(
+                leading: const Icon(Icons.monitor_weight),
+                title: const Text('Body measurements'),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const MeasurementsScreen()))),
+            ListTile(
+                leading: const Icon(Icons.book),
+                title: const Text('Detailed diary'),
+                subtitle: const Text(
+                    'Food editing, fluids, supplements and health details'),
+                onTap: () => _openDiary(_todayKey.currentState?.selectedDate ??
+                    DateTime.now().dateOnly)),
+          ]));
+
   GlobalAppBar _buildAppBar(
     BuildContext context,
     int index,
@@ -1109,38 +1176,21 @@ class _MainScreenState extends State<MainScreen>
         );
       case 2: // Stats
         return GlobalAppBar(
-          title: l10n.statistics,
+          title: 'Progress',
           actions: [_profileAppBarButton(context)],
         );
       case 3: // Nutrition Hub
         return GlobalAppBar(
-          title: l10n.nutritionHubTitle,
+          title: 'Food',
           actions: [_profileAppBarButton(context)],
         );
-      case 0: // Diary
+      case 4:
+        return GlobalAppBar(
+            title: 'More', actions: [_profileAppBarButton(context)]);
+      case 0:
       default:
         return GlobalAppBar(
-          automaticallyImplyLeading: false,
-          titleSpacing: 0,
-          titleWidget: DiaryAppBar(
-            diaryKey: _tagebuchKey,
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                DesignConstants.adaptiveShareIcon,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : Colors.black,
-              ),
-              tooltip: l10n.share,
-              onPressed: () {
-                _tagebuchKey.currentState?.shareAsText();
-              },
-            ),
-            _profileAppBarButton(context),
-          ],
-        );
+            title: 'Today', actions: [_profileAppBarButton(context)]);
     }
   }
 
@@ -1198,8 +1248,8 @@ class _MainScreenState extends State<MainScreen>
       _AppTourStep(
         anchorKey: _tourDiaryTabKey,
         tabIndex: 0,
-        title: l10n.appTourStepDiaryTitle,
-        description: l10n.appTourStepDiaryBody,
+        title: 'Today',
+        description: 'Daily calories, macros, training type and notes.',
       ),
       _AppTourStep(
         anchorKey: _tourWorkoutTabKey,
@@ -1249,13 +1299,14 @@ class _MainScreenState extends State<MainScreen>
     if (key == _tourNavigationBarKey) {
       var bounds = barRect ?? rect;
       // The tab icons sit in their own render boxes, so folding them in keeps
-      // the spotlight covering all four tabs even if the bar itself reports a
+      // the spotlight covering all tabs even if the bar itself reports a
       // shorter box than it paints.
       for (final tabKey in [
         _tourDiaryTabKey,
         _tourWorkoutTabKey,
         _tourStatisticsTabKey,
         _tourNutritionTabKey,
+        _tourMoreTabKey,
       ]) {
         final tabRect = _globalRectOf(tabKey);
         if (tabRect != null) bounds = bounds.expandToInclude(tabRect);
@@ -1274,14 +1325,16 @@ class _MainScreenState extends State<MainScreen>
     if (key == _tourDiaryTabKey ||
         key == _tourWorkoutTabKey ||
         key == _tourStatisticsTabKey ||
-        key == _tourNutritionTabKey) {
+        key == _tourNutritionTabKey ||
+        key == _tourMoreTabKey) {
       if (barRect != null) {
-        final tabWidth = barRect.width / 4;
+        final tabWidth = barRect.width / mainTabOrder.length;
         int tabIndex = 0;
-        if (key == _tourDiaryTabKey) tabIndex = 0;
-        if (key == _tourWorkoutTabKey) tabIndex = 1;
-        if (key == _tourStatisticsTabKey) tabIndex = 2;
-        if (key == _tourNutritionTabKey) tabIndex = 3;
+        if (key == _tourDiaryTabKey) tabIndex = mainTabPosition(0);
+        if (key == _tourWorkoutTabKey) tabIndex = mainTabPosition(1);
+        if (key == _tourStatisticsTabKey) tabIndex = mainTabPosition(2);
+        if (key == _tourNutritionTabKey) tabIndex = mainTabPosition(3);
+        if (key == _tourMoreTabKey) tabIndex = mainTabPosition(4);
 
         final tabLeft = barRect.left + (tabIndex * tabWidth);
         return Rect.fromLTWH(
@@ -1604,24 +1657,30 @@ class _MainScreenState extends State<MainScreen>
             bottomNavigationBar: SizedBox(height: dynamicBottomPadding),
             body: PageView(
               controller: _pageController,
-              onPageChanged: _onPageChanged,
+              onPageChanged: (position) =>
+                  _onPageChanged(mainTabRoute(position)),
               children: <Widget>[
                 KeepAlivePage(
-                  storageKey: const PageStorageKey('tab_tagebuch'),
-                  child: DiaryScreen(contentKey: _tagebuchKey),
+                  storageKey: const PageStorageKey('tab_today'),
+                  child: TodayScreen(
+                      key: _todayKey,
+                      topInset: kToolbarHeight,
+                      onAddFood: () => _handleAddFood(),
+                      onOpenDiary: _openDiary,
+                      onOpenWorkout: () => _onNavigationTapped(1)),
                 ),
                 const KeepAlivePage(
-                  storageKey: PageStorageKey('tab_workout'),
-                  child: WorkoutHubScreen(),
-                ),
+                    storageKey: PageStorageKey('tab_nutrition'),
+                    child: NutritionHubScreen()),
+                const KeepAlivePage(
+                    storageKey: PageStorageKey('tab_workout'),
+                    child: WorkoutHubScreen()),
                 KeepAlivePage(
-                  storageKey: const PageStorageKey('tab_stats'),
-                  child: StatisticsHubScreen(key: _statsKey),
-                ),
-                const KeepAlivePage(
-                  storageKey: PageStorageKey('tab_nutrition'),
-                  child: NutritionHubScreen(),
-                ),
+                    storageKey: const PageStorageKey('tab_stats'),
+                    child: StatisticsHubScreen(key: _statsKey)),
+                KeepAlivePage(
+                    storageKey: const PageStorageKey('tab_more'),
+                    child: _buildMore()),
               ],
             ),
           ),
@@ -1744,8 +1803,11 @@ class _MainScreenState extends State<MainScreen>
                                     height: DesignConstants
                                         .bottomNavigationBarHeight,
                                     child: GlassTabBar.bottom(
-                                      selectedIndex: _currentIndex,
-                                      onTabSelected: _onNavigationTapped,
+                                      selectedIndex:
+                                          mainTabPosition(_currentIndex),
+                                      onTabSelected: (position) =>
+                                          _onNavigationTapped(
+                                              mainTabRoute(position)),
                                       barHeight: DesignConstants
                                           .bottomNavigationBarHeight,
                                       barBorderRadius:
@@ -1774,41 +1836,37 @@ class _MainScreenState extends State<MainScreen>
                                               isDark),
                                       tabs: [
                                         GlassTab(
-                                          label: l10n.diary,
-                                          icon: Icon(
-                                            LucideIcons.notebook,
-                                            key: _tourDiaryTabKey,
-                                          ),
-                                          activeIcon:
-                                              const Icon(LucideIcons.notebook),
-                                        ),
+                                            label: 'Today',
+                                            icon: Icon(LucideIcons.notebook,
+                                                key: _tourDiaryTabKey),
+                                            activeIcon: const Icon(
+                                                LucideIcons.notebook)),
                                         GlassTab(
-                                          label: l10n.workout,
-                                          icon: Icon(
-                                            LucideIcons.dumbbell,
-                                            key: _tourWorkoutTabKey,
-                                          ),
-                                          activeIcon:
-                                              const Icon(LucideIcons.dumbbell),
-                                        ),
+                                            label: 'Food',
+                                            icon: Icon(LucideIcons.utensils,
+                                                key: _tourNutritionTabKey),
+                                            activeIcon: const Icon(
+                                                LucideIcons.utensils)),
                                         GlassTab(
-                                          label: l10n.statistics,
-                                          icon: Icon(
-                                            LucideIcons.chart_no_axes_column,
-                                            key: _tourStatisticsTabKey,
-                                          ),
-                                          activeIcon: const Icon(
-                                              LucideIcons.chart_no_axes_column),
-                                        ),
+                                            label: 'Workout',
+                                            icon: Icon(LucideIcons.dumbbell,
+                                                key: _tourWorkoutTabKey),
+                                            activeIcon: const Icon(
+                                                LucideIcons.dumbbell)),
                                         GlassTab(
-                                          label: l10n.nutrition,
-                                          icon: Icon(
-                                            LucideIcons.utensils,
-                                            key: _tourNutritionTabKey,
-                                          ),
-                                          activeIcon:
-                                              const Icon(LucideIcons.utensils),
-                                        ),
+                                            label: 'Progress',
+                                            icon: Icon(
+                                                LucideIcons
+                                                    .chart_no_axes_column,
+                                                key: _tourStatisticsTabKey),
+                                            activeIcon: const Icon(LucideIcons
+                                                .chart_no_axes_column)),
+                                        GlassTab(
+                                            label: 'More',
+                                            icon: Icon(Icons.more_horiz,
+                                                key: _tourMoreTabKey),
+                                            activeIcon:
+                                                const Icon(Icons.more_horiz)),
                                       ],
                                     ),
                                   ),

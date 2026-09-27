@@ -175,10 +175,11 @@ class DiaryLocalDataSource {
 
   Future<List<FoodEntry>> getEntriesForDate(DateTime date) async {
     final start = DateTime(date.year, date.month, date.day);
-    final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final end = DateTime(date.year, date.month, date.day + 1);
 
     final query = _db.select(_db.nutritionLogs)
-      ..where((tbl) => tbl.consumedAt.isBetweenValues(start, end));
+      ..where((tbl) => (tbl.consumedAt.isBiggerOrEqualValue(start) &
+          tbl.consumedAt.isSmallerThanValue(end)));
 
     final rows = await query.get();
     return rows
@@ -198,7 +199,7 @@ class DiaryLocalDataSource {
 
   Future<List<FluidEntry>> getFluidEntriesForDate(DateTime date) async {
     final start = DateTime(date.year, date.month, date.day);
-    final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final end = DateTime(date.year, date.month, date.day + 1);
 
     final query = _db.select(_db.fluidLogs).join([
       drift.leftOuterJoin(
@@ -206,7 +207,8 @@ class DiaryLocalDataSource {
         _db.nutritionLogs.id.equalsExp(_db.fluidLogs.linkedNutritionLogId),
       ),
     ])
-      ..where(_db.fluidLogs.consumedAt.isBetweenValues(start, end));
+      ..where(_db.fluidLogs.consumedAt.isBiggerOrEqualValue(start) &
+          _db.fluidLogs.consumedAt.isSmallerThanValue(end));
 
     final rows = await query.get();
     return rows.map((row) {

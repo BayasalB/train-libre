@@ -1,3 +1,4 @@
+import '../../today/presentation/target_profiles_screen.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -304,6 +305,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SummaryCard(
             child: Column(
               children: [
+                ListTile(
+                    leading: const Icon(Icons.flag),
+                    title: const Text('Manual nutrition targets'),
+                    subtitle: const Text('Training and rest targets for Today'),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TargetProfilesScreen()))),
                 _buildNavigationCard(
                   context: context,
                   icon: LucideIcons.palette,

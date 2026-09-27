@@ -1,3 +1,4 @@
+import '../../features/today/data/daily_backup_validation.dart';
 import '../../features/diary/domain/models/food_alias.dart';
 // lib/core/infrastructure/backup_manager.dart
 
@@ -47,7 +48,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 7;
+  static const int currentSchemaVersion = 8;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -345,6 +346,9 @@ class BackupManager {
     onProgress?.call('cardio_data', 0.98);
     payload['cardio_activities'] = await _fetchTable('cardio_activities');
     payload['cardio_samples'] = await _fetchTable('cardio_samples');
+    payload['daily_records'] = await _fetchTable('daily_records');
+    payload['nutrition_target_profiles'] =
+        await _fetchTable('nutrition_target_profiles');
     payload['food_aliases'] = await _fetchTable('food_aliases');
     // Include personalized catalog foods as well, so restore works offline on a new device.
     payload['saved_food_products'] = (await dbInst.customSelect('''
@@ -712,6 +716,12 @@ class BackupManager {
       return false;
     }
 
+    try {
+      validateDailyBackup(payload);
+    } catch (e) {
+      debugPrint('Daily data rejected during backup validation: $e');
+      return false;
+    }
     final backup = TrainLibreBackup.fromJson(payload);
     final prefs = await _prefsLoader();
 
@@ -763,6 +773,8 @@ class BackupManager {
         await dbInst.delete(dbInst.cardioActivities).go();
 
         // Clear general user tables
+        await dbInst.delete(dbInst.dailyRecords).go();
+        await dbInst.delete(dbInst.nutritionTargetProfiles).go();
         await dbInst.delete(dbInst.dailyGoalsHistory).go();
         await dbInst.delete(dbInst.supplementSettingsHistory).go();
         await dbInst.customStatement('DELETE FROM health_step_segments');
@@ -904,6 +916,9 @@ class BackupManager {
         await _restoreSavedFoodProducts(
             payload['saved_food_products'] as List?);
         await _restoreFoodAliases(payload['food_aliases'] as List?);
+        await _importTable('nutrition_target_profiles',
+            payload['nutrition_target_profiles'] as List?);
+        await _importTable('daily_records', payload['daily_records'] as List?);
 
         onProgress?.call('meals', 0.60);
         await _mealDb.importMealTemplates(backup.mealTemplates);

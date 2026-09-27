@@ -86,7 +86,7 @@ void main() {
       expect(
           (await migrated.customSelect('PRAGMA user_version').getSingle())
               .read<int>('user_version'),
-          33);
+          34);
       expect(await migrated.select(migrated.foodAliases).get(), isEmpty);
       expect(
           (await migrated.select(migrated.offProductsArchive).get())

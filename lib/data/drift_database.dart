@@ -816,9 +816,33 @@ class UserFoodOverrideTranslations extends Table with HybridId, MetaColumns {
       ];
 }
 
+// Phase 1C: calendar-day metadata and append-only manual target versions.
+@TableIndex(name: 'idx_target_effective_date', columns: {#kind, #effectiveFrom})
+class NutritionTargetProfiles extends Table with HybridId, MetaColumns {
+  TextColumn get kind => text()(); // training/rest
+  TextColumn get effectiveFrom => text()(); // YYYY-MM-DD, local calendar date
+  RealColumn get calories => real()();
+  RealColumn get protein => real()();
+  RealColumn get carbs => real()();
+  RealColumn get fat => real()();
+}
+
+class DailyRecords extends Table with HybridId, MetaColumns {
+  TextColumn get date =>
+      text().unique()(); // YYYY-MM-DD, never converted to UTC
+  TextColumn get timezoneName => text()(); // device zone label at creation
+  IntColumn get utcOffsetMinutes => integer()();
+  TextColumn get trainingType => text().withDefault(const Constant('unset'))();
+  TextColumn get notes => text().withDefault(const Constant(''))();
+  TextColumn get targetOverrideId =>
+      text().nullable().references(NutritionTargetProfiles, #id)();
+}
+
 @DriftDatabase(
   tables: [
     Profiles,
+    NutritionTargetProfiles,
+    DailyRecords,
     AppSettings,
     Exercises,
     Routines,
@@ -867,7 +891,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 33;
+  int get schemaVersion => 34;
 
   /// v32 changes numeric affinities only. Copies every column, ID, timestamp
   /// and archive hash unchanged; it never reconstructs lost fractional data.
@@ -1599,6 +1623,13 @@ class AppDatabase extends _$AppDatabase {
                 await reconcileSchema();
                 await customStatement(
                     'CREATE INDEX IF NOT EXISTS idx_food_alias_lookup ON food_aliases(normalized_alias)');
+              });
+            }
+            if (from < 34) {
+              await transaction(() async {
+                await reconcileSchema();
+                await customStatement(
+                    'CREATE INDEX IF NOT EXISTS idx_target_effective_date ON nutrition_target_profiles(kind, effective_from)');
               });
             }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(

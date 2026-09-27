@@ -594,6 +594,1105 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   }
 }
 
+class $NutritionTargetProfilesTable extends NutritionTargetProfiles
+    with TableInfo<$NutritionTargetProfilesTable, NutritionTargetProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NutritionTargetProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta =
+      const VerificationMeta('localId');
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+      'local_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+      clientDefault: () => const Uuid().v4());
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _effectiveFromMeta =
+      const VerificationMeta('effectiveFrom');
+  @override
+  late final GeneratedColumn<String> effectiveFrom = GeneratedColumn<String>(
+      'effective_from', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _caloriesMeta =
+      const VerificationMeta('calories');
+  @override
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
+      'calories', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _proteinMeta =
+      const VerificationMeta('protein');
+  @override
+  late final GeneratedColumn<double> protein = GeneratedColumn<double>(
+      'protein', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _carbsMeta = const VerificationMeta('carbs');
+  @override
+  late final GeneratedColumn<double> carbs = GeneratedColumn<double>(
+      'carbs', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _fatMeta = const VerificationMeta('fat');
+  @override
+  late final GeneratedColumn<double> fat = GeneratedColumn<double>(
+      'fat', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        localId,
+        id,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        kind,
+        effectiveFrom,
+        calories,
+        protein,
+        carbs,
+        fat
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'nutrition_target_profiles';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<NutritionTargetProfile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(_localIdMeta,
+          localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('effective_from')) {
+      context.handle(
+          _effectiveFromMeta,
+          effectiveFrom.isAcceptableOrUnknown(
+              data['effective_from']!, _effectiveFromMeta));
+    } else if (isInserting) {
+      context.missing(_effectiveFromMeta);
+    }
+    if (data.containsKey('calories')) {
+      context.handle(_caloriesMeta,
+          calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta));
+    } else if (isInserting) {
+      context.missing(_caloriesMeta);
+    }
+    if (data.containsKey('protein')) {
+      context.handle(_proteinMeta,
+          protein.isAcceptableOrUnknown(data['protein']!, _proteinMeta));
+    } else if (isInserting) {
+      context.missing(_proteinMeta);
+    }
+    if (data.containsKey('carbs')) {
+      context.handle(
+          _carbsMeta, carbs.isAcceptableOrUnknown(data['carbs']!, _carbsMeta));
+    } else if (isInserting) {
+      context.missing(_carbsMeta);
+    }
+    if (data.containsKey('fat')) {
+      context.handle(
+          _fatMeta, fat.isAcceptableOrUnknown(data['fat']!, _fatMeta));
+    } else if (isInserting) {
+      context.missing(_fatMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  NutritionTargetProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NutritionTargetProfile(
+      localId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      effectiveFrom: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}effective_from'])!,
+      calories: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}calories'])!,
+      protein: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}protein'])!,
+      carbs: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}carbs'])!,
+      fat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}fat'])!,
+    );
+  }
+
+  @override
+  $NutritionTargetProfilesTable createAlias(String alias) {
+    return $NutritionTargetProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class NutritionTargetProfile extends DataClass
+    implements Insertable<NutritionTargetProfile> {
+  final int localId;
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String kind;
+  final String effectiveFrom;
+  final double calories;
+  final double protein;
+  final double carbs;
+  final double fat;
+  const NutritionTargetProfile(
+      {required this.localId,
+      required this.id,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.kind,
+      required this.effectiveFrom,
+      required this.calories,
+      required this.protein,
+      required this.carbs,
+      required this.fat});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['kind'] = Variable<String>(kind);
+    map['effective_from'] = Variable<String>(effectiveFrom);
+    map['calories'] = Variable<double>(calories);
+    map['protein'] = Variable<double>(protein);
+    map['carbs'] = Variable<double>(carbs);
+    map['fat'] = Variable<double>(fat);
+    return map;
+  }
+
+  NutritionTargetProfilesCompanion toCompanion(bool nullToAbsent) {
+    return NutritionTargetProfilesCompanion(
+      localId: Value(localId),
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      kind: Value(kind),
+      effectiveFrom: Value(effectiveFrom),
+      calories: Value(calories),
+      protein: Value(protein),
+      carbs: Value(carbs),
+      fat: Value(fat),
+    );
+  }
+
+  factory NutritionTargetProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NutritionTargetProfile(
+      localId: serializer.fromJson<int>(json['localId']),
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      kind: serializer.fromJson<String>(json['kind']),
+      effectiveFrom: serializer.fromJson<String>(json['effectiveFrom']),
+      calories: serializer.fromJson<double>(json['calories']),
+      protein: serializer.fromJson<double>(json['protein']),
+      carbs: serializer.fromJson<double>(json['carbs']),
+      fat: serializer.fromJson<double>(json['fat']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'kind': serializer.toJson<String>(kind),
+      'effectiveFrom': serializer.toJson<String>(effectiveFrom),
+      'calories': serializer.toJson<double>(calories),
+      'protein': serializer.toJson<double>(protein),
+      'carbs': serializer.toJson<double>(carbs),
+      'fat': serializer.toJson<double>(fat),
+    };
+  }
+
+  NutritionTargetProfile copyWith(
+          {int? localId,
+          String? id,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? kind,
+          String? effectiveFrom,
+          double? calories,
+          double? protein,
+          double? carbs,
+          double? fat}) =>
+      NutritionTargetProfile(
+        localId: localId ?? this.localId,
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        kind: kind ?? this.kind,
+        effectiveFrom: effectiveFrom ?? this.effectiveFrom,
+        calories: calories ?? this.calories,
+        protein: protein ?? this.protein,
+        carbs: carbs ?? this.carbs,
+        fat: fat ?? this.fat,
+      );
+  NutritionTargetProfile copyWithCompanion(
+      NutritionTargetProfilesCompanion data) {
+    return NutritionTargetProfile(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      effectiveFrom: data.effectiveFrom.present
+          ? data.effectiveFrom.value
+          : this.effectiveFrom,
+      calories: data.calories.present ? data.calories.value : this.calories,
+      protein: data.protein.present ? data.protein.value : this.protein,
+      carbs: data.carbs.present ? data.carbs.value : this.carbs,
+      fat: data.fat.present ? data.fat.value : this.fat,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionTargetProfile(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('effectiveFrom: $effectiveFrom, ')
+          ..write('calories: $calories, ')
+          ..write('protein: $protein, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(localId, id, createdAt, updatedAt, deletedAt,
+      kind, effectiveFrom, calories, protein, carbs, fat);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NutritionTargetProfile &&
+          other.localId == this.localId &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.kind == this.kind &&
+          other.effectiveFrom == this.effectiveFrom &&
+          other.calories == this.calories &&
+          other.protein == this.protein &&
+          other.carbs == this.carbs &&
+          other.fat == this.fat);
+}
+
+class NutritionTargetProfilesCompanion
+    extends UpdateCompanion<NutritionTargetProfile> {
+  final Value<int> localId;
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> kind;
+  final Value<String> effectiveFrom;
+  final Value<double> calories;
+  final Value<double> protein;
+  final Value<double> carbs;
+  final Value<double> fat;
+  const NutritionTargetProfilesCompanion({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.effectiveFrom = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.carbs = const Value.absent(),
+    this.fat = const Value.absent(),
+  });
+  NutritionTargetProfilesCompanion.insert({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String kind,
+    required String effectiveFrom,
+    required double calories,
+    required double protein,
+    required double carbs,
+    required double fat,
+  })  : kind = Value(kind),
+        effectiveFrom = Value(effectiveFrom),
+        calories = Value(calories),
+        protein = Value(protein),
+        carbs = Value(carbs),
+        fat = Value(fat);
+  static Insertable<NutritionTargetProfile> custom({
+    Expression<int>? localId,
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? kind,
+    Expression<String>? effectiveFrom,
+    Expression<double>? calories,
+    Expression<double>? protein,
+    Expression<double>? carbs,
+    Expression<double>? fat,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (kind != null) 'kind': kind,
+      if (effectiveFrom != null) 'effective_from': effectiveFrom,
+      if (calories != null) 'calories': calories,
+      if (protein != null) 'protein': protein,
+      if (carbs != null) 'carbs': carbs,
+      if (fat != null) 'fat': fat,
+    });
+  }
+
+  NutritionTargetProfilesCompanion copyWith(
+      {Value<int>? localId,
+      Value<String>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? kind,
+      Value<String>? effectiveFrom,
+      Value<double>? calories,
+      Value<double>? protein,
+      Value<double>? carbs,
+      Value<double>? fat}) {
+    return NutritionTargetProfilesCompanion(
+      localId: localId ?? this.localId,
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      kind: kind ?? this.kind,
+      effectiveFrom: effectiveFrom ?? this.effectiveFrom,
+      calories: calories ?? this.calories,
+      protein: protein ?? this.protein,
+      carbs: carbs ?? this.carbs,
+      fat: fat ?? this.fat,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (effectiveFrom.present) {
+      map['effective_from'] = Variable<String>(effectiveFrom.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<double>(calories.value);
+    }
+    if (protein.present) {
+      map['protein'] = Variable<double>(protein.value);
+    }
+    if (carbs.present) {
+      map['carbs'] = Variable<double>(carbs.value);
+    }
+    if (fat.present) {
+      map['fat'] = Variable<double>(fat.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionTargetProfilesCompanion(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('effectiveFrom: $effectiveFrom, ')
+          ..write('calories: $calories, ')
+          ..write('protein: $protein, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyRecordsTable extends DailyRecords
+    with TableInfo<$DailyRecordsTable, DailyRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta =
+      const VerificationMeta('localId');
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+      'local_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+      clientDefault: () => const Uuid().v4());
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+      'date', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _timezoneNameMeta =
+      const VerificationMeta('timezoneName');
+  @override
+  late final GeneratedColumn<String> timezoneName = GeneratedColumn<String>(
+      'timezone_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _utcOffsetMinutesMeta =
+      const VerificationMeta('utcOffsetMinutes');
+  @override
+  late final GeneratedColumn<int> utcOffsetMinutes = GeneratedColumn<int>(
+      'utc_offset_minutes', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _trainingTypeMeta =
+      const VerificationMeta('trainingType');
+  @override
+  late final GeneratedColumn<String> trainingType = GeneratedColumn<String>(
+      'training_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('unset'));
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _targetOverrideIdMeta =
+      const VerificationMeta('targetOverrideId');
+  @override
+  late final GeneratedColumn<String> targetOverrideId = GeneratedColumn<String>(
+      'target_override_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES nutrition_target_profiles (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        localId,
+        id,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        date,
+        timezoneName,
+        utcOffsetMinutes,
+        trainingType,
+        notes,
+        targetOverrideId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_records';
+  @override
+  VerificationContext validateIntegrity(Insertable<DailyRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(_localIdMeta,
+          localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('timezone_name')) {
+      context.handle(
+          _timezoneNameMeta,
+          timezoneName.isAcceptableOrUnknown(
+              data['timezone_name']!, _timezoneNameMeta));
+    } else if (isInserting) {
+      context.missing(_timezoneNameMeta);
+    }
+    if (data.containsKey('utc_offset_minutes')) {
+      context.handle(
+          _utcOffsetMinutesMeta,
+          utcOffsetMinutes.isAcceptableOrUnknown(
+              data['utc_offset_minutes']!, _utcOffsetMinutesMeta));
+    } else if (isInserting) {
+      context.missing(_utcOffsetMinutesMeta);
+    }
+    if (data.containsKey('training_type')) {
+      context.handle(
+          _trainingTypeMeta,
+          trainingType.isAcceptableOrUnknown(
+              data['training_type']!, _trainingTypeMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('target_override_id')) {
+      context.handle(
+          _targetOverrideIdMeta,
+          targetOverrideId.isAcceptableOrUnknown(
+              data['target_override_id']!, _targetOverrideIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  DailyRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyRecord(
+      localId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}date'])!,
+      timezoneName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}timezone_name'])!,
+      utcOffsetMinutes: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}utc_offset_minutes'])!,
+      trainingType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}training_type'])!,
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes'])!,
+      targetOverrideId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_override_id']),
+    );
+  }
+
+  @override
+  $DailyRecordsTable createAlias(String alias) {
+    return $DailyRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyRecord extends DataClass implements Insertable<DailyRecord> {
+  final int localId;
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String date;
+  final String timezoneName;
+  final int utcOffsetMinutes;
+  final String trainingType;
+  final String notes;
+  final String? targetOverrideId;
+  const DailyRecord(
+      {required this.localId,
+      required this.id,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.date,
+      required this.timezoneName,
+      required this.utcOffsetMinutes,
+      required this.trainingType,
+      required this.notes,
+      this.targetOverrideId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['date'] = Variable<String>(date);
+    map['timezone_name'] = Variable<String>(timezoneName);
+    map['utc_offset_minutes'] = Variable<int>(utcOffsetMinutes);
+    map['training_type'] = Variable<String>(trainingType);
+    map['notes'] = Variable<String>(notes);
+    if (!nullToAbsent || targetOverrideId != null) {
+      map['target_override_id'] = Variable<String>(targetOverrideId);
+    }
+    return map;
+  }
+
+  DailyRecordsCompanion toCompanion(bool nullToAbsent) {
+    return DailyRecordsCompanion(
+      localId: Value(localId),
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      date: Value(date),
+      timezoneName: Value(timezoneName),
+      utcOffsetMinutes: Value(utcOffsetMinutes),
+      trainingType: Value(trainingType),
+      notes: Value(notes),
+      targetOverrideId: targetOverrideId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetOverrideId),
+    );
+  }
+
+  factory DailyRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyRecord(
+      localId: serializer.fromJson<int>(json['localId']),
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      date: serializer.fromJson<String>(json['date']),
+      timezoneName: serializer.fromJson<String>(json['timezoneName']),
+      utcOffsetMinutes: serializer.fromJson<int>(json['utcOffsetMinutes']),
+      trainingType: serializer.fromJson<String>(json['trainingType']),
+      notes: serializer.fromJson<String>(json['notes']),
+      targetOverrideId: serializer.fromJson<String?>(json['targetOverrideId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'date': serializer.toJson<String>(date),
+      'timezoneName': serializer.toJson<String>(timezoneName),
+      'utcOffsetMinutes': serializer.toJson<int>(utcOffsetMinutes),
+      'trainingType': serializer.toJson<String>(trainingType),
+      'notes': serializer.toJson<String>(notes),
+      'targetOverrideId': serializer.toJson<String?>(targetOverrideId),
+    };
+  }
+
+  DailyRecord copyWith(
+          {int? localId,
+          String? id,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? date,
+          String? timezoneName,
+          int? utcOffsetMinutes,
+          String? trainingType,
+          String? notes,
+          Value<String?> targetOverrideId = const Value.absent()}) =>
+      DailyRecord(
+        localId: localId ?? this.localId,
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        date: date ?? this.date,
+        timezoneName: timezoneName ?? this.timezoneName,
+        utcOffsetMinutes: utcOffsetMinutes ?? this.utcOffsetMinutes,
+        trainingType: trainingType ?? this.trainingType,
+        notes: notes ?? this.notes,
+        targetOverrideId: targetOverrideId.present
+            ? targetOverrideId.value
+            : this.targetOverrideId,
+      );
+  DailyRecord copyWithCompanion(DailyRecordsCompanion data) {
+    return DailyRecord(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      date: data.date.present ? data.date.value : this.date,
+      timezoneName: data.timezoneName.present
+          ? data.timezoneName.value
+          : this.timezoneName,
+      utcOffsetMinutes: data.utcOffsetMinutes.present
+          ? data.utcOffsetMinutes.value
+          : this.utcOffsetMinutes,
+      trainingType: data.trainingType.present
+          ? data.trainingType.value
+          : this.trainingType,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      targetOverrideId: data.targetOverrideId.present
+          ? data.targetOverrideId.value
+          : this.targetOverrideId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRecord(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('date: $date, ')
+          ..write('timezoneName: $timezoneName, ')
+          ..write('utcOffsetMinutes: $utcOffsetMinutes, ')
+          ..write('trainingType: $trainingType, ')
+          ..write('notes: $notes, ')
+          ..write('targetOverrideId: $targetOverrideId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      localId,
+      id,
+      createdAt,
+      updatedAt,
+      deletedAt,
+      date,
+      timezoneName,
+      utcOffsetMinutes,
+      trainingType,
+      notes,
+      targetOverrideId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyRecord &&
+          other.localId == this.localId &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.date == this.date &&
+          other.timezoneName == this.timezoneName &&
+          other.utcOffsetMinutes == this.utcOffsetMinutes &&
+          other.trainingType == this.trainingType &&
+          other.notes == this.notes &&
+          other.targetOverrideId == this.targetOverrideId);
+}
+
+class DailyRecordsCompanion extends UpdateCompanion<DailyRecord> {
+  final Value<int> localId;
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> date;
+  final Value<String> timezoneName;
+  final Value<int> utcOffsetMinutes;
+  final Value<String> trainingType;
+  final Value<String> notes;
+  final Value<String?> targetOverrideId;
+  const DailyRecordsCompanion({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.date = const Value.absent(),
+    this.timezoneName = const Value.absent(),
+    this.utcOffsetMinutes = const Value.absent(),
+    this.trainingType = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.targetOverrideId = const Value.absent(),
+  });
+  DailyRecordsCompanion.insert({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String date,
+    required String timezoneName,
+    required int utcOffsetMinutes,
+    this.trainingType = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.targetOverrideId = const Value.absent(),
+  })  : date = Value(date),
+        timezoneName = Value(timezoneName),
+        utcOffsetMinutes = Value(utcOffsetMinutes);
+  static Insertable<DailyRecord> custom({
+    Expression<int>? localId,
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? date,
+    Expression<String>? timezoneName,
+    Expression<int>? utcOffsetMinutes,
+    Expression<String>? trainingType,
+    Expression<String>? notes,
+    Expression<String>? targetOverrideId,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (date != null) 'date': date,
+      if (timezoneName != null) 'timezone_name': timezoneName,
+      if (utcOffsetMinutes != null) 'utc_offset_minutes': utcOffsetMinutes,
+      if (trainingType != null) 'training_type': trainingType,
+      if (notes != null) 'notes': notes,
+      if (targetOverrideId != null) 'target_override_id': targetOverrideId,
+    });
+  }
+
+  DailyRecordsCompanion copyWith(
+      {Value<int>? localId,
+      Value<String>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? date,
+      Value<String>? timezoneName,
+      Value<int>? utcOffsetMinutes,
+      Value<String>? trainingType,
+      Value<String>? notes,
+      Value<String?>? targetOverrideId}) {
+    return DailyRecordsCompanion(
+      localId: localId ?? this.localId,
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      date: date ?? this.date,
+      timezoneName: timezoneName ?? this.timezoneName,
+      utcOffsetMinutes: utcOffsetMinutes ?? this.utcOffsetMinutes,
+      trainingType: trainingType ?? this.trainingType,
+      notes: notes ?? this.notes,
+      targetOverrideId: targetOverrideId ?? this.targetOverrideId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (timezoneName.present) {
+      map['timezone_name'] = Variable<String>(timezoneName.value);
+    }
+    if (utcOffsetMinutes.present) {
+      map['utc_offset_minutes'] = Variable<int>(utcOffsetMinutes.value);
+    }
+    if (trainingType.present) {
+      map['training_type'] = Variable<String>(trainingType.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (targetOverrideId.present) {
+      map['target_override_id'] = Variable<String>(targetOverrideId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRecordsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('date: $date, ')
+          ..write('timezoneName: $timezoneName, ')
+          ..write('utcOffsetMinutes: $utcOffsetMinutes, ')
+          ..write('trainingType: $trainingType, ')
+          ..write('notes: $notes, ')
+          ..write('targetOverrideId: $targetOverrideId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AppSettingsTable extends AppSettings
     with TableInfo<$AppSettingsTable, AppSetting> {
   @override
@@ -24878,6 +25977,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
+  late final $NutritionTargetProfilesTable nutritionTargetProfiles =
+      $NutritionTargetProfilesTable(this);
+  late final $DailyRecordsTable dailyRecords = $DailyRecordsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $ExercisesTable exercises = $ExercisesTable(this);
   late final $RoutinesTable routines = $RoutinesTable(this);
@@ -24936,6 +26038,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ExerciseAliasesTable(this);
   late final $UserFoodOverrideTranslationsTable userFoodOverrideTranslations =
       $UserFoodOverrideTranslationsTable(this);
+  late final Index idxTargetEffectiveDate = Index('idx_target_effective_date',
+      'CREATE INDEX idx_target_effective_date ON nutrition_target_profiles (kind, effective_from)');
   late final Index idxFoodAliasLookup = Index('idx_food_alias_lookup',
       'CREATE INDEX idx_food_alias_lookup ON food_aliases (normalized_alias)');
   late final Index idxNutritionConsumedAt = Index('idx_nutrition_consumed_at',
@@ -24951,6 +26055,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         profiles,
+        nutritionTargetProfiles,
+        dailyRecords,
         appSettings,
         exercises,
         routines,
@@ -24991,6 +26097,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         catalogLanguages,
         exerciseAliases,
         userFoodOverrideTranslations,
+        idxTargetEffectiveDate,
         idxFoodAliasLookup,
         idxNutritionConsumedAt,
         idxFluidConsumedAt,
@@ -25463,6 +26570,725 @@ typedef $$ProfilesTableProcessedTableManager = ProcessedTableManager<
     (Profile, $$ProfilesTableReferences),
     Profile,
     PrefetchHooks Function({bool appSettingsRefs})>;
+typedef $$NutritionTargetProfilesTableCreateCompanionBuilder
+    = NutritionTargetProfilesCompanion Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  required String kind,
+  required String effectiveFrom,
+  required double calories,
+  required double protein,
+  required double carbs,
+  required double fat,
+});
+typedef $$NutritionTargetProfilesTableUpdateCompanionBuilder
+    = NutritionTargetProfilesCompanion Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> kind,
+  Value<String> effectiveFrom,
+  Value<double> calories,
+  Value<double> protein,
+  Value<double> carbs,
+  Value<double> fat,
+});
+
+final class $$NutritionTargetProfilesTableReferences extends BaseReferences<
+    _$AppDatabase, $NutritionTargetProfilesTable, NutritionTargetProfile> {
+  $$NutritionTargetProfilesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DailyRecordsTable, List<DailyRecord>>
+      _dailyRecordsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.dailyRecords,
+          aliasName:
+              'nutrition_target_profiles__id__daily_records__target_override_id');
+
+  $$DailyRecordsTableProcessedTableManager get dailyRecordsRefs {
+    final manager = $$DailyRecordsTableTableManager($_db, $_db.dailyRecords)
+        .filter((f) =>
+            f.targetOverrideId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_dailyRecordsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$NutritionTargetProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $NutritionTargetProfilesTable> {
+  $$NutritionTargetProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get effectiveFrom => $composableBuilder(
+      column: $table.effectiveFrom, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get calories => $composableBuilder(
+      column: $table.calories, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get protein => $composableBuilder(
+      column: $table.protein, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get carbs => $composableBuilder(
+      column: $table.carbs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get fat => $composableBuilder(
+      column: $table.fat, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> dailyRecordsRefs(
+      Expression<bool> Function($$DailyRecordsTableFilterComposer f) f) {
+    final $$DailyRecordsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dailyRecords,
+        getReferencedColumn: (t) => t.targetOverrideId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DailyRecordsTableFilterComposer(
+              $db: $db,
+              $table: $db.dailyRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$NutritionTargetProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $NutritionTargetProfilesTable> {
+  $$NutritionTargetProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get effectiveFrom => $composableBuilder(
+      column: $table.effectiveFrom,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get calories => $composableBuilder(
+      column: $table.calories, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get protein => $composableBuilder(
+      column: $table.protein, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get carbs => $composableBuilder(
+      column: $table.carbs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get fat => $composableBuilder(
+      column: $table.fat, builder: (column) => ColumnOrderings(column));
+}
+
+class $$NutritionTargetProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NutritionTargetProfilesTable> {
+  $$NutritionTargetProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get effectiveFrom => $composableBuilder(
+      column: $table.effectiveFrom, builder: (column) => column);
+
+  GeneratedColumn<double> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<double> get protein =>
+      $composableBuilder(column: $table.protein, builder: (column) => column);
+
+  GeneratedColumn<double> get carbs =>
+      $composableBuilder(column: $table.carbs, builder: (column) => column);
+
+  GeneratedColumn<double> get fat =>
+      $composableBuilder(column: $table.fat, builder: (column) => column);
+
+  Expression<T> dailyRecordsRefs<T extends Object>(
+      Expression<T> Function($$DailyRecordsTableAnnotationComposer a) f) {
+    final $$DailyRecordsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dailyRecords,
+        getReferencedColumn: (t) => t.targetOverrideId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DailyRecordsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.dailyRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$NutritionTargetProfilesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $NutritionTargetProfilesTable,
+    NutritionTargetProfile,
+    $$NutritionTargetProfilesTableFilterComposer,
+    $$NutritionTargetProfilesTableOrderingComposer,
+    $$NutritionTargetProfilesTableAnnotationComposer,
+    $$NutritionTargetProfilesTableCreateCompanionBuilder,
+    $$NutritionTargetProfilesTableUpdateCompanionBuilder,
+    (NutritionTargetProfile, $$NutritionTargetProfilesTableReferences),
+    NutritionTargetProfile,
+    PrefetchHooks Function({bool dailyRecordsRefs})> {
+  $$NutritionTargetProfilesTableTableManager(
+      _$AppDatabase db, $NutritionTargetProfilesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NutritionTargetProfilesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NutritionTargetProfilesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NutritionTargetProfilesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> effectiveFrom = const Value.absent(),
+            Value<double> calories = const Value.absent(),
+            Value<double> protein = const Value.absent(),
+            Value<double> carbs = const Value.absent(),
+            Value<double> fat = const Value.absent(),
+          }) =>
+              NutritionTargetProfilesCompanion(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            kind: kind,
+            effectiveFrom: effectiveFrom,
+            calories: calories,
+            protein: protein,
+            carbs: carbs,
+            fat: fat,
+          ),
+          createCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            required String kind,
+            required String effectiveFrom,
+            required double calories,
+            required double protein,
+            required double carbs,
+            required double fat,
+          }) =>
+              NutritionTargetProfilesCompanion.insert(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            kind: kind,
+            effectiveFrom: effectiveFrom,
+            calories: calories,
+            protein: protein,
+            carbs: carbs,
+            fat: fat,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$NutritionTargetProfilesTable,
+                        NutritionTargetProfile>(table),
+                    $$NutritionTargetProfilesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({dailyRecordsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (dailyRecordsRefs) db.dailyRecords],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (dailyRecordsRefs)
+                    await $_getPrefetchedData<NutritionTargetProfile,
+                            $NutritionTargetProfilesTable, DailyRecord>(
+                        currentTable: table,
+                        referencedTable:
+                            $$NutritionTargetProfilesTableReferences
+                                ._dailyRecordsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$NutritionTargetProfilesTableReferences(
+                                    db, table, p0)
+                                .dailyRecordsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.targetOverrideId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$NutritionTargetProfilesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $NutritionTargetProfilesTable,
+        NutritionTargetProfile,
+        $$NutritionTargetProfilesTableFilterComposer,
+        $$NutritionTargetProfilesTableOrderingComposer,
+        $$NutritionTargetProfilesTableAnnotationComposer,
+        $$NutritionTargetProfilesTableCreateCompanionBuilder,
+        $$NutritionTargetProfilesTableUpdateCompanionBuilder,
+        (NutritionTargetProfile, $$NutritionTargetProfilesTableReferences),
+        NutritionTargetProfile,
+        PrefetchHooks Function({bool dailyRecordsRefs})>;
+typedef $$DailyRecordsTableCreateCompanionBuilder = DailyRecordsCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  required String date,
+  required String timezoneName,
+  required int utcOffsetMinutes,
+  Value<String> trainingType,
+  Value<String> notes,
+  Value<String?> targetOverrideId,
+});
+typedef $$DailyRecordsTableUpdateCompanionBuilder = DailyRecordsCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> date,
+  Value<String> timezoneName,
+  Value<int> utcOffsetMinutes,
+  Value<String> trainingType,
+  Value<String> notes,
+  Value<String?> targetOverrideId,
+});
+
+final class $$DailyRecordsTableReferences
+    extends BaseReferences<_$AppDatabase, $DailyRecordsTable, DailyRecord> {
+  $$DailyRecordsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $NutritionTargetProfilesTable _targetOverrideIdTable(
+          _$AppDatabase db) =>
+      db.nutritionTargetProfiles.createAlias(
+          'daily_records__target_override_id__nutrition_target_profiles__id');
+
+  $$NutritionTargetProfilesTableProcessedTableManager? get targetOverrideId {
+    final $_column = $_itemColumn<String>('target_override_id');
+    if ($_column == null) return null;
+    final manager = $$NutritionTargetProfilesTableTableManager(
+            $_db, $_db.nutritionTargetProfiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_targetOverrideIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$DailyRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyRecordsTable> {
+  $$DailyRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get timezoneName => $composableBuilder(
+      column: $table.timezoneName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get utcOffsetMinutes => $composableBuilder(
+      column: $table.utcOffsetMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trainingType => $composableBuilder(
+      column: $table.trainingType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  $$NutritionTargetProfilesTableFilterComposer get targetOverrideId {
+    final $$NutritionTargetProfilesTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.targetOverrideId,
+            referencedTable: $db.nutritionTargetProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$NutritionTargetProfilesTableFilterComposer(
+                  $db: $db,
+                  $table: $db.nutritionTargetProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$DailyRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyRecordsTable> {
+  $$DailyRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get timezoneName => $composableBuilder(
+      column: $table.timezoneName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get utcOffsetMinutes => $composableBuilder(
+      column: $table.utcOffsetMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trainingType => $composableBuilder(
+      column: $table.trainingType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  $$NutritionTargetProfilesTableOrderingComposer get targetOverrideId {
+    final $$NutritionTargetProfilesTableOrderingComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.targetOverrideId,
+            referencedTable: $db.nutritionTargetProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$NutritionTargetProfilesTableOrderingComposer(
+                  $db: $db,
+                  $table: $db.nutritionTargetProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$DailyRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyRecordsTable> {
+  $$DailyRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get timezoneName => $composableBuilder(
+      column: $table.timezoneName, builder: (column) => column);
+
+  GeneratedColumn<int> get utcOffsetMinutes => $composableBuilder(
+      column: $table.utcOffsetMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get trainingType => $composableBuilder(
+      column: $table.trainingType, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$NutritionTargetProfilesTableAnnotationComposer get targetOverrideId {
+    final $$NutritionTargetProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.targetOverrideId,
+            referencedTable: $db.nutritionTargetProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$NutritionTargetProfilesTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.nutritionTargetProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$DailyRecordsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DailyRecordsTable,
+    DailyRecord,
+    $$DailyRecordsTableFilterComposer,
+    $$DailyRecordsTableOrderingComposer,
+    $$DailyRecordsTableAnnotationComposer,
+    $$DailyRecordsTableCreateCompanionBuilder,
+    $$DailyRecordsTableUpdateCompanionBuilder,
+    (DailyRecord, $$DailyRecordsTableReferences),
+    DailyRecord,
+    PrefetchHooks Function({bool targetOverrideId})> {
+  $$DailyRecordsTableTableManager(_$AppDatabase db, $DailyRecordsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> date = const Value.absent(),
+            Value<String> timezoneName = const Value.absent(),
+            Value<int> utcOffsetMinutes = const Value.absent(),
+            Value<String> trainingType = const Value.absent(),
+            Value<String> notes = const Value.absent(),
+            Value<String?> targetOverrideId = const Value.absent(),
+          }) =>
+              DailyRecordsCompanion(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            date: date,
+            timezoneName: timezoneName,
+            utcOffsetMinutes: utcOffsetMinutes,
+            trainingType: trainingType,
+            notes: notes,
+            targetOverrideId: targetOverrideId,
+          ),
+          createCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            required String date,
+            required String timezoneName,
+            required int utcOffsetMinutes,
+            Value<String> trainingType = const Value.absent(),
+            Value<String> notes = const Value.absent(),
+            Value<String?> targetOverrideId = const Value.absent(),
+          }) =>
+              DailyRecordsCompanion.insert(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            date: date,
+            timezoneName: timezoneName,
+            utcOffsetMinutes: utcOffsetMinutes,
+            trainingType: trainingType,
+            notes: notes,
+            targetOverrideId: targetOverrideId,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$DailyRecordsTable, DailyRecord>(table),
+                    $$DailyRecordsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({targetOverrideId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (targetOverrideId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.targetOverrideId,
+                    referencedTable: $$DailyRecordsTableReferences
+                        ._targetOverrideIdTable(db),
+                    referencedColumn: $$DailyRecordsTableReferences
+                        ._targetOverrideIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$DailyRecordsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DailyRecordsTable,
+    DailyRecord,
+    $$DailyRecordsTableFilterComposer,
+    $$DailyRecordsTableOrderingComposer,
+    $$DailyRecordsTableAnnotationComposer,
+    $$DailyRecordsTableCreateCompanionBuilder,
+    $$DailyRecordsTableUpdateCompanionBuilder,
+    (DailyRecord, $$DailyRecordsTableReferences),
+    DailyRecord,
+    PrefetchHooks Function({bool targetOverrideId})>;
 typedef $$AppSettingsTableCreateCompanionBuilder = AppSettingsCompanion
     Function({
   Value<int> localId,
@@ -40942,6 +42768,11 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ProfilesTableTableManager get profiles =>
       $$ProfilesTableTableManager(_db, _db.profiles);
+  $$NutritionTargetProfilesTableTableManager get nutritionTargetProfiles =>
+      $$NutritionTargetProfilesTableTableManager(
+          _db, _db.nutritionTargetProfiles);
+  $$DailyRecordsTableTableManager get dailyRecords =>
+      $$DailyRecordsTableTableManager(_db, _db.dailyRecords);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$ExercisesTableTableManager get exercises =>

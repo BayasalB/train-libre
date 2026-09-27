@@ -1,3 +1,4 @@
+import '../../features/diary/domain/models/food_alias.dart';
 // lib/core/infrastructure/backup_manager.dart
 
 import 'dart:async';
@@ -46,7 +47,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 6;
+  static const int currentSchemaVersion = 7;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -135,22 +136,8 @@ class BackupManager {
     final customProductRows = await (dbInst.select(dbInst.products)
           ..where((t) => t.source.equals('user')))
         .get();
-    final customFoodItems = customProductRows
-        .map((row) => FoodItem(
-            barcode: row.barcode,
-            name: row.name,
-            brand: row.brand ?? '',
-            calories: row.calories,
-            protein: row.protein,
-            carbs: row.carbs,
-            fat: row.fat,
-            source: FoodItemSource.user,
-            sugar: row.sugar ?? 0.0,
-            fiber: row.fiber ?? 0.0,
-            salt: row.salt ?? 0.0,
-            isLiquid: row.isLiquid,
-            category: row.category))
-        .toList();
+    final customFoodItems = await _productDb.getProductsByBarcodes(
+        customProductRows.map((r) => r.barcode).toList());
     token?.throwIfCancelled();
 
     onProgress?.call('routines', 0.35);
@@ -358,6 +345,14 @@ class BackupManager {
     onProgress?.call('cardio_data', 0.98);
     payload['cardio_activities'] = await _fetchTable('cardio_activities');
     payload['cardio_samples'] = await _fetchTable('cardio_samples');
+    payload['food_aliases'] = await _fetchTable('food_aliases');
+    // Include personalized catalog foods as well, so restore works offline on a new device.
+    payload['saved_food_products'] = (await dbInst.customSelect('''
+      SELECT p.* FROM products p WHERE p.source = 'user'
+        OR EXISTS (SELECT 1 FROM user_food_overrides o WHERE o.barcode = p.barcode)
+        OR EXISTS (SELECT 1 FROM food_aliases a WHERE a.product_barcode = p.barcode)
+        OR EXISTS (SELECT 1 FROM favorites f WHERE f.barcode = p.barcode)
+    ''').get()).map((r) => r.data).toList();
     payload['user_food_overrides'] = payload['userFoodOverrides'];
     payload['user_food_override_translations'] =
         payload['userFoodOverrideTranslations'];
@@ -780,6 +775,9 @@ class BackupManager {
         await dbInst.customStatement('DELETE FROM off_products_archive');
         await dbInst.delete(dbInst.measurements).go();
         await dbInst.delete(dbInst.mealItems).go();
+        await dbInst.delete(dbInst.foodAliases).go();
+        await dbInst.delete(dbInst.userFoodOverrideTranslations).go();
+        await dbInst.delete(dbInst.userFoodOverrides).go();
         await dbInst.delete(dbInst.favorites).go();
         await dbInst.delete(dbInst.supplements).go();
         await dbInst.delete(dbInst.meals).go();
@@ -857,50 +855,55 @@ class BackupManager {
         token?.throwIfCancelled();
 
         onProgress?.call('custom_foods', 0.50);
-        await dbInst.batch((batch) {
-          for (final item in backup.customFoodItems) {
-            batch.insert(
-              dbInst.products,
-              db.ProductsCompanion(
-                barcode: drift.Value(item.barcode),
-                name: drift.Value(item.name),
-                brand: drift.Value(item.brand),
-                calories: drift.Value(item.calories),
-                protein: drift.Value(item.protein),
-                carbs: drift.Value(item.carbs),
-                fat: drift.Value(item.fat),
-                sugar: drift.Value(item.sugar),
-                fiber: drift.Value(item.fiber),
-                salt: drift.Value(item.salt),
-                source: const drift.Value('user'),
-                isLiquid: drift.Value(item.isLiquid ?? false),
-                category: drift.Value(item.category),
-                id: drift.Value(
-                  item.barcode.startsWith('user_')
-                      ? item.barcode
-                      : 'user_${item.barcode}',
+        if (payload['saved_food_products'] == null) {
+          await dbInst.batch((batch) {
+            for (final item in backup.customFoodItems) {
+              batch.insert(
+                dbInst.products,
+                db.ProductsCompanion(
+                  barcode: drift.Value(item.barcode),
+                  name: drift.Value(item.name),
+                  brand: drift.Value(item.brand),
+                  calories: drift.Value(item.calories),
+                  protein: drift.Value(item.protein),
+                  carbs: drift.Value(item.carbs),
+                  fat: drift.Value(item.fat),
+                  sugar: drift.Value(item.sugar),
+                  fiber: drift.Value(item.fiber),
+                  salt: drift.Value(item.salt),
+                  source: const drift.Value('user'),
+                  isLiquid: drift.Value(item.isLiquid ?? false),
+                  category: drift.Value(item.category),
+                  id: drift.Value(
+                    item.barcode.startsWith('user_')
+                        ? item.barcode
+                        : 'user_${item.barcode}',
+                  ),
+                  caffeine: drift.Value(item.caffeineMgPer100ml),
+                  caffeineMgPer100g: drift.Value(item.caffeineMgPer100g),
+                  isFluid: drift.Value(item.isFluid),
+                  nameDe: drift.Value(item.nameDe),
+                  nameEn: drift.Value(item.nameEn),
+                  ingredientsText: drift.Value(item.ingredientsText),
+                  ingredientsAnalysisTags: drift.Value(
+                      item.ingredientsAnalysisTags != null
+                          ? jsonEncode(item.ingredientsAnalysisTags)
+                          : null),
+                  additivesTags: drift.Value(item.additivesTags != null
+                      ? jsonEncode(item.additivesTags)
+                      : null),
+                  productQuantity: drift.Value(item.productQuantity),
+                  productQuantityUnit: drift.Value(item.productQuantityUnit),
                 ),
-                caffeine: drift.Value(item.caffeineMgPer100ml),
-                caffeineMgPer100g: drift.Value(item.caffeineMgPer100g),
-                isFluid: drift.Value(item.isFluid),
-                nameDe: drift.Value(item.nameDe),
-                nameEn: drift.Value(item.nameEn),
-                ingredientsText: drift.Value(item.ingredientsText),
-                ingredientsAnalysisTags: drift.Value(
-                    item.ingredientsAnalysisTags != null
-                        ? jsonEncode(item.ingredientsAnalysisTags)
-                        : null),
-                additivesTags: drift.Value(item.additivesTags != null
-                    ? jsonEncode(item.additivesTags)
-                    : null),
-                productQuantity: drift.Value(item.productQuantity),
-                productQuantityUnit: drift.Value(item.productQuantityUnit),
-              ),
-              mode: drift.InsertMode.insertOrReplace,
-            );
-          }
-        });
-        token?.throwIfCancelled();
+                mode: drift.InsertMode.insertOrReplace,
+              );
+            }
+          });
+          token?.throwIfCancelled();
+        }
+        await _restoreSavedFoodProducts(
+            payload['saved_food_products'] as List?);
+        await _restoreFoodAliases(payload['food_aliases'] as List?);
 
         onProgress?.call('meals', 0.60);
         await _mealDb.importMealTemplates(backup.mealTemplates);
@@ -1258,6 +1261,47 @@ class BackupManager {
       }
     } catch (e) {
       debugPrint('Pruning orphaned workout photos failed: $e');
+    }
+  }
+
+  Future<void> _restoreSavedFoodProducts(List? rows) async {
+    if (rows == null) return;
+    final database = _dbHelper.dbInstance;
+    final allowed = database.products.$columns.map((c) => c.name).toSet();
+    for (final raw in rows) {
+      final row = Map<String, dynamic>.from(raw as Map)..remove('local_id');
+      if (!row.keys.every(allowed.contains)) {
+        throw const FormatException('Unknown saved food column');
+      }
+      final columns = row.keys.toList();
+      final updates = columns
+          .where((key) => key != 'id' && key != 'barcode')
+          .map((key) => '$key = excluded.$key')
+          .join(', ');
+      await database.customStatement(
+          'INSERT INTO products (${columns.join(',')}) VALUES (${List.filled(columns.length, '?').join(',')}) '
+          'ON CONFLICT(barcode) DO UPDATE SET $updates',
+          row.values.toList());
+    }
+  }
+
+  Future<void> _restoreFoodAliases(List? rows) async {
+    if (rows == null) return;
+    final database = _dbHelper.dbInstance;
+    final allowed = database.foodAliases.$columns.map((c) => c.name).toSet();
+    for (final raw in rows) {
+      final row = Map<String, dynamic>.from(raw as Map)..remove('local_id');
+      final alias = row['alias'];
+      if (alias is! String ||
+          normalizeFoodAlias(alias).isEmpty ||
+          !row.keys.every(allowed.contains)) {
+        throw const FormatException('Invalid food alias');
+      }
+      row['normalized_alias'] = normalizeFoodAlias(alias);
+      // Plain INSERT deliberately rejects duplicate UUIDs/food-alias pairs and rolls back.
+      await database.customStatement(
+          'INSERT INTO food_aliases (${row.keys.join(',')}) VALUES (${List.filled(row.length, '?').join(',')})',
+          row.values.toList());
     }
   }
 

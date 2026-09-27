@@ -67,8 +67,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
   /// Controls visibility of the portion ↔ 100g toggle across both diary
   /// and catalog contexts.
   bool get _hasPortionToggle =>
-      _displayItem.productQuantity != null &&
-      _displayItem.productQuantity! > 1.0;
+      _trackedQuantity != null && _trackedQuantity! > 0;
 
   // ---------- DEV: Inline editing ----------
   bool _devEditing = false; // toggled via secret tap
@@ -99,7 +98,12 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       _showPer100g = _trackedQuantity == 0;
     } else {
       _displayItem = widget.foodItem!;
-      _trackedQuantity = _displayItem.productQuantity;
+      _trackedQuantity = _displayItem.metadata.servingUnit ==
+              (_displayItem.isFluid || _displayItem.isLiquid == true
+                  ? 'ml'
+                  : 'g')
+          ? _displayItem.metadata.servingSize
+          : null;
       _showPer100g = _trackedQuantity == null || _trackedQuantity == 0;
     }
     _checkIfFavorite();
@@ -354,6 +358,27 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
     }
   }
 
+  Future<void> _editSavedFood() async {
+    final current = await ProductLocalDataSource.instance
+        .getProductByBarcode(_displayItem.barcode);
+    if (!mounted) return;
+    if (current == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('This historical food is no longer in Saved Foods.')));
+      return;
+    }
+    final result = await Navigator.of(context).push<FoodItem>(MaterialPageRoute(
+        builder: (_) => CreateFoodScreen(foodItemToEdit: current)));
+    // A diary detail continues to display the archived version after a catalog edit.
+    if (mounted && result != null && widget.trackedItem == null) {
+      setState(() {
+        _displayItem = result;
+        _trackedQuantity = result.metadata.servingSize;
+        _showPer100g = _trackedQuantity == null;
+      });
+    }
+  }
+
   Future<void> _duplicateAndEdit() async {
     final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
@@ -407,6 +432,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
             : null,
         productQuantity: _displayItem.productQuantity,
         productQuantityUnit: _displayItem.productQuantityUnit,
+        metadata: _displayItem.metadata,
       );
 
       await ProductLocalDataSource.instance.insertProduct(duplicated);
@@ -570,23 +596,15 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
           ],
         ),
         actions: [
+          IconButton(
+              tooltip: 'Saved Food details & aliases',
+              icon: const Icon(Icons.sell_outlined),
+              onPressed: _editSavedFood),
           if (_displayItem.isCustom) ...[
             IconButton(
               tooltip: l10n.edit,
               icon: const Icon(LucideIcons.pencil),
-              onPressed: () async {
-                final result = await Navigator.of(context).push<FoodItem>(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateFoodScreen(foodItemToEdit: _displayItem),
-                  ),
-                );
-                if (result != null) {
-                  setState(() {
-                    _displayItem = result;
-                  });
-                }
-              },
+              onPressed: _editSavedFood,
             ),
             IconButton(
               tooltip: l10n.delete,
@@ -664,9 +682,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         (_showPer100g || !_hasPortionInfo)
                             ? l10n.nutritionPer100g
                             : l10n.nutritionPerPortion(
-                                _trackedQuantity ??
-                                    _displayItem.productQuantity ??
-                                    100,
+                                _trackedQuantity ?? 100,
                               ),
                         style: textTheme.titleLarge,
                       ),
@@ -710,6 +726,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                 if (_displayItem.sugar != null ||
                     _displayItem.fiber != null ||
                     _displayItem.salt != null ||
+                    _displayItem.sodium != null ||
                     (_displayItem.caffeineMgPer100g ?? 0) > 0 ||
                     (_displayItem.caffeineMgPer100ml ?? 0) > 0) ...[
                   const SizedBox(height: DesignConstants.spacingM),
@@ -726,6 +743,9 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             l10n.fiber,
                             _getDisplayValue(_displayItem.fiber!),
                           ),
+                        if (_displayItem.sodium != null)
+                          _buildAnimatedNutrientRow(
+                              'Sodium', _getDisplayValue(_displayItem.sodium!)),
                         if (_displayItem.salt != null)
                           _buildAnimatedNutrientRow(
                             l10n.salt,

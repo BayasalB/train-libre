@@ -6,6 +6,9 @@ import '../../../../data/database_helper.dart';
 import '../../../../data/drift_database.dart' as db;
 import '../../../../config/app_data_sources.dart';
 import '../../domain/models/food_item.dart';
+import '../../domain/models/saved_food_metadata.dart';
+import '../../domain/models/food_alias.dart';
+import 'food_alias_local_data_source.dart';
 import '../../../../services/catalog_file_migration.dart';
 import '../../../../util/perf_debug_timer.dart';
 import '../../domain/use_cases/evaluate_food_source_use_case.dart';
@@ -50,6 +53,15 @@ class ProductLocalDataSource {
     return db.ProductsCompanion(
       id: item.id != null ? Value(item.id!) : const Value.absent(),
       barcode: Value(item.barcode),
+      servingSize: Value(item.metadata.servingSize),
+      servingUnit: Value(item.metadata.servingUnit),
+      sodium: Value(item.sodium),
+      nutritionSource: Value(item.metadata.source?.name),
+      nutritionVerified: Value(item.metadata.verified),
+      nutritionVerifiedAt: Value(item.metadata.verifiedAt),
+      foodNotes: Value(item.metadata.notes),
+      productPhotoRef: Value(item.metadata.productPhotoRef),
+      labelPhotoRef: Value(item.metadata.labelPhotoRef),
       name: Value(item.name),
       nameDe: Value(item.nameDe),
       nameEn: Value(item.nameEn),
@@ -125,27 +137,36 @@ class ProductLocalDataSource {
       fat: overrideRow?.fat ?? row.fat,
       source: source,
       category: overrideRow?.category ?? row.category,
-      sugar: overrideRow?.sugar ?? row.sugar,
-      fiber: overrideRow?.fiber ?? row.fiber,
-      salt: overrideRow?.salt ?? row.salt,
-      sodium: (overrideRow?.salt ?? row.salt) != null
-          ? (overrideRow?.salt ?? row.salt)! / 2.5
-          : null,
+      sugar: (overrideRow != null ? overrideRow.sugar : row.sugar),
+      fiber: (overrideRow != null ? overrideRow.fiber : row.fiber),
+      salt: (overrideRow != null ? overrideRow.salt : row.salt),
+      sodium: overrideRow != null ? overrideRow.sodium : row.sodium,
+      metadata: SavedFoodMetadata.fromJson(
+          overrideRow != null ? overrideRow.toJson() : row.toJson()),
       kj: ((overrideRow?.calories ?? row.calories) * 4.184),
       calcium: null,
       isLiquid: overrideRow?.isLiquid ?? row.isLiquid,
       isFluid: overrideRow?.isFluid ?? row.isFluid,
-      caffeineMgPer100ml: overrideRow?.caffeine ?? row.caffeine,
-      caffeineMgPer100g:
-          overrideRow?.caffeineMgPer100g ?? row.caffeineMgPer100g,
-      ingredientsText: overrideRow?.ingredientsText ?? row.ingredientsText,
-      ingredientsAnalysisTags: _parseJsonList(
-          overrideRow?.ingredientsAnalysisTags ?? row.ingredientsAnalysisTags),
-      additivesTags:
-          _parseJsonList(overrideRow?.additivesTags ?? row.additivesTags),
-      productQuantity: overrideRow?.productQuantity ?? row.productQuantity,
-      productQuantityUnit:
-          overrideRow?.productQuantityUnit ?? row.productQuantityUnit,
+      caffeineMgPer100ml:
+          (overrideRow != null ? overrideRow.caffeine : row.caffeine),
+      caffeineMgPer100g: (overrideRow != null
+          ? overrideRow.caffeineMgPer100g
+          : row.caffeineMgPer100g),
+      ingredientsText: (overrideRow != null
+          ? overrideRow.ingredientsText
+          : row.ingredientsText),
+      ingredientsAnalysisTags: _parseJsonList((overrideRow != null
+          ? overrideRow.ingredientsAnalysisTags
+          : row.ingredientsAnalysisTags)),
+      additivesTags: _parseJsonList((overrideRow != null
+          ? overrideRow.additivesTags
+          : row.additivesTags)),
+      productQuantity: (overrideRow != null
+          ? overrideRow.productQuantity
+          : row.productQuantity),
+      productQuantityUnit: (overrideRow != null
+          ? overrideRow.productQuantityUnit
+          : row.productQuantityUnit),
     );
   }
 
@@ -181,7 +202,8 @@ class ProductLocalDataSource {
       sugar: row.sugar,
       fiber: row.fiber,
       salt: row.salt,
-      sodium: row.salt != null ? row.salt! / 2.5 : null,
+      sodium: row.sodium,
+      metadata: SavedFoodMetadata.fromJson(row.toJson()),
       kj: row.calories * 4.184,
       calcium: null,
       isLiquid: row.isLiquid,
@@ -218,56 +240,98 @@ class ProductLocalDataSource {
 
   /// Inserts a new product into the database or replaces an existing one with the same barcode.
   Future<void> insertProduct(FoodItem item) async {
+    item.metadata.validate();
+    if (item.sodium != null && (!item.sodium!.isFinite || item.sodium! < 0)) {
+      throw ArgumentError('Sodium must be finite and nonnegative');
+    }
     final dbInstance = await database;
-    await dbInstance
-        .into(dbInstance.products)
-        .insert(_mapModelToCompanion(item), mode: InsertMode.insertOrReplace);
+    final existing = await (dbInstance.select(dbInstance.products)
+          ..where((t) => t.barcode.equals(item.barcode)))
+        .getSingleOrNull();
+    if (existing != null &&
+        existing.source == 'user' &&
+        (item.source != FoodItemSource.user ||
+            item.nutritionSource == NutritionSource.estimate)) {
+      return;
+    }
+    // UPSERT preserves UUID/local ID and aliases when a catalog product refreshes.
+    await dbInstance.into(dbInstance.products).insert(
+        _mapModelToCompanion(item),
+        onConflict: DoUpdate(
+            (old) =>
+                _mapModelToCompanion(item).copyWith(id: const Value.absent()),
+            target: [dbInstance.products.barcode]));
   }
 
   /// Updates an existing product's information in the database.
   Future<void> updateProduct(FoodItem item) async {
-    final dbInstance = await database;
-    await (dbInstance.update(dbInstance.products)
-          ..where((tbl) => tbl.barcode.equals(item.barcode)))
-        .write(_mapModelToCompanion(item));
-
-    final existingOverride =
-        await (dbInstance.select(dbInstance.userFoodOverrides)
+    item.metadata.validate();
+    if (item.sodium != null && (!item.sodium!.isFinite || item.sodium! < 0)) {
+      throw ArgumentError('Sodium must be finite and nonnegative');
+    }
+    await _dbInstance.transaction(() async {
+      final dbInstance = await database;
+      final original = await (dbInstance.select(dbInstance.products)
+            ..where((t) => t.barcode.equals(item.barcode)))
+          .getSingleOrNull();
+      if (original == null) throw StateError('Saved Food no longer exists.');
+      // Catalog data remains a catalog; personal changes live in the existing override.
+      if (original.source == 'user') {
+        await (dbInstance.update(dbInstance.products)
               ..where((tbl) => tbl.barcode.equals(item.barcode)))
-            .getSingleOrNull();
+            .write(_mapModelToCompanion(item).copyWith(
+                id: const Value.absent(), updatedAt: Value(DateTime.now())));
+      }
 
-    final overrideCompanion = db.UserFoodOverridesCompanion(
-      localId: existingOverride != null
-          ? Value(existingOverride.localId)
-          : const Value.absent(),
-      id: existingOverride != null
-          ? Value(existingOverride.id)
-          : const Value.absent(),
-      barcode: Value(item.barcode),
-      name: Value(item.name),
-      brand: Value(item.brand),
-      calories: Value(item.calories),
-      protein: Value(item.protein),
-      carbs: Value(item.carbs),
-      fat: Value(item.fat),
-      sugar: Value(item.sugar),
-      fiber: Value(item.fiber),
-      salt: Value(item.salt),
-      caffeine: Value(item.caffeineMgPer100ml),
-      caffeineMgPer100g: Value(item.caffeineMgPer100g),
-      ingredientsText: Value(item.ingredientsText),
-      ingredientsAnalysisTags: Value(_listToJson(item.ingredientsAnalysisTags)),
-      additivesTags: Value(_listToJson(item.additivesTags)),
-      productQuantity: Value(item.productQuantity),
-      productQuantityUnit: Value(item.productQuantityUnit),
-      isFluid: Value(item.isFluid),
-      isLiquid: Value(item.isLiquid ?? false),
-      category: Value(item.category),
-    );
+      final existingOverride =
+          await (dbInstance.select(dbInstance.userFoodOverrides)
+                ..where((tbl) => tbl.barcode.equals(item.barcode)))
+              .getSingleOrNull();
 
-    await dbInstance
-        .into(dbInstance.userFoodOverrides)
-        .insertOnConflictUpdate(overrideCompanion);
+      final overrideCompanion = db.UserFoodOverridesCompanion(
+        updatedAt: Value(DateTime.now()),
+        localId: existingOverride != null
+            ? Value(existingOverride.localId)
+            : const Value.absent(),
+        id: existingOverride != null
+            ? Value(existingOverride.id)
+            : const Value.absent(),
+        barcode: Value(item.barcode),
+        servingSize: Value(item.metadata.servingSize),
+        servingUnit: Value(item.metadata.servingUnit),
+        sodium: Value(item.sodium),
+        nutritionSource: Value(item.metadata.source?.name),
+        nutritionVerified: Value(item.metadata.verified),
+        nutritionVerifiedAt: Value(item.metadata.verifiedAt),
+        foodNotes: Value(item.metadata.notes),
+        productPhotoRef: Value(item.metadata.productPhotoRef),
+        labelPhotoRef: Value(item.metadata.labelPhotoRef),
+        name: Value(item.name),
+        brand: Value(item.brand),
+        calories: Value(item.calories),
+        protein: Value(item.protein),
+        carbs: Value(item.carbs),
+        fat: Value(item.fat),
+        sugar: Value(item.sugar),
+        fiber: Value(item.fiber),
+        salt: Value(item.salt),
+        caffeine: Value(item.caffeineMgPer100ml),
+        caffeineMgPer100g: Value(item.caffeineMgPer100g),
+        ingredientsText: Value(item.ingredientsText),
+        ingredientsAnalysisTags:
+            Value(_listToJson(item.ingredientsAnalysisTags)),
+        additivesTags: Value(_listToJson(item.additivesTags)),
+        productQuantity: Value(item.productQuantity),
+        productQuantityUnit: Value(item.productQuantityUnit),
+        isFluid: Value(item.isFluid),
+        isLiquid: Value(item.isLiquid ?? false),
+        category: Value(item.category),
+      );
+
+      await dbInstance
+          .into(dbInstance.userFoodOverrides)
+          .insertOnConflictUpdate(overrideCompanion);
+    });
   }
 
   /// Retrieves a list of [FoodItem]s matching the provided [barcodes].
@@ -481,6 +545,50 @@ class ProductLocalDataSource {
 
   /// Performs a global search across user-created, base, and Open Food Facts products.
   Future<List<FoodItem>> searchProducts(String keyword) async {
+    final saved = await searchSavedFoods(keyword);
+    final catalog = await _searchCatalogProducts(keyword);
+    final exactAliases =
+        (await FoodAliasLocalDataSource(_dbInstance).find(keyword))
+            .map((a) => a.productBarcode)
+            .toSet();
+    return {
+      for (final item in [
+        ...saved.where((item) => exactAliases.contains(item.barcode)),
+        ...catalog,
+        ...saved,
+      ])
+        item.barcode: item
+    }.values.toList();
+  }
+
+  /// Small user-owned subset uses Dart Unicode case mapping, not SQLite NOCASE.
+  Future<List<FoodItem>> searchSavedFoods(String query,
+      {bool exact = false}) async {
+    final normalized = normalizeFoodAlias(query);
+    if (normalized.isEmpty) return [];
+    final rows = await _dbInstance.customSelect('''
+      SELECT p.* FROM products p WHERE p.deleted_at IS NULL AND (
+        p.source = 'user' OR EXISTS (SELECT 1 FROM user_food_overrides o WHERE o.barcode = p.barcode)
+        OR EXISTS (SELECT 1 FROM food_aliases a WHERE a.product_barcode = p.barcode AND a.deleted_at IS NULL)
+        OR EXISTS (SELECT 1 FROM favorites f WHERE f.barcode = p.barcode))
+    ''').get();
+    final items = await _enrichProductsWithOverrides(
+        rows.map((r) => _dbInstance.products.map(r.data)).toList());
+    final aliases = await FoodAliasLocalDataSource(_dbInstance)
+        .find(normalized, exact: exact);
+    final aliasBarcodes = aliases.map((a) => a.productBarcode).toSet();
+    bool matches(String value) => exact
+        ? normalizeFoodAlias(value) == normalized
+        : normalizeFoodAlias(value).contains(normalized);
+    return items
+        .where((item) =>
+            aliasBarcodes.contains(item.barcode) ||
+            matches(item.name) ||
+            matches('${item.brand} ${item.name}'))
+        .toList();
+  }
+
+  Future<List<FoodItem>> _searchCatalogProducts(String keyword) async {
     final tokens = _tokenizeAndClean(keyword);
     if (tokens.isEmpty) return [];
 
@@ -636,7 +744,7 @@ class ProductLocalDataSource {
       if (catalogSearchTerm != null) catalogSearchTerm.trim(),
     }..removeWhere((term) => term.isEmpty);
     final resultSets = await Future.wait(
-      terms.map(searchProducts),
+      terms.map(_searchCatalogProducts),
     );
     final candidates = <FoodItem>[];
     for (final results in resultSets) {
@@ -670,7 +778,7 @@ class ProductLocalDataSource {
     String? stateHint,
     int limit = 5,
   }) async {
-    final candidates = await searchProducts(aiName);
+    final candidates = await _searchCatalogProducts(aiName);
     if (candidates.isEmpty) return [];
 
     // Re-rank items incorporating stateHint
@@ -799,6 +907,10 @@ class ProductLocalDataSource {
       // 4. Remove overrides if any
       await (dbInstance.delete(dbInstance.userFoodOverrides)
             ..where((tbl) => tbl.barcode.equals(barcode)))
+          .go();
+
+      await (dbInstance.delete(dbInstance.foodAliases)
+            ..where((t) => t.productBarcode.equals(barcode)))
           .go();
 
       // 5. Delete the product itself

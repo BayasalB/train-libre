@@ -127,6 +127,14 @@ class RetainHistoricalOffProductsUseCase {
       if (barcode.isNotEmpty) protected.add(barcode);
     }
 
+    for (final table in ['food_aliases', 'user_food_overrides']) {
+      final column = table == 'food_aliases' ? 'product_barcode' : 'barcode';
+      for (final row in await db
+          .customSelect('SELECT DISTINCT $column AS barcode FROM $table')
+          .get()) {
+        protected.add(row.read<String>('barcode'));
+      }
+    }
     return protected;
   }
 

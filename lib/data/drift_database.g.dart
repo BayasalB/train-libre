@@ -7638,6 +7638,63 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
       'deleted_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _servingSizeMeta =
+      const VerificationMeta('servingSize');
+  @override
+  late final GeneratedColumn<double> servingSize = GeneratedColumn<double>(
+      'serving_size', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _servingUnitMeta =
+      const VerificationMeta('servingUnit');
+  @override
+  late final GeneratedColumn<String> servingUnit = GeneratedColumn<String>(
+      'serving_unit', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sodiumMeta = const VerificationMeta('sodium');
+  @override
+  late final GeneratedColumn<double> sodium = GeneratedColumn<double>(
+      'sodium', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionSourceMeta =
+      const VerificationMeta('nutritionSource');
+  @override
+  late final GeneratedColumn<String> nutritionSource = GeneratedColumn<String>(
+      'nutrition_source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionVerifiedMeta =
+      const VerificationMeta('nutritionVerified');
+  @override
+  late final GeneratedColumn<bool> nutritionVerified = GeneratedColumn<bool>(
+      'nutrition_verified', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("nutrition_verified" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _nutritionVerifiedAtMeta =
+      const VerificationMeta('nutritionVerifiedAt');
+  @override
+  late final GeneratedColumn<DateTime> nutritionVerifiedAt =
+      GeneratedColumn<DateTime>('nutrition_verified_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _foodNotesMeta =
+      const VerificationMeta('foodNotes');
+  @override
+  late final GeneratedColumn<String> foodNotes = GeneratedColumn<String>(
+      'food_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _productPhotoRefMeta =
+      const VerificationMeta('productPhotoRef');
+  @override
+  late final GeneratedColumn<String> productPhotoRef = GeneratedColumn<String>(
+      'product_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelPhotoRefMeta =
+      const VerificationMeta('labelPhotoRef');
+  @override
+  late final GeneratedColumn<String> labelPhotoRef = GeneratedColumn<String>(
+      'label_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _barcodeMeta =
       const VerificationMeta('barcode');
   @override
@@ -7826,6 +7883,15 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         name,
         nameDe,
@@ -7885,6 +7951,56 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     if (data.containsKey('deleted_at')) {
       context.handle(_deletedAtMeta,
           deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('serving_size')) {
+      context.handle(
+          _servingSizeMeta,
+          servingSize.isAcceptableOrUnknown(
+              data['serving_size']!, _servingSizeMeta));
+    }
+    if (data.containsKey('serving_unit')) {
+      context.handle(
+          _servingUnitMeta,
+          servingUnit.isAcceptableOrUnknown(
+              data['serving_unit']!, _servingUnitMeta));
+    }
+    if (data.containsKey('sodium')) {
+      context.handle(_sodiumMeta,
+          sodium.isAcceptableOrUnknown(data['sodium']!, _sodiumMeta));
+    }
+    if (data.containsKey('nutrition_source')) {
+      context.handle(
+          _nutritionSourceMeta,
+          nutritionSource.isAcceptableOrUnknown(
+              data['nutrition_source']!, _nutritionSourceMeta));
+    }
+    if (data.containsKey('nutrition_verified')) {
+      context.handle(
+          _nutritionVerifiedMeta,
+          nutritionVerified.isAcceptableOrUnknown(
+              data['nutrition_verified']!, _nutritionVerifiedMeta));
+    }
+    if (data.containsKey('nutrition_verified_at')) {
+      context.handle(
+          _nutritionVerifiedAtMeta,
+          nutritionVerifiedAt.isAcceptableOrUnknown(
+              data['nutrition_verified_at']!, _nutritionVerifiedAtMeta));
+    }
+    if (data.containsKey('food_notes')) {
+      context.handle(_foodNotesMeta,
+          foodNotes.isAcceptableOrUnknown(data['food_notes']!, _foodNotesMeta));
+    }
+    if (data.containsKey('product_photo_ref')) {
+      context.handle(
+          _productPhotoRefMeta,
+          productPhotoRef.isAcceptableOrUnknown(
+              data['product_photo_ref']!, _productPhotoRefMeta));
+    }
+    if (data.containsKey('label_photo_ref')) {
+      context.handle(
+          _labelPhotoRefMeta,
+          labelPhotoRef.isAcceptableOrUnknown(
+              data['label_photo_ref']!, _labelPhotoRefMeta));
     }
     if (data.containsKey('barcode')) {
       context.handle(_barcodeMeta,
@@ -8058,6 +8174,25 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      servingSize: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}serving_size']),
+      servingUnit: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}serving_unit']),
+      sodium: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sodium']),
+      nutritionSource: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}nutrition_source']),
+      nutritionVerified: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}nutrition_verified'])!,
+      nutritionVerifiedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}nutrition_verified_at']),
+      foodNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}food_notes']),
+      productPhotoRef: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}product_photo_ref']),
+      labelPhotoRef: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_photo_ref']),
       barcode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}barcode'])!,
       name: attachedDatabase.typeMapping
@@ -8134,6 +8269,15 @@ class Product extends DataClass implements Insertable<Product> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final double? servingSize;
+  final String? servingUnit;
+  final double? sodium;
+  final String? nutritionSource;
+  final bool nutritionVerified;
+  final DateTime? nutritionVerifiedAt;
+  final String? foodNotes;
+  final String? productPhotoRef;
+  final String? labelPhotoRef;
   final String barcode;
   final String name;
   final String? nameDe;
@@ -8170,6 +8314,15 @@ class Product extends DataClass implements Insertable<Product> {
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt,
+      this.servingSize,
+      this.servingUnit,
+      this.sodium,
+      this.nutritionSource,
+      required this.nutritionVerified,
+      this.nutritionVerifiedAt,
+      this.foodNotes,
+      this.productPhotoRef,
+      this.labelPhotoRef,
       required this.barcode,
       required this.name,
       this.nameDe,
@@ -8209,6 +8362,31 @@ class Product extends DataClass implements Insertable<Product> {
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || servingSize != null) {
+      map['serving_size'] = Variable<double>(servingSize);
+    }
+    if (!nullToAbsent || servingUnit != null) {
+      map['serving_unit'] = Variable<String>(servingUnit);
+    }
+    if (!nullToAbsent || sodium != null) {
+      map['sodium'] = Variable<double>(sodium);
+    }
+    if (!nullToAbsent || nutritionSource != null) {
+      map['nutrition_source'] = Variable<String>(nutritionSource);
+    }
+    map['nutrition_verified'] = Variable<bool>(nutritionVerified);
+    if (!nullToAbsent || nutritionVerifiedAt != null) {
+      map['nutrition_verified_at'] = Variable<DateTime>(nutritionVerifiedAt);
+    }
+    if (!nullToAbsent || foodNotes != null) {
+      map['food_notes'] = Variable<String>(foodNotes);
+    }
+    if (!nullToAbsent || productPhotoRef != null) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef);
+    }
+    if (!nullToAbsent || labelPhotoRef != null) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef);
     }
     map['barcode'] = Variable<String>(barcode);
     map['name'] = Variable<String>(name);
@@ -8293,6 +8471,30 @@ class Product extends DataClass implements Insertable<Product> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      servingSize: servingSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingSize),
+      servingUnit: servingUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingUnit),
+      sodium:
+          sodium == null && nullToAbsent ? const Value.absent() : Value(sodium),
+      nutritionSource: nutritionSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionSource),
+      nutritionVerified: Value(nutritionVerified),
+      nutritionVerifiedAt: nutritionVerifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionVerifiedAt),
+      foodNotes: foodNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodNotes),
+      productPhotoRef: productPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productPhotoRef),
+      labelPhotoRef: labelPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelPhotoRef),
       barcode: Value(barcode),
       name: Value(name),
       nameDe:
@@ -8365,6 +8567,16 @@ class Product extends DataClass implements Insertable<Product> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      servingSize: serializer.fromJson<double?>(json['servingSize']),
+      servingUnit: serializer.fromJson<String?>(json['servingUnit']),
+      sodium: serializer.fromJson<double?>(json['sodium']),
+      nutritionSource: serializer.fromJson<String?>(json['nutritionSource']),
+      nutritionVerified: serializer.fromJson<bool>(json['nutritionVerified']),
+      nutritionVerifiedAt:
+          serializer.fromJson<DateTime?>(json['nutritionVerifiedAt']),
+      foodNotes: serializer.fromJson<String?>(json['foodNotes']),
+      productPhotoRef: serializer.fromJson<String?>(json['productPhotoRef']),
+      labelPhotoRef: serializer.fromJson<String?>(json['labelPhotoRef']),
       barcode: serializer.fromJson<String>(json['barcode']),
       name: serializer.fromJson<String>(json['name']),
       nameDe: serializer.fromJson<String?>(json['nameDe']),
@@ -8409,6 +8621,15 @@ class Product extends DataClass implements Insertable<Product> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'servingSize': serializer.toJson<double?>(servingSize),
+      'servingUnit': serializer.toJson<String?>(servingUnit),
+      'sodium': serializer.toJson<double?>(sodium),
+      'nutritionSource': serializer.toJson<String?>(nutritionSource),
+      'nutritionVerified': serializer.toJson<bool>(nutritionVerified),
+      'nutritionVerifiedAt': serializer.toJson<DateTime?>(nutritionVerifiedAt),
+      'foodNotes': serializer.toJson<String?>(foodNotes),
+      'productPhotoRef': serializer.toJson<String?>(productPhotoRef),
+      'labelPhotoRef': serializer.toJson<String?>(labelPhotoRef),
       'barcode': serializer.toJson<String>(barcode),
       'name': serializer.toJson<String>(name),
       'nameDe': serializer.toJson<String?>(nameDe),
@@ -8449,6 +8670,15 @@ class Product extends DataClass implements Insertable<Product> {
           DateTime? createdAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
+          Value<double?> servingSize = const Value.absent(),
+          Value<String?> servingUnit = const Value.absent(),
+          Value<double?> sodium = const Value.absent(),
+          Value<String?> nutritionSource = const Value.absent(),
+          bool? nutritionVerified,
+          Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+          Value<String?> foodNotes = const Value.absent(),
+          Value<String?> productPhotoRef = const Value.absent(),
+          Value<String?> labelPhotoRef = const Value.absent(),
           String? barcode,
           String? name,
           Value<String?> nameDe = const Value.absent(),
@@ -8485,6 +8715,22 @@ class Product extends DataClass implements Insertable<Product> {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        servingSize: servingSize.present ? servingSize.value : this.servingSize,
+        servingUnit: servingUnit.present ? servingUnit.value : this.servingUnit,
+        sodium: sodium.present ? sodium.value : this.sodium,
+        nutritionSource: nutritionSource.present
+            ? nutritionSource.value
+            : this.nutritionSource,
+        nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+        nutritionVerifiedAt: nutritionVerifiedAt.present
+            ? nutritionVerifiedAt.value
+            : this.nutritionVerifiedAt,
+        foodNotes: foodNotes.present ? foodNotes.value : this.foodNotes,
+        productPhotoRef: productPhotoRef.present
+            ? productPhotoRef.value
+            : this.productPhotoRef,
+        labelPhotoRef:
+            labelPhotoRef.present ? labelPhotoRef.value : this.labelPhotoRef,
         barcode: barcode ?? this.barcode,
         name: name ?? this.name,
         nameDe: nameDe.present ? nameDe.value : this.nameDe,
@@ -8534,6 +8780,27 @@ class Product extends DataClass implements Insertable<Product> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      servingSize:
+          data.servingSize.present ? data.servingSize.value : this.servingSize,
+      servingUnit:
+          data.servingUnit.present ? data.servingUnit.value : this.servingUnit,
+      sodium: data.sodium.present ? data.sodium.value : this.sodium,
+      nutritionSource: data.nutritionSource.present
+          ? data.nutritionSource.value
+          : this.nutritionSource,
+      nutritionVerified: data.nutritionVerified.present
+          ? data.nutritionVerified.value
+          : this.nutritionVerified,
+      nutritionVerifiedAt: data.nutritionVerifiedAt.present
+          ? data.nutritionVerifiedAt.value
+          : this.nutritionVerifiedAt,
+      foodNotes: data.foodNotes.present ? data.foodNotes.value : this.foodNotes,
+      productPhotoRef: data.productPhotoRef.present
+          ? data.productPhotoRef.value
+          : this.productPhotoRef,
+      labelPhotoRef: data.labelPhotoRef.present
+          ? data.labelPhotoRef.value
+          : this.labelPhotoRef,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       name: data.name.present ? data.name.value : this.name,
       nameDe: data.nameDe.present ? data.nameDe.value : this.nameDe,
@@ -8591,6 +8858,15 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('name: $name, ')
           ..write('nameDe: $nameDe, ')
@@ -8632,6 +8908,15 @@ class Product extends DataClass implements Insertable<Product> {
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         name,
         nameDe,
@@ -8672,6 +8957,15 @@ class Product extends DataClass implements Insertable<Product> {
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
+          other.servingSize == this.servingSize &&
+          other.servingUnit == this.servingUnit &&
+          other.sodium == this.sodium &&
+          other.nutritionSource == this.nutritionSource &&
+          other.nutritionVerified == this.nutritionVerified &&
+          other.nutritionVerifiedAt == this.nutritionVerifiedAt &&
+          other.foodNotes == this.foodNotes &&
+          other.productPhotoRef == this.productPhotoRef &&
+          other.labelPhotoRef == this.labelPhotoRef &&
           other.barcode == this.barcode &&
           other.name == this.name &&
           other.nameDe == this.nameDe &&
@@ -8710,6 +9004,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<double?> servingSize;
+  final Value<String?> servingUnit;
+  final Value<double?> sodium;
+  final Value<String?> nutritionSource;
+  final Value<bool> nutritionVerified;
+  final Value<DateTime?> nutritionVerifiedAt;
+  final Value<String?> foodNotes;
+  final Value<String?> productPhotoRef;
+  final Value<String?> labelPhotoRef;
   final Value<String> barcode;
   final Value<String> name;
   final Value<String?> nameDe;
@@ -8746,6 +9049,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     this.barcode = const Value.absent(),
     this.name = const Value.absent(),
     this.nameDe = const Value.absent(),
@@ -8783,6 +9095,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     required String barcode,
     required String name,
     this.nameDe = const Value.absent(),
@@ -8825,6 +9146,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<double>? servingSize,
+    Expression<String>? servingUnit,
+    Expression<double>? sodium,
+    Expression<String>? nutritionSource,
+    Expression<bool>? nutritionVerified,
+    Expression<DateTime>? nutritionVerifiedAt,
+    Expression<String>? foodNotes,
+    Expression<String>? productPhotoRef,
+    Expression<String>? labelPhotoRef,
     Expression<String>? barcode,
     Expression<String>? name,
     Expression<String>? nameDe,
@@ -8862,6 +9192,16 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (servingSize != null) 'serving_size': servingSize,
+      if (servingUnit != null) 'serving_unit': servingUnit,
+      if (sodium != null) 'sodium': sodium,
+      if (nutritionSource != null) 'nutrition_source': nutritionSource,
+      if (nutritionVerified != null) 'nutrition_verified': nutritionVerified,
+      if (nutritionVerifiedAt != null)
+        'nutrition_verified_at': nutritionVerifiedAt,
+      if (foodNotes != null) 'food_notes': foodNotes,
+      if (productPhotoRef != null) 'product_photo_ref': productPhotoRef,
+      if (labelPhotoRef != null) 'label_photo_ref': labelPhotoRef,
       if (barcode != null) 'barcode': barcode,
       if (name != null) 'name': name,
       if (nameDe != null) 'name_de': nameDe,
@@ -8903,6 +9243,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
+      Value<double?>? servingSize,
+      Value<String?>? servingUnit,
+      Value<double?>? sodium,
+      Value<String?>? nutritionSource,
+      Value<bool>? nutritionVerified,
+      Value<DateTime?>? nutritionVerifiedAt,
+      Value<String?>? foodNotes,
+      Value<String?>? productPhotoRef,
+      Value<String?>? labelPhotoRef,
       Value<String>? barcode,
       Value<String>? name,
       Value<String?>? nameDe,
@@ -8939,6 +9288,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      servingSize: servingSize ?? this.servingSize,
+      servingUnit: servingUnit ?? this.servingUnit,
+      sodium: sodium ?? this.sodium,
+      nutritionSource: nutritionSource ?? this.nutritionSource,
+      nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+      nutritionVerifiedAt: nutritionVerifiedAt ?? this.nutritionVerifiedAt,
+      foodNotes: foodNotes ?? this.foodNotes,
+      productPhotoRef: productPhotoRef ?? this.productPhotoRef,
+      labelPhotoRef: labelPhotoRef ?? this.labelPhotoRef,
       barcode: barcode ?? this.barcode,
       name: name ?? this.name,
       nameDe: nameDe ?? this.nameDe,
@@ -8990,6 +9348,34 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     }
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (servingSize.present) {
+      map['serving_size'] = Variable<double>(servingSize.value);
+    }
+    if (servingUnit.present) {
+      map['serving_unit'] = Variable<String>(servingUnit.value);
+    }
+    if (sodium.present) {
+      map['sodium'] = Variable<double>(sodium.value);
+    }
+    if (nutritionSource.present) {
+      map['nutrition_source'] = Variable<String>(nutritionSource.value);
+    }
+    if (nutritionVerified.present) {
+      map['nutrition_verified'] = Variable<bool>(nutritionVerified.value);
+    }
+    if (nutritionVerifiedAt.present) {
+      map['nutrition_verified_at'] =
+          Variable<DateTime>(nutritionVerifiedAt.value);
+    }
+    if (foodNotes.present) {
+      map['food_notes'] = Variable<String>(foodNotes.value);
+    }
+    if (productPhotoRef.present) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef.value);
+    }
+    if (labelPhotoRef.present) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef.value);
     }
     if (barcode.present) {
       map['barcode'] = Variable<String>(barcode.value);
@@ -9094,6 +9480,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('name: $name, ')
           ..write('nameDe: $nameDe, ')
@@ -9124,6 +9519,477 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('categoryIt: $categoryIt, ')
           ..write('nameJa: $nameJa, ')
           ..write('categoryJa: $categoryJa')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodAliasesTable extends FoodAliases
+    with TableInfo<$FoodAliasesTable, FoodAliase> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodAliasesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta =
+      const VerificationMeta('localId');
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+      'local_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+      clientDefault: () => const Uuid().v4());
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _productBarcodeMeta =
+      const VerificationMeta('productBarcode');
+  @override
+  late final GeneratedColumn<String> productBarcode = GeneratedColumn<String>(
+      'product_barcode', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES products (barcode)'));
+  static const VerificationMeta _aliasMeta = const VerificationMeta('alias');
+  @override
+  late final GeneratedColumn<String> alias = GeneratedColumn<String>(
+      'alias', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _normalizedAliasMeta =
+      const VerificationMeta('normalizedAlias');
+  @override
+  late final GeneratedColumn<String> normalizedAlias = GeneratedColumn<String>(
+      'normalized_alias', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        localId,
+        id,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        productBarcode,
+        alias,
+        normalizedAlias,
+        language
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_aliases';
+  @override
+  VerificationContext validateIntegrity(Insertable<FoodAliase> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(_localIdMeta,
+          localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('product_barcode')) {
+      context.handle(
+          _productBarcodeMeta,
+          productBarcode.isAcceptableOrUnknown(
+              data['product_barcode']!, _productBarcodeMeta));
+    } else if (isInserting) {
+      context.missing(_productBarcodeMeta);
+    }
+    if (data.containsKey('alias')) {
+      context.handle(
+          _aliasMeta, alias.isAcceptableOrUnknown(data['alias']!, _aliasMeta));
+    } else if (isInserting) {
+      context.missing(_aliasMeta);
+    }
+    if (data.containsKey('normalized_alias')) {
+      context.handle(
+          _normalizedAliasMeta,
+          normalizedAlias.isAcceptableOrUnknown(
+              data['normalized_alias']!, _normalizedAliasMeta));
+    } else if (isInserting) {
+      context.missing(_normalizedAliasMeta);
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {productBarcode, normalizedAlias},
+      ];
+  @override
+  FoodAliase map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodAliase(
+      localId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      productBarcode: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}product_barcode'])!,
+      alias: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}alias'])!,
+      normalizedAlias: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}normalized_alias'])!,
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+    );
+  }
+
+  @override
+  $FoodAliasesTable createAlias(String alias) {
+    return $FoodAliasesTable(attachedDatabase, alias);
+  }
+}
+
+class FoodAliase extends DataClass implements Insertable<FoodAliase> {
+  final int localId;
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String productBarcode;
+  final String alias;
+  final String normalizedAlias;
+  final String? language;
+  const FoodAliase(
+      {required this.localId,
+      required this.id,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.productBarcode,
+      required this.alias,
+      required this.normalizedAlias,
+      this.language});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['product_barcode'] = Variable<String>(productBarcode);
+    map['alias'] = Variable<String>(alias);
+    map['normalized_alias'] = Variable<String>(normalizedAlias);
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    return map;
+  }
+
+  FoodAliasesCompanion toCompanion(bool nullToAbsent) {
+    return FoodAliasesCompanion(
+      localId: Value(localId),
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      productBarcode: Value(productBarcode),
+      alias: Value(alias),
+      normalizedAlias: Value(normalizedAlias),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+    );
+  }
+
+  factory FoodAliase.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodAliase(
+      localId: serializer.fromJson<int>(json['localId']),
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      productBarcode: serializer.fromJson<String>(json['productBarcode']),
+      alias: serializer.fromJson<String>(json['alias']),
+      normalizedAlias: serializer.fromJson<String>(json['normalizedAlias']),
+      language: serializer.fromJson<String?>(json['language']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'productBarcode': serializer.toJson<String>(productBarcode),
+      'alias': serializer.toJson<String>(alias),
+      'normalizedAlias': serializer.toJson<String>(normalizedAlias),
+      'language': serializer.toJson<String?>(language),
+    };
+  }
+
+  FoodAliase copyWith(
+          {int? localId,
+          String? id,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? productBarcode,
+          String? alias,
+          String? normalizedAlias,
+          Value<String?> language = const Value.absent()}) =>
+      FoodAliase(
+        localId: localId ?? this.localId,
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        productBarcode: productBarcode ?? this.productBarcode,
+        alias: alias ?? this.alias,
+        normalizedAlias: normalizedAlias ?? this.normalizedAlias,
+        language: language.present ? language.value : this.language,
+      );
+  FoodAliase copyWithCompanion(FoodAliasesCompanion data) {
+    return FoodAliase(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      productBarcode: data.productBarcode.present
+          ? data.productBarcode.value
+          : this.productBarcode,
+      alias: data.alias.present ? data.alias.value : this.alias,
+      normalizedAlias: data.normalizedAlias.present
+          ? data.normalizedAlias.value
+          : this.normalizedAlias,
+      language: data.language.present ? data.language.value : this.language,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodAliase(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('productBarcode: $productBarcode, ')
+          ..write('alias: $alias, ')
+          ..write('normalizedAlias: $normalizedAlias, ')
+          ..write('language: $language')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(localId, id, createdAt, updatedAt, deletedAt,
+      productBarcode, alias, normalizedAlias, language);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodAliase &&
+          other.localId == this.localId &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.productBarcode == this.productBarcode &&
+          other.alias == this.alias &&
+          other.normalizedAlias == this.normalizedAlias &&
+          other.language == this.language);
+}
+
+class FoodAliasesCompanion extends UpdateCompanion<FoodAliase> {
+  final Value<int> localId;
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> productBarcode;
+  final Value<String> alias;
+  final Value<String> normalizedAlias;
+  final Value<String?> language;
+  const FoodAliasesCompanion({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.productBarcode = const Value.absent(),
+    this.alias = const Value.absent(),
+    this.normalizedAlias = const Value.absent(),
+    this.language = const Value.absent(),
+  });
+  FoodAliasesCompanion.insert({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String productBarcode,
+    required String alias,
+    required String normalizedAlias,
+    this.language = const Value.absent(),
+  })  : productBarcode = Value(productBarcode),
+        alias = Value(alias),
+        normalizedAlias = Value(normalizedAlias);
+  static Insertable<FoodAliase> custom({
+    Expression<int>? localId,
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? productBarcode,
+    Expression<String>? alias,
+    Expression<String>? normalizedAlias,
+    Expression<String>? language,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (productBarcode != null) 'product_barcode': productBarcode,
+      if (alias != null) 'alias': alias,
+      if (normalizedAlias != null) 'normalized_alias': normalizedAlias,
+      if (language != null) 'language': language,
+    });
+  }
+
+  FoodAliasesCompanion copyWith(
+      {Value<int>? localId,
+      Value<String>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? productBarcode,
+      Value<String>? alias,
+      Value<String>? normalizedAlias,
+      Value<String?>? language}) {
+    return FoodAliasesCompanion(
+      localId: localId ?? this.localId,
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      productBarcode: productBarcode ?? this.productBarcode,
+      alias: alias ?? this.alias,
+      normalizedAlias: normalizedAlias ?? this.normalizedAlias,
+      language: language ?? this.language,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (productBarcode.present) {
+      map['product_barcode'] = Variable<String>(productBarcode.value);
+    }
+    if (alias.present) {
+      map['alias'] = Variable<String>(alias.value);
+    }
+    if (normalizedAlias.present) {
+      map['normalized_alias'] = Variable<String>(normalizedAlias.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodAliasesCompanion(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('productBarcode: $productBarcode, ')
+          ..write('alias: $alias, ')
+          ..write('normalizedAlias: $normalizedAlias, ')
+          ..write('language: $language')
           ..write(')'))
         .toString();
   }
@@ -9175,6 +10041,63 @@ class $OffProductsArchiveTable extends OffProductsArchive
   late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
       'deleted_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _servingSizeMeta =
+      const VerificationMeta('servingSize');
+  @override
+  late final GeneratedColumn<double> servingSize = GeneratedColumn<double>(
+      'serving_size', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _servingUnitMeta =
+      const VerificationMeta('servingUnit');
+  @override
+  late final GeneratedColumn<String> servingUnit = GeneratedColumn<String>(
+      'serving_unit', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sodiumMeta = const VerificationMeta('sodium');
+  @override
+  late final GeneratedColumn<double> sodium = GeneratedColumn<double>(
+      'sodium', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionSourceMeta =
+      const VerificationMeta('nutritionSource');
+  @override
+  late final GeneratedColumn<String> nutritionSource = GeneratedColumn<String>(
+      'nutrition_source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionVerifiedMeta =
+      const VerificationMeta('nutritionVerified');
+  @override
+  late final GeneratedColumn<bool> nutritionVerified = GeneratedColumn<bool>(
+      'nutrition_verified', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("nutrition_verified" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _nutritionVerifiedAtMeta =
+      const VerificationMeta('nutritionVerifiedAt');
+  @override
+  late final GeneratedColumn<DateTime> nutritionVerifiedAt =
+      GeneratedColumn<DateTime>('nutrition_verified_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _foodNotesMeta =
+      const VerificationMeta('foodNotes');
+  @override
+  late final GeneratedColumn<String> foodNotes = GeneratedColumn<String>(
+      'food_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _productPhotoRefMeta =
+      const VerificationMeta('productPhotoRef');
+  @override
+  late final GeneratedColumn<String> productPhotoRef = GeneratedColumn<String>(
+      'product_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelPhotoRefMeta =
+      const VerificationMeta('labelPhotoRef');
+  @override
+  late final GeneratedColumn<String> labelPhotoRef = GeneratedColumn<String>(
+      'label_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _barcodeMeta =
       const VerificationMeta('barcode');
   @override
@@ -9307,6 +10230,15 @@ class $OffProductsArchiveTable extends OffProductsArchive
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         productName,
         brand,
@@ -9357,6 +10289,56 @@ class $OffProductsArchiveTable extends OffProductsArchive
     if (data.containsKey('deleted_at')) {
       context.handle(_deletedAtMeta,
           deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('serving_size')) {
+      context.handle(
+          _servingSizeMeta,
+          servingSize.isAcceptableOrUnknown(
+              data['serving_size']!, _servingSizeMeta));
+    }
+    if (data.containsKey('serving_unit')) {
+      context.handle(
+          _servingUnitMeta,
+          servingUnit.isAcceptableOrUnknown(
+              data['serving_unit']!, _servingUnitMeta));
+    }
+    if (data.containsKey('sodium')) {
+      context.handle(_sodiumMeta,
+          sodium.isAcceptableOrUnknown(data['sodium']!, _sodiumMeta));
+    }
+    if (data.containsKey('nutrition_source')) {
+      context.handle(
+          _nutritionSourceMeta,
+          nutritionSource.isAcceptableOrUnknown(
+              data['nutrition_source']!, _nutritionSourceMeta));
+    }
+    if (data.containsKey('nutrition_verified')) {
+      context.handle(
+          _nutritionVerifiedMeta,
+          nutritionVerified.isAcceptableOrUnknown(
+              data['nutrition_verified']!, _nutritionVerifiedMeta));
+    }
+    if (data.containsKey('nutrition_verified_at')) {
+      context.handle(
+          _nutritionVerifiedAtMeta,
+          nutritionVerifiedAt.isAcceptableOrUnknown(
+              data['nutrition_verified_at']!, _nutritionVerifiedAtMeta));
+    }
+    if (data.containsKey('food_notes')) {
+      context.handle(_foodNotesMeta,
+          foodNotes.isAcceptableOrUnknown(data['food_notes']!, _foodNotesMeta));
+    }
+    if (data.containsKey('product_photo_ref')) {
+      context.handle(
+          _productPhotoRefMeta,
+          productPhotoRef.isAcceptableOrUnknown(
+              data['product_photo_ref']!, _productPhotoRefMeta));
+    }
+    if (data.containsKey('label_photo_ref')) {
+      context.handle(
+          _labelPhotoRefMeta,
+          labelPhotoRef.isAcceptableOrUnknown(
+              data['label_photo_ref']!, _labelPhotoRefMeta));
     }
     if (data.containsKey('barcode')) {
       context.handle(_barcodeMeta,
@@ -9485,6 +10467,25 @@ class $OffProductsArchiveTable extends OffProductsArchive
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      servingSize: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}serving_size']),
+      servingUnit: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}serving_unit']),
+      sodium: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sodium']),
+      nutritionSource: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}nutrition_source']),
+      nutritionVerified: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}nutrition_verified'])!,
+      nutritionVerifiedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}nutrition_verified_at']),
+      foodNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}food_notes']),
+      productPhotoRef: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}product_photo_ref']),
+      labelPhotoRef: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_photo_ref']),
       barcode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}barcode'])!,
       productName: attachedDatabase.typeMapping
@@ -9541,6 +10542,15 @@ class OffProductsArchiveData extends DataClass
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final double? servingSize;
+  final String? servingUnit;
+  final double? sodium;
+  final String? nutritionSource;
+  final bool nutritionVerified;
+  final DateTime? nutritionVerifiedAt;
+  final String? foodNotes;
+  final String? productPhotoRef;
+  final String? labelPhotoRef;
   final String barcode;
   final String productName;
   final String? brand;
@@ -9567,6 +10577,15 @@ class OffProductsArchiveData extends DataClass
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt,
+      this.servingSize,
+      this.servingUnit,
+      this.sodium,
+      this.nutritionSource,
+      required this.nutritionVerified,
+      this.nutritionVerifiedAt,
+      this.foodNotes,
+      this.productPhotoRef,
+      this.labelPhotoRef,
       required this.barcode,
       required this.productName,
       this.brand,
@@ -9596,6 +10615,31 @@ class OffProductsArchiveData extends DataClass
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || servingSize != null) {
+      map['serving_size'] = Variable<double>(servingSize);
+    }
+    if (!nullToAbsent || servingUnit != null) {
+      map['serving_unit'] = Variable<String>(servingUnit);
+    }
+    if (!nullToAbsent || sodium != null) {
+      map['sodium'] = Variable<double>(sodium);
+    }
+    if (!nullToAbsent || nutritionSource != null) {
+      map['nutrition_source'] = Variable<String>(nutritionSource);
+    }
+    map['nutrition_verified'] = Variable<bool>(nutritionVerified);
+    if (!nullToAbsent || nutritionVerifiedAt != null) {
+      map['nutrition_verified_at'] = Variable<DateTime>(nutritionVerifiedAt);
+    }
+    if (!nullToAbsent || foodNotes != null) {
+      map['food_notes'] = Variable<String>(foodNotes);
+    }
+    if (!nullToAbsent || productPhotoRef != null) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef);
+    }
+    if (!nullToAbsent || labelPhotoRef != null) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef);
     }
     map['barcode'] = Variable<String>(barcode);
     map['product_name'] = Variable<String>(productName);
@@ -9647,6 +10691,30 @@ class OffProductsArchiveData extends DataClass
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      servingSize: servingSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingSize),
+      servingUnit: servingUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingUnit),
+      sodium:
+          sodium == null && nullToAbsent ? const Value.absent() : Value(sodium),
+      nutritionSource: nutritionSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionSource),
+      nutritionVerified: Value(nutritionVerified),
+      nutritionVerifiedAt: nutritionVerifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionVerifiedAt),
+      foodNotes: foodNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodNotes),
+      productPhotoRef: productPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productPhotoRef),
+      labelPhotoRef: labelPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelPhotoRef),
       barcode: Value(barcode),
       productName: Value(productName),
       brand:
@@ -9692,6 +10760,16 @@ class OffProductsArchiveData extends DataClass
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      servingSize: serializer.fromJson<double?>(json['servingSize']),
+      servingUnit: serializer.fromJson<String?>(json['servingUnit']),
+      sodium: serializer.fromJson<double?>(json['sodium']),
+      nutritionSource: serializer.fromJson<String?>(json['nutritionSource']),
+      nutritionVerified: serializer.fromJson<bool>(json['nutritionVerified']),
+      nutritionVerifiedAt:
+          serializer.fromJson<DateTime?>(json['nutritionVerifiedAt']),
+      foodNotes: serializer.fromJson<String?>(json['foodNotes']),
+      productPhotoRef: serializer.fromJson<String?>(json['productPhotoRef']),
+      labelPhotoRef: serializer.fromJson<String?>(json['labelPhotoRef']),
       barcode: serializer.fromJson<String>(json['barcode']),
       productName: serializer.fromJson<String>(json['productName']),
       brand: serializer.fromJson<String?>(json['brand']),
@@ -9725,6 +10803,15 @@ class OffProductsArchiveData extends DataClass
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'servingSize': serializer.toJson<double?>(servingSize),
+      'servingUnit': serializer.toJson<String?>(servingUnit),
+      'sodium': serializer.toJson<double?>(sodium),
+      'nutritionSource': serializer.toJson<String?>(nutritionSource),
+      'nutritionVerified': serializer.toJson<bool>(nutritionVerified),
+      'nutritionVerifiedAt': serializer.toJson<DateTime?>(nutritionVerifiedAt),
+      'foodNotes': serializer.toJson<String?>(foodNotes),
+      'productPhotoRef': serializer.toJson<String?>(productPhotoRef),
+      'labelPhotoRef': serializer.toJson<String?>(labelPhotoRef),
       'barcode': serializer.toJson<String>(barcode),
       'productName': serializer.toJson<String>(productName),
       'brand': serializer.toJson<String?>(brand),
@@ -9754,6 +10841,15 @@ class OffProductsArchiveData extends DataClass
           DateTime? createdAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
+          Value<double?> servingSize = const Value.absent(),
+          Value<String?> servingUnit = const Value.absent(),
+          Value<double?> sodium = const Value.absent(),
+          Value<String?> nutritionSource = const Value.absent(),
+          bool? nutritionVerified,
+          Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+          Value<String?> foodNotes = const Value.absent(),
+          Value<String?> productPhotoRef = const Value.absent(),
+          Value<String?> labelPhotoRef = const Value.absent(),
           String? barcode,
           String? productName,
           Value<String?> brand = const Value.absent(),
@@ -9780,6 +10876,22 @@ class OffProductsArchiveData extends DataClass
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        servingSize: servingSize.present ? servingSize.value : this.servingSize,
+        servingUnit: servingUnit.present ? servingUnit.value : this.servingUnit,
+        sodium: sodium.present ? sodium.value : this.sodium,
+        nutritionSource: nutritionSource.present
+            ? nutritionSource.value
+            : this.nutritionSource,
+        nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+        nutritionVerifiedAt: nutritionVerifiedAt.present
+            ? nutritionVerifiedAt.value
+            : this.nutritionVerifiedAt,
+        foodNotes: foodNotes.present ? foodNotes.value : this.foodNotes,
+        productPhotoRef: productPhotoRef.present
+            ? productPhotoRef.value
+            : this.productPhotoRef,
+        labelPhotoRef:
+            labelPhotoRef.present ? labelPhotoRef.value : this.labelPhotoRef,
         barcode: barcode ?? this.barcode,
         productName: productName ?? this.productName,
         brand: brand.present ? brand.value : this.brand,
@@ -9814,6 +10926,27 @@ class OffProductsArchiveData extends DataClass
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      servingSize:
+          data.servingSize.present ? data.servingSize.value : this.servingSize,
+      servingUnit:
+          data.servingUnit.present ? data.servingUnit.value : this.servingUnit,
+      sodium: data.sodium.present ? data.sodium.value : this.sodium,
+      nutritionSource: data.nutritionSource.present
+          ? data.nutritionSource.value
+          : this.nutritionSource,
+      nutritionVerified: data.nutritionVerified.present
+          ? data.nutritionVerified.value
+          : this.nutritionVerified,
+      nutritionVerifiedAt: data.nutritionVerifiedAt.present
+          ? data.nutritionVerifiedAt.value
+          : this.nutritionVerifiedAt,
+      foodNotes: data.foodNotes.present ? data.foodNotes.value : this.foodNotes,
+      productPhotoRef: data.productPhotoRef.present
+          ? data.productPhotoRef.value
+          : this.productPhotoRef,
+      labelPhotoRef: data.labelPhotoRef.present
+          ? data.labelPhotoRef.value
+          : this.labelPhotoRef,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       productName:
           data.productName.present ? data.productName.value : this.productName,
@@ -9855,6 +10988,15 @@ class OffProductsArchiveData extends DataClass
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('productName: $productName, ')
           ..write('brand: $brand, ')
@@ -9886,6 +11028,15 @@ class OffProductsArchiveData extends DataClass
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         productName,
         brand,
@@ -9916,6 +11067,15 @@ class OffProductsArchiveData extends DataClass
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
+          other.servingSize == this.servingSize &&
+          other.servingUnit == this.servingUnit &&
+          other.sodium == this.sodium &&
+          other.nutritionSource == this.nutritionSource &&
+          other.nutritionVerified == this.nutritionVerified &&
+          other.nutritionVerifiedAt == this.nutritionVerifiedAt &&
+          other.foodNotes == this.foodNotes &&
+          other.productPhotoRef == this.productPhotoRef &&
+          other.labelPhotoRef == this.labelPhotoRef &&
           other.barcode == this.barcode &&
           other.productName == this.productName &&
           other.brand == this.brand &&
@@ -9945,6 +11105,15 @@ class OffProductsArchiveCompanion
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<double?> servingSize;
+  final Value<String?> servingUnit;
+  final Value<double?> sodium;
+  final Value<String?> nutritionSource;
+  final Value<bool> nutritionVerified;
+  final Value<DateTime?> nutritionVerifiedAt;
+  final Value<String?> foodNotes;
+  final Value<String?> productPhotoRef;
+  final Value<String?> labelPhotoRef;
   final Value<String> barcode;
   final Value<String> productName;
   final Value<String?> brand;
@@ -9971,6 +11140,15 @@ class OffProductsArchiveCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     this.barcode = const Value.absent(),
     this.productName = const Value.absent(),
     this.brand = const Value.absent(),
@@ -9998,6 +11176,15 @@ class OffProductsArchiveCompanion
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     required String barcode,
     required String productName,
     this.brand = const Value.absent(),
@@ -10032,6 +11219,15 @@ class OffProductsArchiveCompanion
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<double>? servingSize,
+    Expression<String>? servingUnit,
+    Expression<double>? sodium,
+    Expression<String>? nutritionSource,
+    Expression<bool>? nutritionVerified,
+    Expression<DateTime>? nutritionVerifiedAt,
+    Expression<String>? foodNotes,
+    Expression<String>? productPhotoRef,
+    Expression<String>? labelPhotoRef,
     Expression<String>? barcode,
     Expression<String>? productName,
     Expression<String>? brand,
@@ -10059,6 +11255,16 @@ class OffProductsArchiveCompanion
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (servingSize != null) 'serving_size': servingSize,
+      if (servingUnit != null) 'serving_unit': servingUnit,
+      if (sodium != null) 'sodium': sodium,
+      if (nutritionSource != null) 'nutrition_source': nutritionSource,
+      if (nutritionVerified != null) 'nutrition_verified': nutritionVerified,
+      if (nutritionVerifiedAt != null)
+        'nutrition_verified_at': nutritionVerifiedAt,
+      if (foodNotes != null) 'food_notes': foodNotes,
+      if (productPhotoRef != null) 'product_photo_ref': productPhotoRef,
+      if (labelPhotoRef != null) 'label_photo_ref': labelPhotoRef,
       if (barcode != null) 'barcode': barcode,
       if (productName != null) 'product_name': productName,
       if (brand != null) 'brand': brand,
@@ -10089,6 +11295,15 @@ class OffProductsArchiveCompanion
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
+      Value<double?>? servingSize,
+      Value<String?>? servingUnit,
+      Value<double?>? sodium,
+      Value<String?>? nutritionSource,
+      Value<bool>? nutritionVerified,
+      Value<DateTime?>? nutritionVerifiedAt,
+      Value<String?>? foodNotes,
+      Value<String?>? productPhotoRef,
+      Value<String?>? labelPhotoRef,
       Value<String>? barcode,
       Value<String>? productName,
       Value<String?>? brand,
@@ -10115,6 +11330,15 @@ class OffProductsArchiveCompanion
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      servingSize: servingSize ?? this.servingSize,
+      servingUnit: servingUnit ?? this.servingUnit,
+      sodium: sodium ?? this.sodium,
+      nutritionSource: nutritionSource ?? this.nutritionSource,
+      nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+      nutritionVerifiedAt: nutritionVerifiedAt ?? this.nutritionVerifiedAt,
+      foodNotes: foodNotes ?? this.foodNotes,
+      productPhotoRef: productPhotoRef ?? this.productPhotoRef,
+      labelPhotoRef: labelPhotoRef ?? this.labelPhotoRef,
       barcode: barcode ?? this.barcode,
       productName: productName ?? this.productName,
       brand: brand ?? this.brand,
@@ -10155,6 +11379,34 @@ class OffProductsArchiveCompanion
     }
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (servingSize.present) {
+      map['serving_size'] = Variable<double>(servingSize.value);
+    }
+    if (servingUnit.present) {
+      map['serving_unit'] = Variable<String>(servingUnit.value);
+    }
+    if (sodium.present) {
+      map['sodium'] = Variable<double>(sodium.value);
+    }
+    if (nutritionSource.present) {
+      map['nutrition_source'] = Variable<String>(nutritionSource.value);
+    }
+    if (nutritionVerified.present) {
+      map['nutrition_verified'] = Variable<bool>(nutritionVerified.value);
+    }
+    if (nutritionVerifiedAt.present) {
+      map['nutrition_verified_at'] =
+          Variable<DateTime>(nutritionVerifiedAt.value);
+    }
+    if (foodNotes.present) {
+      map['food_notes'] = Variable<String>(foodNotes.value);
+    }
+    if (productPhotoRef.present) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef.value);
+    }
+    if (labelPhotoRef.present) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef.value);
     }
     if (barcode.present) {
       map['barcode'] = Variable<String>(barcode.value);
@@ -10228,6 +11480,15 @@ class OffProductsArchiveCompanion
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('productName: $productName, ')
           ..write('brand: $brand, ')
@@ -18527,6 +19788,63 @@ class $UserFoodOverridesTable extends UserFoodOverrides
   late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
       'deleted_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _servingSizeMeta =
+      const VerificationMeta('servingSize');
+  @override
+  late final GeneratedColumn<double> servingSize = GeneratedColumn<double>(
+      'serving_size', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _servingUnitMeta =
+      const VerificationMeta('servingUnit');
+  @override
+  late final GeneratedColumn<String> servingUnit = GeneratedColumn<String>(
+      'serving_unit', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sodiumMeta = const VerificationMeta('sodium');
+  @override
+  late final GeneratedColumn<double> sodium = GeneratedColumn<double>(
+      'sodium', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionSourceMeta =
+      const VerificationMeta('nutritionSource');
+  @override
+  late final GeneratedColumn<String> nutritionSource = GeneratedColumn<String>(
+      'nutrition_source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _nutritionVerifiedMeta =
+      const VerificationMeta('nutritionVerified');
+  @override
+  late final GeneratedColumn<bool> nutritionVerified = GeneratedColumn<bool>(
+      'nutrition_verified', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("nutrition_verified" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _nutritionVerifiedAtMeta =
+      const VerificationMeta('nutritionVerifiedAt');
+  @override
+  late final GeneratedColumn<DateTime> nutritionVerifiedAt =
+      GeneratedColumn<DateTime>('nutrition_verified_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _foodNotesMeta =
+      const VerificationMeta('foodNotes');
+  @override
+  late final GeneratedColumn<String> foodNotes = GeneratedColumn<String>(
+      'food_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _productPhotoRefMeta =
+      const VerificationMeta('productPhotoRef');
+  @override
+  late final GeneratedColumn<String> productPhotoRef = GeneratedColumn<String>(
+      'product_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelPhotoRefMeta =
+      const VerificationMeta('labelPhotoRef');
+  @override
+  late final GeneratedColumn<String> labelPhotoRef = GeneratedColumn<String>(
+      'label_photo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _barcodeMeta =
       const VerificationMeta('barcode');
   @override
@@ -18657,6 +19975,15 @@ class $UserFoodOverridesTable extends UserFoodOverrides
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         name,
         brand,
@@ -18706,6 +20033,56 @@ class $UserFoodOverridesTable extends UserFoodOverrides
     if (data.containsKey('deleted_at')) {
       context.handle(_deletedAtMeta,
           deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('serving_size')) {
+      context.handle(
+          _servingSizeMeta,
+          servingSize.isAcceptableOrUnknown(
+              data['serving_size']!, _servingSizeMeta));
+    }
+    if (data.containsKey('serving_unit')) {
+      context.handle(
+          _servingUnitMeta,
+          servingUnit.isAcceptableOrUnknown(
+              data['serving_unit']!, _servingUnitMeta));
+    }
+    if (data.containsKey('sodium')) {
+      context.handle(_sodiumMeta,
+          sodium.isAcceptableOrUnknown(data['sodium']!, _sodiumMeta));
+    }
+    if (data.containsKey('nutrition_source')) {
+      context.handle(
+          _nutritionSourceMeta,
+          nutritionSource.isAcceptableOrUnknown(
+              data['nutrition_source']!, _nutritionSourceMeta));
+    }
+    if (data.containsKey('nutrition_verified')) {
+      context.handle(
+          _nutritionVerifiedMeta,
+          nutritionVerified.isAcceptableOrUnknown(
+              data['nutrition_verified']!, _nutritionVerifiedMeta));
+    }
+    if (data.containsKey('nutrition_verified_at')) {
+      context.handle(
+          _nutritionVerifiedAtMeta,
+          nutritionVerifiedAt.isAcceptableOrUnknown(
+              data['nutrition_verified_at']!, _nutritionVerifiedAtMeta));
+    }
+    if (data.containsKey('food_notes')) {
+      context.handle(_foodNotesMeta,
+          foodNotes.isAcceptableOrUnknown(data['food_notes']!, _foodNotesMeta));
+    }
+    if (data.containsKey('product_photo_ref')) {
+      context.handle(
+          _productPhotoRefMeta,
+          productPhotoRef.isAcceptableOrUnknown(
+              data['product_photo_ref']!, _productPhotoRefMeta));
+    }
+    if (data.containsKey('label_photo_ref')) {
+      context.handle(
+          _labelPhotoRefMeta,
+          labelPhotoRef.isAcceptableOrUnknown(
+              data['label_photo_ref']!, _labelPhotoRefMeta));
     }
     if (data.containsKey('barcode')) {
       context.handle(_barcodeMeta,
@@ -18831,6 +20208,25 @@ class $UserFoodOverridesTable extends UserFoodOverrides
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      servingSize: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}serving_size']),
+      servingUnit: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}serving_unit']),
+      sodium: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sodium']),
+      nutritionSource: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}nutrition_source']),
+      nutritionVerified: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}nutrition_verified'])!,
+      nutritionVerifiedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}nutrition_verified_at']),
+      foodNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}food_notes']),
+      productPhotoRef: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}product_photo_ref']),
+      labelPhotoRef: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_photo_ref']),
       barcode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}barcode'])!,
       name: attachedDatabase.typeMapping
@@ -18888,6 +20284,15 @@ class UserFoodOverride extends DataClass
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final double? servingSize;
+  final String? servingUnit;
+  final double? sodium;
+  final String? nutritionSource;
+  final bool nutritionVerified;
+  final DateTime? nutritionVerifiedAt;
+  final String? foodNotes;
+  final String? productPhotoRef;
+  final String? labelPhotoRef;
   final String barcode;
   final String name;
   final String? brand;
@@ -18914,6 +20319,15 @@ class UserFoodOverride extends DataClass
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt,
+      this.servingSize,
+      this.servingUnit,
+      this.sodium,
+      this.nutritionSource,
+      required this.nutritionVerified,
+      this.nutritionVerifiedAt,
+      this.foodNotes,
+      this.productPhotoRef,
+      this.labelPhotoRef,
       required this.barcode,
       required this.name,
       this.brand,
@@ -18943,6 +20357,31 @@ class UserFoodOverride extends DataClass
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || servingSize != null) {
+      map['serving_size'] = Variable<double>(servingSize);
+    }
+    if (!nullToAbsent || servingUnit != null) {
+      map['serving_unit'] = Variable<String>(servingUnit);
+    }
+    if (!nullToAbsent || sodium != null) {
+      map['sodium'] = Variable<double>(sodium);
+    }
+    if (!nullToAbsent || nutritionSource != null) {
+      map['nutrition_source'] = Variable<String>(nutritionSource);
+    }
+    map['nutrition_verified'] = Variable<bool>(nutritionVerified);
+    if (!nullToAbsent || nutritionVerifiedAt != null) {
+      map['nutrition_verified_at'] = Variable<DateTime>(nutritionVerifiedAt);
+    }
+    if (!nullToAbsent || foodNotes != null) {
+      map['food_notes'] = Variable<String>(foodNotes);
+    }
+    if (!nullToAbsent || productPhotoRef != null) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef);
+    }
+    if (!nullToAbsent || labelPhotoRef != null) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef);
     }
     map['barcode'] = Variable<String>(barcode);
     map['name'] = Variable<String>(name);
@@ -19001,6 +20440,30 @@ class UserFoodOverride extends DataClass
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      servingSize: servingSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingSize),
+      servingUnit: servingUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingUnit),
+      sodium:
+          sodium == null && nullToAbsent ? const Value.absent() : Value(sodium),
+      nutritionSource: nutritionSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionSource),
+      nutritionVerified: Value(nutritionVerified),
+      nutritionVerifiedAt: nutritionVerifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nutritionVerifiedAt),
+      foodNotes: foodNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodNotes),
+      productPhotoRef: productPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productPhotoRef),
+      labelPhotoRef: labelPhotoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelPhotoRef),
       barcode: Value(barcode),
       name: Value(name),
       brand:
@@ -19052,6 +20515,16 @@ class UserFoodOverride extends DataClass
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      servingSize: serializer.fromJson<double?>(json['servingSize']),
+      servingUnit: serializer.fromJson<String?>(json['servingUnit']),
+      sodium: serializer.fromJson<double?>(json['sodium']),
+      nutritionSource: serializer.fromJson<String?>(json['nutritionSource']),
+      nutritionVerified: serializer.fromJson<bool>(json['nutritionVerified']),
+      nutritionVerifiedAt:
+          serializer.fromJson<DateTime?>(json['nutritionVerifiedAt']),
+      foodNotes: serializer.fromJson<String?>(json['foodNotes']),
+      productPhotoRef: serializer.fromJson<String?>(json['productPhotoRef']),
+      labelPhotoRef: serializer.fromJson<String?>(json['labelPhotoRef']),
       barcode: serializer.fromJson<String>(json['barcode']),
       name: serializer.fromJson<String>(json['name']),
       brand: serializer.fromJson<String?>(json['brand']),
@@ -19086,6 +20559,15 @@ class UserFoodOverride extends DataClass
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'servingSize': serializer.toJson<double?>(servingSize),
+      'servingUnit': serializer.toJson<String?>(servingUnit),
+      'sodium': serializer.toJson<double?>(sodium),
+      'nutritionSource': serializer.toJson<String?>(nutritionSource),
+      'nutritionVerified': serializer.toJson<bool>(nutritionVerified),
+      'nutritionVerifiedAt': serializer.toJson<DateTime?>(nutritionVerifiedAt),
+      'foodNotes': serializer.toJson<String?>(foodNotes),
+      'productPhotoRef': serializer.toJson<String?>(productPhotoRef),
+      'labelPhotoRef': serializer.toJson<String?>(labelPhotoRef),
       'barcode': serializer.toJson<String>(barcode),
       'name': serializer.toJson<String>(name),
       'brand': serializer.toJson<String?>(brand),
@@ -19116,6 +20598,15 @@ class UserFoodOverride extends DataClass
           DateTime? createdAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
+          Value<double?> servingSize = const Value.absent(),
+          Value<String?> servingUnit = const Value.absent(),
+          Value<double?> sodium = const Value.absent(),
+          Value<String?> nutritionSource = const Value.absent(),
+          bool? nutritionVerified,
+          Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+          Value<String?> foodNotes = const Value.absent(),
+          Value<String?> productPhotoRef = const Value.absent(),
+          Value<String?> labelPhotoRef = const Value.absent(),
           String? barcode,
           String? name,
           Value<String?> brand = const Value.absent(),
@@ -19142,6 +20633,22 @@ class UserFoodOverride extends DataClass
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        servingSize: servingSize.present ? servingSize.value : this.servingSize,
+        servingUnit: servingUnit.present ? servingUnit.value : this.servingUnit,
+        sodium: sodium.present ? sodium.value : this.sodium,
+        nutritionSource: nutritionSource.present
+            ? nutritionSource.value
+            : this.nutritionSource,
+        nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+        nutritionVerifiedAt: nutritionVerifiedAt.present
+            ? nutritionVerifiedAt.value
+            : this.nutritionVerifiedAt,
+        foodNotes: foodNotes.present ? foodNotes.value : this.foodNotes,
+        productPhotoRef: productPhotoRef.present
+            ? productPhotoRef.value
+            : this.productPhotoRef,
+        labelPhotoRef:
+            labelPhotoRef.present ? labelPhotoRef.value : this.labelPhotoRef,
         barcode: barcode ?? this.barcode,
         name: name ?? this.name,
         brand: brand.present ? brand.value : this.brand,
@@ -19181,6 +20688,27 @@ class UserFoodOverride extends DataClass
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      servingSize:
+          data.servingSize.present ? data.servingSize.value : this.servingSize,
+      servingUnit:
+          data.servingUnit.present ? data.servingUnit.value : this.servingUnit,
+      sodium: data.sodium.present ? data.sodium.value : this.sodium,
+      nutritionSource: data.nutritionSource.present
+          ? data.nutritionSource.value
+          : this.nutritionSource,
+      nutritionVerified: data.nutritionVerified.present
+          ? data.nutritionVerified.value
+          : this.nutritionVerified,
+      nutritionVerifiedAt: data.nutritionVerifiedAt.present
+          ? data.nutritionVerifiedAt.value
+          : this.nutritionVerifiedAt,
+      foodNotes: data.foodNotes.present ? data.foodNotes.value : this.foodNotes,
+      productPhotoRef: data.productPhotoRef.present
+          ? data.productPhotoRef.value
+          : this.productPhotoRef,
+      labelPhotoRef: data.labelPhotoRef.present
+          ? data.labelPhotoRef.value
+          : this.labelPhotoRef,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       name: data.name.present ? data.name.value : this.name,
       brand: data.brand.present ? data.brand.value : this.brand,
@@ -19224,6 +20752,15 @@ class UserFoodOverride extends DataClass
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('name: $name, ')
           ..write('brand: $brand, ')
@@ -19255,6 +20792,15 @@ class UserFoodOverride extends DataClass
         createdAt,
         updatedAt,
         deletedAt,
+        servingSize,
+        servingUnit,
+        sodium,
+        nutritionSource,
+        nutritionVerified,
+        nutritionVerifiedAt,
+        foodNotes,
+        productPhotoRef,
+        labelPhotoRef,
         barcode,
         name,
         brand,
@@ -19285,6 +20831,15 @@ class UserFoodOverride extends DataClass
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
+          other.servingSize == this.servingSize &&
+          other.servingUnit == this.servingUnit &&
+          other.sodium == this.sodium &&
+          other.nutritionSource == this.nutritionSource &&
+          other.nutritionVerified == this.nutritionVerified &&
+          other.nutritionVerifiedAt == this.nutritionVerifiedAt &&
+          other.foodNotes == this.foodNotes &&
+          other.productPhotoRef == this.productPhotoRef &&
+          other.labelPhotoRef == this.labelPhotoRef &&
           other.barcode == this.barcode &&
           other.name == this.name &&
           other.brand == this.brand &&
@@ -19313,6 +20868,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<double?> servingSize;
+  final Value<String?> servingUnit;
+  final Value<double?> sodium;
+  final Value<String?> nutritionSource;
+  final Value<bool> nutritionVerified;
+  final Value<DateTime?> nutritionVerifiedAt;
+  final Value<String?> foodNotes;
+  final Value<String?> productPhotoRef;
+  final Value<String?> labelPhotoRef;
   final Value<String> barcode;
   final Value<String> name;
   final Value<String?> brand;
@@ -19339,6 +20903,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     this.barcode = const Value.absent(),
     this.name = const Value.absent(),
     this.brand = const Value.absent(),
@@ -19366,6 +20939,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.nutritionSource = const Value.absent(),
+    this.nutritionVerified = const Value.absent(),
+    this.nutritionVerifiedAt = const Value.absent(),
+    this.foodNotes = const Value.absent(),
+    this.productPhotoRef = const Value.absent(),
+    this.labelPhotoRef = const Value.absent(),
     required String barcode,
     required String name,
     this.brand = const Value.absent(),
@@ -19398,6 +20980,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<double>? servingSize,
+    Expression<String>? servingUnit,
+    Expression<double>? sodium,
+    Expression<String>? nutritionSource,
+    Expression<bool>? nutritionVerified,
+    Expression<DateTime>? nutritionVerifiedAt,
+    Expression<String>? foodNotes,
+    Expression<String>? productPhotoRef,
+    Expression<String>? labelPhotoRef,
     Expression<String>? barcode,
     Expression<String>? name,
     Expression<String>? brand,
@@ -19425,6 +21016,16 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (servingSize != null) 'serving_size': servingSize,
+      if (servingUnit != null) 'serving_unit': servingUnit,
+      if (sodium != null) 'sodium': sodium,
+      if (nutritionSource != null) 'nutrition_source': nutritionSource,
+      if (nutritionVerified != null) 'nutrition_verified': nutritionVerified,
+      if (nutritionVerifiedAt != null)
+        'nutrition_verified_at': nutritionVerifiedAt,
+      if (foodNotes != null) 'food_notes': foodNotes,
+      if (productPhotoRef != null) 'product_photo_ref': productPhotoRef,
+      if (labelPhotoRef != null) 'label_photo_ref': labelPhotoRef,
       if (barcode != null) 'barcode': barcode,
       if (name != null) 'name': name,
       if (brand != null) 'brand': brand,
@@ -19456,6 +21057,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
+      Value<double?>? servingSize,
+      Value<String?>? servingUnit,
+      Value<double?>? sodium,
+      Value<String?>? nutritionSource,
+      Value<bool>? nutritionVerified,
+      Value<DateTime?>? nutritionVerifiedAt,
+      Value<String?>? foodNotes,
+      Value<String?>? productPhotoRef,
+      Value<String?>? labelPhotoRef,
       Value<String>? barcode,
       Value<String>? name,
       Value<String?>? brand,
@@ -19482,6 +21092,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      servingSize: servingSize ?? this.servingSize,
+      servingUnit: servingUnit ?? this.servingUnit,
+      sodium: sodium ?? this.sodium,
+      nutritionSource: nutritionSource ?? this.nutritionSource,
+      nutritionVerified: nutritionVerified ?? this.nutritionVerified,
+      nutritionVerifiedAt: nutritionVerifiedAt ?? this.nutritionVerifiedAt,
+      foodNotes: foodNotes ?? this.foodNotes,
+      productPhotoRef: productPhotoRef ?? this.productPhotoRef,
+      labelPhotoRef: labelPhotoRef ?? this.labelPhotoRef,
       barcode: barcode ?? this.barcode,
       name: name ?? this.name,
       brand: brand ?? this.brand,
@@ -19523,6 +21142,34 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
     }
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (servingSize.present) {
+      map['serving_size'] = Variable<double>(servingSize.value);
+    }
+    if (servingUnit.present) {
+      map['serving_unit'] = Variable<String>(servingUnit.value);
+    }
+    if (sodium.present) {
+      map['sodium'] = Variable<double>(sodium.value);
+    }
+    if (nutritionSource.present) {
+      map['nutrition_source'] = Variable<String>(nutritionSource.value);
+    }
+    if (nutritionVerified.present) {
+      map['nutrition_verified'] = Variable<bool>(nutritionVerified.value);
+    }
+    if (nutritionVerifiedAt.present) {
+      map['nutrition_verified_at'] =
+          Variable<DateTime>(nutritionVerifiedAt.value);
+    }
+    if (foodNotes.present) {
+      map['food_notes'] = Variable<String>(foodNotes.value);
+    }
+    if (productPhotoRef.present) {
+      map['product_photo_ref'] = Variable<String>(productPhotoRef.value);
+    }
+    if (labelPhotoRef.present) {
+      map['label_photo_ref'] = Variable<String>(labelPhotoRef.value);
     }
     if (barcode.present) {
       map['barcode'] = Variable<String>(barcode.value);
@@ -19597,6 +21244,15 @@ class UserFoodOverridesCompanion extends UpdateCompanion<UserFoodOverride> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('sodium: $sodium, ')
+          ..write('nutritionSource: $nutritionSource, ')
+          ..write('nutritionVerified: $nutritionVerified, ')
+          ..write('nutritionVerifiedAt: $nutritionVerifiedAt, ')
+          ..write('foodNotes: $foodNotes, ')
+          ..write('productPhotoRef: $productPhotoRef, ')
+          ..write('labelPhotoRef: $labelPhotoRef, ')
           ..write('barcode: $barcode, ')
           ..write('name: $name, ')
           ..write('brand: $brand, ')
@@ -23235,6 +24891,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CardioActivitiesTable(this);
   late final $CardioSamplesTable cardioSamples = $CardioSamplesTable(this);
   late final $ProductsTable products = $ProductsTable(this);
+  late final $FoodAliasesTable foodAliases = $FoodAliasesTable(this);
   late final $OffProductsArchiveTable offProductsArchive =
       $OffProductsArchiveTable(this);
   late final $MealEntriesTable mealEntries = $MealEntriesTable(this);
@@ -23279,6 +24936,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ExerciseAliasesTable(this);
   late final $UserFoodOverrideTranslationsTable userFoodOverrideTranslations =
       $UserFoodOverrideTranslationsTable(this);
+  late final Index idxFoodAliasLookup = Index('idx_food_alias_lookup',
+      'CREATE INDEX idx_food_alias_lookup ON food_aliases (normalized_alias)');
   late final Index idxNutritionConsumedAt = Index('idx_nutrition_consumed_at',
       'CREATE INDEX idx_nutrition_consumed_at ON nutrition_logs (consumed_at)');
   late final Index idxFluidConsumedAt = Index('idx_fluid_consumed_at',
@@ -23302,6 +24961,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         cardioActivities,
         cardioSamples,
         products,
+        foodAliases,
         offProductsArchive,
         mealEntries,
         nutritionLogs,
@@ -23331,6 +24991,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         catalogLanguages,
         exerciseAliases,
         userFoodOverrideTranslations,
+        idxFoodAliasLookup,
         idxNutritionConsumedAt,
         idxFluidConsumedAt,
         idxMealEntriesConsumedAt
@@ -28677,6 +30338,15 @@ typedef $$ProductsTableCreateCompanionBuilder = ProductsCompanion Function({
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   required String barcode,
   required String name,
   Value<String?> nameDe,
@@ -28714,6 +30384,15 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   Value<String> barcode,
   Value<String> name,
   Value<String?> nameDe,
@@ -28749,6 +30428,21 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
 final class $$ProductsTableReferences
     extends BaseReferences<_$AppDatabase, $ProductsTable, Product> {
   $$ProductsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$FoodAliasesTable, List<FoodAliase>>
+      _foodAliasesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.foodAliases,
+              aliasName: 'products__barcode__food_aliases__product_barcode');
+
+  $$FoodAliasesTableProcessedTableManager get foodAliasesRefs {
+    final manager = $$FoodAliasesTableTableManager($_db, $_db.foodAliases)
+        .filter((f) => f.productBarcode.barcode
+            .sqlEquals($_itemColumn<String>('barcode')!));
+
+    final cache = $_typedResult.readTableOrNull(_foodAliasesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 
   static MultiTypedResultKey<$NutritionLogsTable, List<NutritionLog>>
       _nutritionLogsRefsTable(_$AppDatabase db) =>
@@ -28802,6 +30496,37 @@ class $$ProductsTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnFilters(column));
@@ -28898,6 +30623,27 @@ class $$ProductsTableFilterComposer
   ColumnFilters<String> get categoryJa => $composableBuilder(
       column: $table.categoryJa, builder: (column) => ColumnFilters(column));
 
+  Expression<bool> foodAliasesRefs(
+      Expression<bool> Function($$FoodAliasesTableFilterComposer f) f) {
+    final $$FoodAliasesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.barcode,
+        referencedTable: $db.foodAliases,
+        getReferencedColumn: (t) => t.productBarcode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FoodAliasesTableFilterComposer(
+              $db: $db,
+              $table: $db.foodAliases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
   Expression<bool> nutritionLogsRefs(
       Expression<bool> Function($$NutritionLogsTableFilterComposer f) f) {
     final $$NutritionLogsTableFilterComposer composer = $composerBuilder(
@@ -28964,6 +30710,38 @@ class $$ProductsTableOrderingComposer
 
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnOrderings(column));
@@ -29086,6 +30864,33 @@ class $$ProductsTableAnnotationComposer
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
+  GeneratedColumn<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => column);
+
+  GeneratedColumn<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => column);
+
+  GeneratedColumn<double> get sodium =>
+      $composableBuilder(column: $table.sodium, builder: (column) => column);
+
+  GeneratedColumn<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource, builder: (column) => column);
+
+  GeneratedColumn<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get foodNotes =>
+      $composableBuilder(column: $table.foodNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef, builder: (column) => column);
+
+  GeneratedColumn<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => column);
+
   GeneratedColumn<String> get barcode =>
       $composableBuilder(column: $table.barcode, builder: (column) => column);
 
@@ -29176,6 +30981,27 @@ class $$ProductsTableAnnotationComposer
   GeneratedColumn<String> get categoryJa => $composableBuilder(
       column: $table.categoryJa, builder: (column) => column);
 
+  Expression<T> foodAliasesRefs<T extends Object>(
+      Expression<T> Function($$FoodAliasesTableAnnotationComposer a) f) {
+    final $$FoodAliasesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.barcode,
+        referencedTable: $db.foodAliases,
+        getReferencedColumn: (t) => t.productBarcode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FoodAliasesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.foodAliases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
   Expression<T> nutritionLogsRefs<T extends Object>(
       Expression<T> Function($$NutritionLogsTableAnnotationComposer a) f) {
     final $$NutritionLogsTableAnnotationComposer composer = $composerBuilder(
@@ -29230,7 +31056,8 @@ class $$ProductsTableTableManager extends RootTableManager<
     $$ProductsTableUpdateCompanionBuilder,
     (Product, $$ProductsTableReferences),
     Product,
-    PrefetchHooks Function({bool nutritionLogsRefs, bool mealItemsRefs})> {
+    PrefetchHooks Function(
+        {bool foodAliasesRefs, bool nutritionLogsRefs, bool mealItemsRefs})> {
   $$ProductsTableTableManager(_$AppDatabase db, $ProductsTable table)
       : super(TableManagerState(
           db: db,
@@ -29247,6 +31074,15 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             Value<String> barcode = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> nameDe = const Value.absent(),
@@ -29284,6 +31120,15 @@ class $$ProductsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             name: name,
             nameDe: nameDe,
@@ -29321,6 +31166,15 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             required String barcode,
             required String name,
             Value<String?> nameDe = const Value.absent(),
@@ -29358,6 +31212,15 @@ class $$ProductsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             name: name,
             nameDe: nameDe,
@@ -29396,16 +31259,32 @@ class $$ProductsTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {nutritionLogsRefs = false, mealItemsRefs = false}) {
+              {foodAliasesRefs = false,
+              nutritionLogsRefs = false,
+              mealItemsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
+                if (foodAliasesRefs) db.foodAliases,
                 if (nutritionLogsRefs) db.nutritionLogs,
                 if (mealItemsRefs) db.mealItems
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
+                  if (foodAliasesRefs)
+                    await $_getPrefetchedData<Product, $ProductsTable,
+                            FoodAliase>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProductsTableReferences._foodAliasesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProductsTableReferences(db, table, p0)
+                                .foodAliasesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.productBarcode == item.barcode),
+                        typedResults: items),
                   if (nutritionLogsRefs)
                     await $_getPrefetchedData<Product, $ProductsTable,
                             NutritionLog>(
@@ -29450,7 +31329,339 @@ typedef $$ProductsTableProcessedTableManager = ProcessedTableManager<
     $$ProductsTableUpdateCompanionBuilder,
     (Product, $$ProductsTableReferences),
     Product,
-    PrefetchHooks Function({bool nutritionLogsRefs, bool mealItemsRefs})>;
+    PrefetchHooks Function(
+        {bool foodAliasesRefs, bool nutritionLogsRefs, bool mealItemsRefs})>;
+typedef $$FoodAliasesTableCreateCompanionBuilder = FoodAliasesCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  required String productBarcode,
+  required String alias,
+  required String normalizedAlias,
+  Value<String?> language,
+});
+typedef $$FoodAliasesTableUpdateCompanionBuilder = FoodAliasesCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> productBarcode,
+  Value<String> alias,
+  Value<String> normalizedAlias,
+  Value<String?> language,
+});
+
+final class $$FoodAliasesTableReferences
+    extends BaseReferences<_$AppDatabase, $FoodAliasesTable, FoodAliase> {
+  $$FoodAliasesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProductsTable _productBarcodeTable(_$AppDatabase db) => db.products
+      .createAlias('food_aliases__product_barcode__products__barcode');
+
+  $$ProductsTableProcessedTableManager get productBarcode {
+    final $_column = $_itemColumn<String>('product_barcode')!;
+
+    final manager = $$ProductsTableTableManager($_db, $_db.products)
+        .filter((f) => f.barcode.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_productBarcodeTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$FoodAliasesTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodAliasesTable> {
+  $$FoodAliasesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get alias => $composableBuilder(
+      column: $table.alias, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get normalizedAlias => $composableBuilder(
+      column: $table.normalizedAlias,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  $$ProductsTableFilterComposer get productBarcode {
+    final $$ProductsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productBarcode,
+        referencedTable: $db.products,
+        getReferencedColumn: (t) => t.barcode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductsTableFilterComposer(
+              $db: $db,
+              $table: $db.products,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FoodAliasesTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodAliasesTable> {
+  $$FoodAliasesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get alias => $composableBuilder(
+      column: $table.alias, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get normalizedAlias => $composableBuilder(
+      column: $table.normalizedAlias,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  $$ProductsTableOrderingComposer get productBarcode {
+    final $$ProductsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productBarcode,
+        referencedTable: $db.products,
+        getReferencedColumn: (t) => t.barcode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductsTableOrderingComposer(
+              $db: $db,
+              $table: $db.products,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FoodAliasesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodAliasesTable> {
+  $$FoodAliasesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get alias =>
+      $composableBuilder(column: $table.alias, builder: (column) => column);
+
+  GeneratedColumn<String> get normalizedAlias => $composableBuilder(
+      column: $table.normalizedAlias, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  $$ProductsTableAnnotationComposer get productBarcode {
+    final $$ProductsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.productBarcode,
+        referencedTable: $db.products,
+        getReferencedColumn: (t) => t.barcode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProductsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.products,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FoodAliasesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $FoodAliasesTable,
+    FoodAliase,
+    $$FoodAliasesTableFilterComposer,
+    $$FoodAliasesTableOrderingComposer,
+    $$FoodAliasesTableAnnotationComposer,
+    $$FoodAliasesTableCreateCompanionBuilder,
+    $$FoodAliasesTableUpdateCompanionBuilder,
+    (FoodAliase, $$FoodAliasesTableReferences),
+    FoodAliase,
+    PrefetchHooks Function({bool productBarcode})> {
+  $$FoodAliasesTableTableManager(_$AppDatabase db, $FoodAliasesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodAliasesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodAliasesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodAliasesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> productBarcode = const Value.absent(),
+            Value<String> alias = const Value.absent(),
+            Value<String> normalizedAlias = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+          }) =>
+              FoodAliasesCompanion(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            productBarcode: productBarcode,
+            alias: alias,
+            normalizedAlias: normalizedAlias,
+            language: language,
+          ),
+          createCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            required String productBarcode,
+            required String alias,
+            required String normalizedAlias,
+            Value<String?> language = const Value.absent(),
+          }) =>
+              FoodAliasesCompanion.insert(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            productBarcode: productBarcode,
+            alias: alias,
+            normalizedAlias: normalizedAlias,
+            language: language,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$FoodAliasesTable, FoodAliase>(table),
+                    $$FoodAliasesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({productBarcode = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (productBarcode) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.productBarcode,
+                    referencedTable:
+                        $$FoodAliasesTableReferences._productBarcodeTable(db),
+                    referencedColumn: $$FoodAliasesTableReferences
+                        ._productBarcodeTable(db)
+                        .barcode,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$FoodAliasesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $FoodAliasesTable,
+    FoodAliase,
+    $$FoodAliasesTableFilterComposer,
+    $$FoodAliasesTableOrderingComposer,
+    $$FoodAliasesTableAnnotationComposer,
+    $$FoodAliasesTableCreateCompanionBuilder,
+    $$FoodAliasesTableUpdateCompanionBuilder,
+    (FoodAliase, $$FoodAliasesTableReferences),
+    FoodAliase,
+    PrefetchHooks Function({bool productBarcode})>;
 typedef $$OffProductsArchiveTableCreateCompanionBuilder
     = OffProductsArchiveCompanion Function({
   Value<int> localId,
@@ -29458,6 +31669,15 @@ typedef $$OffProductsArchiveTableCreateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   required String barcode,
   required String productName,
   Value<String?> brand,
@@ -29486,6 +31706,15 @@ typedef $$OffProductsArchiveTableUpdateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   Value<String> barcode,
   Value<String> productName,
   Value<String?> brand,
@@ -29554,6 +31783,37 @@ class $$OffProductsArchiveTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnFilters(column));
@@ -29665,6 +31925,38 @@ class $$OffProductsArchiveTableOrderingComposer
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnOrderings(column));
 
@@ -29753,6 +32045,33 @@ class $$OffProductsArchiveTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => column);
+
+  GeneratedColumn<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => column);
+
+  GeneratedColumn<double> get sodium =>
+      $composableBuilder(column: $table.sodium, builder: (column) => column);
+
+  GeneratedColumn<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource, builder: (column) => column);
+
+  GeneratedColumn<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get foodNotes =>
+      $composableBuilder(column: $table.foodNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef, builder: (column) => column);
+
+  GeneratedColumn<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => column);
 
   GeneratedColumn<String> get barcode =>
       $composableBuilder(column: $table.barcode, builder: (column) => column);
@@ -29866,6 +32185,15 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             Value<String> barcode = const Value.absent(),
             Value<String> productName = const Value.absent(),
             Value<String?> brand = const Value.absent(),
@@ -29893,6 +32221,15 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             productName: productName,
             brand: brand,
@@ -29920,6 +32257,15 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             required String barcode,
             required String productName,
             Value<String?> brand = const Value.absent(),
@@ -29947,6 +32293,15 @@ class $$OffProductsArchiveTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             productName: productName,
             brand: brand,
@@ -35671,6 +38026,15 @@ typedef $$UserFoodOverridesTableCreateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   required String barcode,
   required String name,
   Value<String?> brand,
@@ -35699,6 +38063,15 @@ typedef $$UserFoodOverridesTableUpdateCompanionBuilder
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<double?> servingSize,
+  Value<String?> servingUnit,
+  Value<double?> sodium,
+  Value<String?> nutritionSource,
+  Value<bool> nutritionVerified,
+  Value<DateTime?> nutritionVerifiedAt,
+  Value<String?> foodNotes,
+  Value<String?> productPhotoRef,
+  Value<String?> labelPhotoRef,
   Value<String> barcode,
   Value<String> name,
   Value<String?> brand,
@@ -35770,6 +38143,37 @@ class $$UserFoodOverridesTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnFilters(column));
@@ -35885,6 +38289,38 @@ class $$UserFoodOverridesTableOrderingComposer
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sodium => $composableBuilder(
+      column: $table.sodium, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get foodNotes => $composableBuilder(
+      column: $table.foodNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get barcode => $composableBuilder(
       column: $table.barcode, builder: (column) => ColumnOrderings(column));
 
@@ -35975,6 +38411,33 @@ class $$UserFoodOverridesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<double> get servingSize => $composableBuilder(
+      column: $table.servingSize, builder: (column) => column);
+
+  GeneratedColumn<String> get servingUnit => $composableBuilder(
+      column: $table.servingUnit, builder: (column) => column);
+
+  GeneratedColumn<double> get sodium =>
+      $composableBuilder(column: $table.sodium, builder: (column) => column);
+
+  GeneratedColumn<String> get nutritionSource => $composableBuilder(
+      column: $table.nutritionSource, builder: (column) => column);
+
+  GeneratedColumn<bool> get nutritionVerified => $composableBuilder(
+      column: $table.nutritionVerified, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nutritionVerifiedAt => $composableBuilder(
+      column: $table.nutritionVerifiedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get foodNotes =>
+      $composableBuilder(column: $table.foodNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get productPhotoRef => $composableBuilder(
+      column: $table.productPhotoRef, builder: (column) => column);
+
+  GeneratedColumn<String> get labelPhotoRef => $composableBuilder(
+      column: $table.labelPhotoRef, builder: (column) => column);
 
   GeneratedColumn<String> get barcode =>
       $composableBuilder(column: $table.barcode, builder: (column) => column);
@@ -36091,6 +38554,15 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             Value<String> barcode = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> brand = const Value.absent(),
@@ -36118,6 +38590,15 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             name: name,
             brand: brand,
@@ -36145,6 +38626,15 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<double?> servingSize = const Value.absent(),
+            Value<String?> servingUnit = const Value.absent(),
+            Value<double?> sodium = const Value.absent(),
+            Value<String?> nutritionSource = const Value.absent(),
+            Value<bool> nutritionVerified = const Value.absent(),
+            Value<DateTime?> nutritionVerifiedAt = const Value.absent(),
+            Value<String?> foodNotes = const Value.absent(),
+            Value<String?> productPhotoRef = const Value.absent(),
+            Value<String?> labelPhotoRef = const Value.absent(),
             required String barcode,
             required String name,
             Value<String?> brand = const Value.absent(),
@@ -36172,6 +38662,15 @@ class $$UserFoodOverridesTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            servingSize: servingSize,
+            servingUnit: servingUnit,
+            sodium: sodium,
+            nutritionSource: nutritionSource,
+            nutritionVerified: nutritionVerified,
+            nutritionVerifiedAt: nutritionVerifiedAt,
+            foodNotes: foodNotes,
+            productPhotoRef: productPhotoRef,
+            labelPhotoRef: labelPhotoRef,
             barcode: barcode,
             name: name,
             brand: brand,
@@ -38463,6 +40962,8 @@ class $AppDatabaseManager {
       $$CardioSamplesTableTableManager(_db, _db.cardioSamples);
   $$ProductsTableTableManager get products =>
       $$ProductsTableTableManager(_db, _db.products);
+  $$FoodAliasesTableTableManager get foodAliases =>
+      $$FoodAliasesTableTableManager(_db, _db.foodAliases);
   $$OffProductsArchiveTableTableManager get offProductsArchive =>
       $$OffProductsArchiveTableTableManager(_db, _db.offProductsArchive);
   $$MealEntriesTableTableManager get mealEntries =>

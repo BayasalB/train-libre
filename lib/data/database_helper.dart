@@ -82,6 +82,8 @@ class DatabaseHelper {
         await dbInst.customStatement('DELETE FROM sleep_raw_imports');
         await dbInst.customStatement('DELETE FROM pulse_hourly_aggregates');
         await dbInst.customStatement('DELETE FROM pulse_aggregate_metadata');
+        await dbInst.delete(dbInst.foodAliases).go();
+        await dbInst.delete(dbInst.userFoodOverrideTranslations).go();
         await dbInst.customStatement('DELETE FROM user_food_overrides');
         await dbInst.delete(dbInst.cardioSamples).go();
         await dbInst.delete(dbInst.cardioActivities).go();

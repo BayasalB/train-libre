@@ -31,6 +31,36 @@ mixin MetaColumns on Table {
   DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
+/// User-facing label metadata; separate from catalog/package quantity.
+mixin SavedFoodColumns on Table {
+  RealColumn get servingSize => real().nullable()();
+  TextColumn get servingUnit =>
+      text().nullable()(); // g or ml; never a conversion
+  RealColumn get sodium => real().nullable()(); // grams per 100 g/ml, not salt
+  TextColumn get nutritionSource =>
+      text().nullable()(); // label/manual/catalog/estimate
+  BoolColumn get nutritionVerified =>
+      boolean().withDefault(const Constant(false))();
+  DateTimeColumn get nutritionVerifiedAt => dateTime().nullable()();
+  TextColumn get foodNotes => text().nullable()();
+  TextColumn get productPhotoRef => text().nullable()();
+  TextColumn get labelPhotoRef => text().nullable()();
+}
+
+@TableIndex(name: 'idx_food_alias_lookup', columns: {#normalizedAlias})
+class FoodAliases extends Table with HybridId, MetaColumns {
+  // Barcode is the stable product key across catalog refreshes and backup restore.
+  TextColumn get productBarcode => text().references(Products, #barcode)();
+  TextColumn get alias => text()();
+  TextColumn get normalizedAlias => text()();
+  TextColumn get language => text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {productBarcode, normalizedAlias}
+      ];
+}
+
 // --- Table definitions ---
 
 // 1. Profiles
@@ -469,7 +499,7 @@ class CardioSamples extends Table with HybridId, MetaColumns {
 
 // 11. Products (replaces parts of food_entries / FoodItem)
 /// Table definition for food products.
-class Products extends Table with HybridId, MetaColumns {
+class Products extends Table with HybridId, MetaColumns, SavedFoodColumns {
   TextColumn get barcode => text().unique()(); // Eindeutiger Identifier
   TextColumn get name => text()();
   TextColumn get nameDe => text().nullable()();
@@ -516,7 +546,8 @@ class Products extends Table with HybridId, MetaColumns {
 
 // 12. NutritionLogs (replaces food_entries)
 /// Table definition for nutrition consumption logs.
-class OffProductsArchive extends Table with HybridId, MetaColumns {
+class OffProductsArchive extends Table
+    with HybridId, MetaColumns, SavedFoodColumns {
   TextColumn get barcode => text()();
   TextColumn get productName => text()();
   TextColumn get brand => text().nullable()();
@@ -748,7 +779,8 @@ class WorkoutExerciseLogs extends Table with HybridId, MetaColumns {
 }
 
 // 21. UserFoodOverrides
-class UserFoodOverrides extends Table with HybridId, MetaColumns {
+class UserFoodOverrides extends Table
+    with HybridId, MetaColumns, SavedFoodColumns {
   TextColumn get barcode => text().unique()();
   TextColumn get name => text()();
   TextColumn get brand => text().nullable()();
@@ -797,6 +829,7 @@ class UserFoodOverrideTranslations extends Table with HybridId, MetaColumns {
     CardioActivities,
     CardioSamples,
     Products,
+    FoodAliases,
     NutritionLogs,
     Supplements,
     SupplementLogs,
@@ -834,7 +867,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 32;
+  int get schemaVersion => 33;
 
   /// v32 changes numeric affinities only. Copies every column, ID, timestamp
   /// and archive hash unchanged; it never reconstructs lost fractional data.
@@ -1560,6 +1593,14 @@ class AppDatabase extends _$AppDatabase {
             if (from < 32) {
               await _migrateDecimalNutrition(m);
             }
+            if (from < 33) {
+              await transaction(() async {
+                // Additive only; existing archive rows/hashes remain untouched.
+                await reconcileSchema();
+                await customStatement(
+                    'CREATE INDEX IF NOT EXISTS idx_food_alias_lookup ON food_aliases(normalized_alias)');
+              });
+            }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(
               fromVersion: from,
               toVersion: to,
@@ -1780,6 +1821,7 @@ String calculateProductContentHash({
   required bool isFluid,
   required bool isLiquid,
   required bool hadUserOverride,
+  Map<String, Object?>? savedFoodMetadata,
 }) {
   final parts = [
     barcode,
@@ -1803,6 +1845,9 @@ String calculateProductContentHash({
     isLiquid.toString(),
     hadUserOverride.toString(),
   ];
+  if (savedFoodMetadata != null && savedFoodMetadata.isNotEmpty) {
+    parts.add(jsonEncode(savedFoodMetadata));
+  }
   final bytes = utf8.encode(parts.join('|'));
   return sha256.convert(bytes).toString();
 }

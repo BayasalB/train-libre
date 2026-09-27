@@ -282,7 +282,7 @@ void main() {
     });
 
     test(
-        'Backup and restore preserves archive references and snapshots round-trip (Backup format v5)',
+        'Backup and restore preserves archive references and snapshots round-trip (current backup format)',
         () async {
       final barcode = '4008400401821';
       // 1. Setup DB state with an archived log
@@ -311,8 +311,8 @@ void main() {
       final manager = BackupManager(dbHelper: DatabaseHelper.instance);
       final payload = await manager.generateBackupPayload();
 
-      // Ensure offProductsArchive is in the JSON payload and database backup format version is 5
-      expect(payload['schemaVersion'], 5);
+      // Ensure archives are present and the declared backup format is current.
+      expect(payload['schemaVersion'], BackupManager.currentSchemaVersion);
       expect(payload['offProductsArchive'], isNotEmpty);
       expect(payload['offProductsArchive'].first['product_name'], 'Nutella');
 

@@ -1241,7 +1241,11 @@ class BasisDataManager {
                   batch.insert(
                     mainDb.products,
                     companion,
-                    mode: drift.InsertMode.insertOrReplace,
+                    onConflict: drift.DoUpdate<Products, Product>(
+                        (old) =>
+                            companion.copyWith(id: const drift.Value.absent()),
+                        where: (old) => old.source.equals('user').not(),
+                        target: [mainDb.products.barcode]),
                   );
                 } else if (companion is FoodCategoriesCompanion) {
                   batch.insert(

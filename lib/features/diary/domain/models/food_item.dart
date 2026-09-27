@@ -1,6 +1,7 @@
 // lib/models/food_item.dart
 import 'dart:convert';
 import 'nutrition_values.dart';
+import 'saved_food_metadata.dart';
 
 import 'package:flutter/widgets.dart'; // Added for BuildContext
 
@@ -104,6 +105,13 @@ class FoodItem {
   /// Unit of the quantity (e.g., 'g', 'ml').
   final String? productQuantityUnit;
 
+  final SavedFoodMetadata metadata;
+  NutritionSource get nutritionSource =>
+      metadata.source ??
+      (source == FoodItemSource.user
+          ? NutritionSource.manual
+          : NutritionSource.catalog);
+
   /// Dynamic getter to determine if the food item is user-created/custom.
   bool get isCustom => source == FoodItemSource.user;
 
@@ -139,6 +147,7 @@ class FoodItem {
     this.additivesTags,
     this.productQuantity,
     this.productQuantityUnit,
+    this.metadata = const SavedFoodMetadata(),
   }) : calories = calories.toDouble();
 
   NutritionValues nutritionFor(num amount) => NutritionValues(
@@ -225,6 +234,8 @@ class FoodItem {
       additivesTags: _toStringList(map['additives_tags']),
       productQuantity: _toDoubleOrNull(map['product_quantity']),
       productQuantityUnit: map['product_quantity_unit'],
+      metadata: SavedFoodMetadata.fromJson(
+          Map<String, dynamic>.from(map['saved_food_metadata'] ?? const {})),
     );
 
     return item;
@@ -261,6 +272,7 @@ class FoodItem {
       'additives_tags': _listToJson(additivesTags),
       'product_quantity': productQuantity,
       'product_quantity_unit': productQuantityUnit,
+      'saved_food_metadata': metadata.toJson(),
     };
   }
 
@@ -353,6 +365,7 @@ class FoodItem {
       additivesTags: additivesTags,
       productQuantity: productQuantity,
       productQuantityUnit: productQuantityUnit,
+      metadata: metadata,
       source: source,
       category: category,
     );

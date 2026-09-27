@@ -1,3 +1,6 @@
+import 'widgets/saved_food_fields.dart';
+import '../domain/models/food_alias.dart';
+import '../data/sources/food_alias_local_data_source.dart';
 import '../domain/models/nutrition_values.dart';
 // lib/screens/create_food_screen.dart (Final & De-Materialisiert)
 
@@ -28,6 +31,34 @@ class CreateFoodScreen extends StatefulWidget {
 
 class _CreateFoodScreenState extends State<CreateFoodScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _savedFieldsKey = GlobalKey<SavedFoodFieldsState>();
+  List<FoodAliasDraft>? _aliases;
+  String? _loadError;
+  bool _saving = false;
+
+  Future<void> _loadAliases() async {
+    try {
+      final rows = widget.foodItemToEdit == null
+          ? <FoodAliasDraft>[]
+          : (await FoodAliasLocalDataSource(
+                      ProductLocalDataSource.instance.dbInstance)
+                  .forFood(widget.foodItemToEdit!.barcode))
+              .map((a) => FoodAliasDraft(
+                  id: a.id, alias: a.alias, language: a.language))
+              .toList();
+      if (mounted) {
+        setState(() {
+          _aliases = rows;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _loadError = 'Could not load aliases: $error';
+        });
+      }
+    }
+  }
 
   final _nameController = TextEditingController();
   final _brandController = TextEditingController();
@@ -45,6 +76,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
   @override
   void initState() {
     super.initState();
+    _loadAliases();
     unawaited(TelemetryService.instance
         .trackScreenView(screenName: ScreenName.createFood));
     if (_isEditing) {
@@ -92,49 +124,82 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
   }
 
   Future<void> _saveFoodItem() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final l10n = AppLocalizations.of(context)!;
-      final isLiquidOrFluid = widget.foodItemToEdit?.isLiquid == true ||
-          widget.foodItemToEdit?.isFluid == true;
-      final caffeineVal = parseNutritionNumber(_caffeineController.text);
+    if (_saving || _aliases == null) return;
+    setState(() {
+      _saving = true;
+    });
+    try {
+      if (_formKey.currentState?.validate() ?? false) {
+        final l10n = AppLocalizations.of(context)!;
+        final details = _savedFieldsKey.currentState!;
+        final isLiquidOrFluid = details.unit == 'ml';
+        final caffeineVal = parseNutritionNumber(_caffeineController.text);
 
-      final foodData = FoodItem(
-        id: widget.foodItemToEdit?.id,
-        barcode: _isEditing
-            ? widget.foodItemToEdit!.barcode
-            : "user_created_${DateTime.now().millisecondsSinceEpoch}",
-        name: _nameController.text,
-        brand: _brandController.text,
-        calories: parseNutritionNumber(
-                _caloriesController.text.replaceAll(',', '.')) ??
-            0,
-        protein: parseNutritionNumber(_proteinController.text) ?? 0.0,
-        carbs: parseNutritionNumber(_carbsController.text) ?? 0.0,
-        fat: parseNutritionNumber(_fatController.text) ?? 0.0,
-        sugar: parseNutritionNumber(_sugarController.text),
-        fiber: parseNutritionNumber(_fiberController.text),
-        salt: parseNutritionNumber(_saltController.text),
-        caffeineMgPer100g: isLiquidOrFluid ? null : caffeineVal,
-        caffeineMgPer100ml: isLiquidOrFluid ? caffeineVal : null,
-        isLiquid: widget.foodItemToEdit?.isLiquid,
-        isFluid: widget.foodItemToEdit?.isFluid ?? false,
-        source: FoodItemSource.user,
-      );
-
-      if (_isEditing) {
-        await ProductLocalDataSource.instance.updateProduct(foodData);
-      } else {
-        await ProductLocalDataSource.instance.insertProduct(foodData);
-        unawaited(TelemetryService.instance
-            .trackFeatureUsed(featureKey: FeatureKey.customFoodCreated));
-      }
-
-      if (mounted) {
-        HapticFeedbackService.instance.confirmationFeedback();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.snackbarSaveSuccess(foodData.name))),
+        final foodData = FoodItem(
+          id: widget.foodItemToEdit?.id,
+          barcode: _isEditing
+              ? widget.foodItemToEdit!.barcode
+              : "user_created_${DateTime.now().millisecondsSinceEpoch}",
+          name: _nameController.text,
+          brand: _brandController.text,
+          calories: parseNutritionNumber(
+                  _caloriesController.text.replaceAll(',', '.')) ??
+              0,
+          protein: parseNutritionNumber(_proteinController.text) ?? 0.0,
+          carbs: parseNutritionNumber(_carbsController.text) ?? 0.0,
+          fat: parseNutritionNumber(_fatController.text) ?? 0.0,
+          sugar: parseNutritionNumber(_sugarController.text),
+          fiber: parseNutritionNumber(_fiberController.text),
+          salt: parseNutritionNumber(_saltController.text),
+          caffeineMgPer100g: isLiquidOrFluid ? null : caffeineVal,
+          caffeineMgPer100ml: isLiquidOrFluid ? caffeineVal : null,
+          isLiquid: isLiquidOrFluid,
+          isFluid: isLiquidOrFluid,
+          source: widget.foodItemToEdit?.source ?? FoodItemSource.user,
+          sodium: details.sodium,
+          metadata: details.metadata,
+          productQuantity: widget.foodItemToEdit?.productQuantity,
+          productQuantityUnit: widget.foodItemToEdit?.productQuantityUnit,
+          category: widget.foodItemToEdit?.category,
+          ingredientsText: widget.foodItemToEdit?.ingredientsText,
+          ingredientsAnalysisTags:
+              widget.foodItemToEdit?.ingredientsAnalysisTags,
+          additivesTags: widget.foodItemToEdit?.additivesTags,
         );
-        Navigator.of(context).pop(foodData);
+
+        final products = ProductLocalDataSource.instance;
+        await products.dbInstance.transaction(() async {
+          if (_isEditing) {
+            await products.updateProduct(foodData);
+          } else {
+            await ProductLocalDataSource.instance.insertProduct(foodData);
+            unawaited(TelemetryService.instance
+                .trackFeatureUsed(featureKey: FeatureKey.customFoodCreated));
+          }
+
+          await FoodAliasLocalDataSource(products.dbInstance)
+              .replaceForFood(foodData.barcode, details.aliases);
+        });
+
+        final savedFood = await products.getProductByBarcode(foodData.barcode);
+        if (mounted) {
+          HapticFeedbackService.instance.confirmationFeedback();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.snackbarSaveSuccess(foodData.name))),
+          );
+          Navigator.of(context).pop(savedFood ?? foodData);
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not save food: $error')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
       }
     }
   }
@@ -153,7 +218,7 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
         title: l10n.createFoodScreenTitle,
         actions: [
           TextButton(
-            onPressed: _saveFoodItem,
+            onPressed: _saving || _aliases == null ? null : _saveFoodItem,
             // Ensure the text uses the primary color here.
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.primary,
@@ -243,6 +308,14 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
                 isNumeric: true,
               ),
 
+              if (_loadError != null) Text(_loadError!),
+              if (_aliases == null && _loadError == null)
+                const CircularProgressIndicator(),
+              if (_aliases != null)
+                SavedFoodFields(
+                    key: _savedFieldsKey,
+                    food: widget.foodItemToEdit,
+                    aliases: _aliases!),
               const SizedBox(height: DesignConstants.spacingXXL),
             ],
           ),

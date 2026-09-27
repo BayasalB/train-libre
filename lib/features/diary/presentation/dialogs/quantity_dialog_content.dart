@@ -64,7 +64,12 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
     super.initState();
     _quantityController = TextEditingController(
       text: widget.initialQuantity?.toString() ??
-          widget.item.productQuantity?.toString() ??
+          (widget.item.metadata.servingUnit ==
+                  (widget.item.isFluid || widget.item.isLiquid == true
+                      ? 'ml'
+                      : 'g')
+              ? widget.item.metadata.servingSize?.toString()
+              : null) ??
           '100',
     );
     _sugarController = TextEditingController(

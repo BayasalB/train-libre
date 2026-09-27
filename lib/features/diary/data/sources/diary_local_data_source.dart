@@ -1,3 +1,4 @@
+import '../../domain/models/saved_food_metadata.dart';
 // lib/features/diary/data/sources/diary_local_data_source.dart
 import 'dart:async';
 import '../meal_photo_store.dart';
@@ -358,16 +359,23 @@ class DiaryLocalDataSource {
       final pProtein = override?.protein ?? product.protein;
       final pCarbs = override?.carbs ?? product.carbs;
       final pFat = override?.fat ?? product.fat;
-      final pSugar = override?.sugar ?? product.sugar;
-      final pFiber = override?.fiber ?? product.fiber;
-      final pSalt = override?.salt ?? product.salt;
-      final pCaffeine = override?.caffeine ?? product.caffeine;
-      final pCaffeineMgPer100g =
-          override?.caffeineMgPer100g ?? product.caffeineMgPer100g;
-      final pProductQuantity =
-          override?.productQuantity ?? product.productQuantity;
-      final pProductQuantityUnit =
-          override?.productQuantityUnit ?? product.productQuantityUnit;
+      final pSugar = (override != null ? override.sugar : product.sugar);
+      final pFiber = (override != null ? override.fiber : product.fiber);
+      final metadata = SavedFoodMetadata.fromJson(
+          override != null ? override.toJson() : product.toJson());
+      final sodium = override != null ? override.sodium : product.sodium;
+      final pSalt = (override != null ? override.salt : product.salt);
+      final pCaffeine =
+          (override != null ? override.caffeine : product.caffeine);
+      final pCaffeineMgPer100g = (override != null
+          ? override.caffeineMgPer100g
+          : product.caffeineMgPer100g);
+      final pProductQuantity = (override != null
+          ? override.productQuantity
+          : product.productQuantity);
+      final pProductQuantityUnit = (override != null
+          ? override.productQuantityUnit
+          : product.productQuantityUnit);
       final pIsFluid = override?.isFluid ?? product.isFluid;
       final pIsLiquid = override?.isLiquid ?? product.isLiquid;
       final pCategory = override?.category ?? product.category;
@@ -382,6 +390,10 @@ class DiaryLocalDataSource {
         fat: pFat,
         sugar: pSugar,
         fiber: pFiber,
+        savedFoodMetadata: {
+          ...metadata.toJson(),
+          if (sodium != null) 'sodium': sodium
+        },
         salt: pSalt,
         caffeine: pCaffeine,
         caffeineMgPer100g: pCaffeineMgPer100g,
@@ -413,6 +425,15 @@ class DiaryLocalDataSource {
                 sugar: drift.Value(pSugar),
                 fiber: drift.Value(pFiber),
                 salt: drift.Value(pSalt),
+                servingSize: drift.Value(metadata.servingSize),
+                servingUnit: drift.Value(metadata.servingUnit),
+                sodium: drift.Value(sodium),
+                nutritionSource: drift.Value(metadata.source?.name),
+                nutritionVerified: drift.Value(metadata.verified),
+                nutritionVerifiedAt: drift.Value(metadata.verifiedAt),
+                foodNotes: drift.Value(metadata.notes),
+                productPhotoRef: drift.Value(metadata.productPhotoRef),
+                labelPhotoRef: drift.Value(metadata.labelPhotoRef),
                 caffeine: drift.Value(pCaffeine),
                 caffeineMgPer100g: drift.Value(pCaffeineMgPer100g),
                 productQuantity: drift.Value(pProductQuantity),
@@ -506,16 +527,23 @@ class DiaryLocalDataSource {
       final pProtein = override?.protein ?? product.protein;
       final pCarbs = override?.carbs ?? product.carbs;
       final pFat = override?.fat ?? product.fat;
-      final pSugar = override?.sugar ?? product.sugar;
-      final pFiber = override?.fiber ?? product.fiber;
-      final pSalt = override?.salt ?? product.salt;
-      final pCaffeine = override?.caffeine ?? product.caffeine;
-      final pCaffeineMgPer100g =
-          override?.caffeineMgPer100g ?? product.caffeineMgPer100g;
-      final pProductQuantity =
-          override?.productQuantity ?? product.productQuantity;
-      final pProductQuantityUnit =
-          override?.productQuantityUnit ?? product.productQuantityUnit;
+      final pSugar = (override != null ? override.sugar : product.sugar);
+      final pFiber = (override != null ? override.fiber : product.fiber);
+      final metadata = SavedFoodMetadata.fromJson(
+          override != null ? override.toJson() : product.toJson());
+      final sodium = override != null ? override.sodium : product.sodium;
+      final pSalt = (override != null ? override.salt : product.salt);
+      final pCaffeine =
+          (override != null ? override.caffeine : product.caffeine);
+      final pCaffeineMgPer100g = (override != null
+          ? override.caffeineMgPer100g
+          : product.caffeineMgPer100g);
+      final pProductQuantity = (override != null
+          ? override.productQuantity
+          : product.productQuantity);
+      final pProductQuantityUnit = (override != null
+          ? override.productQuantityUnit
+          : product.productQuantityUnit);
       final pIsFluid = override?.isFluid ?? product.isFluid;
       final pIsLiquid = override?.isLiquid ?? product.isLiquid;
       final pCategory = override?.category ?? product.category;
@@ -530,6 +558,10 @@ class DiaryLocalDataSource {
         fat: pFat,
         sugar: pSugar,
         fiber: pFiber,
+        savedFoodMetadata: {
+          ...metadata.toJson(),
+          if (sodium != null) 'sodium': sodium
+        },
         salt: pSalt,
         caffeine: pCaffeine,
         caffeineMgPer100g: pCaffeineMgPer100g,
@@ -561,6 +593,15 @@ class DiaryLocalDataSource {
                 sugar: drift.Value(pSugar),
                 fiber: drift.Value(pFiber),
                 salt: drift.Value(pSalt),
+                servingSize: drift.Value(metadata.servingSize),
+                servingUnit: drift.Value(metadata.servingUnit),
+                sodium: drift.Value(sodium),
+                nutritionSource: drift.Value(metadata.source?.name),
+                nutritionVerified: drift.Value(metadata.verified),
+                nutritionVerifiedAt: drift.Value(metadata.verifiedAt),
+                foodNotes: drift.Value(metadata.notes),
+                productPhotoRef: drift.Value(metadata.productPhotoRef),
+                labelPhotoRef: drift.Value(metadata.labelPhotoRef),
                 caffeine: drift.Value(pCaffeine),
                 caffeineMgPer100g: drift.Value(pCaffeineMgPer100g),
                 productQuantity: drift.Value(pProductQuantity),

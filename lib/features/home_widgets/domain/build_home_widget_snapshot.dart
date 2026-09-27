@@ -422,6 +422,7 @@ const Set<String> _circumferenceMeasurementTypes = {
   'left_forearm',
   'right_forearm',
   'abdomen',
+  'lower_belly',
   'waist',
   'hips',
   'left_thigh',

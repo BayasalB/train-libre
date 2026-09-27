@@ -48,7 +48,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 8;
+  static const int currentSchemaVersion = 9;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -350,6 +350,7 @@ class BackupManager {
     payload['nutrition_target_profiles'] =
         await _fetchTable('nutrition_target_profiles');
     payload['food_aliases'] = await _fetchTable('food_aliases');
+    payload['progress_photos'] = await _fetchTable('progress_photos');
     // Include personalized catalog foods as well, so restore works offline on a new device.
     payload['saved_food_products'] = (await dbInst.customSelect('''
       SELECT p.* FROM products p WHERE p.source = 'user'
@@ -463,6 +464,7 @@ class BackupManager {
     onProgress?.call('meal_photos', 1.0);
     final mealThumbnails = await collectMealThumbnails();
     final workoutThumbnails = await collectWorkoutThumbnails();
+    final progressPhotos = await collectProgressPhotoFiles();
     token?.throwIfCancelled();
 
     final file = await BackupArchive.write(
@@ -470,6 +472,7 @@ class BackupManager {
       payloadJson: jsonString,
       thumbnails: mealThumbnails,
       workoutThumbnails: workoutThumbnails,
+      progressPhotos: progressPhotos,
       passphrase: passphrase,
     );
     token?.throwIfCancelled();
@@ -505,6 +508,27 @@ class BackupManager {
   @visibleForTesting
   Future<List<File>> collectWorkoutThumbnails() =>
       AppMediaStore.instance.collectWorkoutThumbnails(_dbHelper.dbInstance);
+
+  /// The app-stored images (not the camera's discarded original files).
+  Future<List<File>> collectProgressPhotoFiles() async {
+    final dbInst = _dbHelper.dbInstance;
+    final rows = await (dbInst.select(dbInst.progressPhotos)
+          ..where((t) => t.deletedAt.isNull()))
+        .get();
+    final files = <File>[];
+    for (final row in rows) {
+      if (!AppMediaStore.isProgressPhotoPath(row.mediaPath)) {
+        throw StateError('Invalid progress photo media path: ${row.id}');
+      }
+      final file = await AppMediaStore.instance.resolve(row.mediaPath);
+      if (file == null || !await file.exists()) {
+        throw StateError(
+            'Progress photo media is missing; backup would be incomplete: ${row.id}');
+      }
+      files.add(file);
+    }
+    return files;
+  }
 
   Future<bool> importFullBackupAuto(
     String filePath, {
@@ -588,6 +612,18 @@ class BackupManager {
             debugPrint(
                 'Restored $workoutWritten workout preview(s) from the backup.');
           }
+          final photoRows = await _dbHelper.dbInstance
+              .select(_dbHelper.dbInstance.progressPhotos)
+              .get();
+          final expected =
+              photoRows.map((row) => p.basename(row.mediaPath)).toSet();
+          final progressDirectory =
+              await AppMediaStore.instance.directoryOf(MediaDomain.progress);
+          final progressWritten =
+              await contents.extractProgressPhotos(progressDirectory, expected);
+          if (progressWritten > 0) {
+            debugPrint('Restored $progressWritten progress photo(s).');
+          }
         },
       );
     } finally {
@@ -600,7 +636,7 @@ class BackupManager {
 
   bool _isAcceptedBackupMetadata(Map<String, dynamic> payload) {
     final version = payload['schemaVersion'];
-    // Backup format revisions 6-8 are distinct from the SQLite user_version.
+    // Backup format revisions 6-9 are distinct from the SQLite user_version.
     // A future revision may contain fields this build cannot restore safely.
     if (version is int && version > currentSchemaVersion) return false;
     final rawAppName = payload['appName']?.toString().trim();
@@ -746,6 +782,7 @@ class BackupManager {
       'daily_records',
       'nutrition_target_profiles',
       'food_aliases',
+      'progress_photos',
       'saved_food_products',
       'user_food_overrides',
       'user_food_override_translations',
@@ -832,6 +869,7 @@ class BackupManager {
         await dbInst.delete(dbInst.mealEntries).go();
         await dbInst.customStatement('DELETE FROM off_products_archive');
         await dbInst.delete(dbInst.measurements).go();
+        await dbInst.delete(dbInst.progressPhotos).go();
         await dbInst.delete(dbInst.mealItems).go();
         await dbInst.delete(dbInst.foodAliases).go();
         await dbInst.delete(dbInst.userFoodOverrideTranslations).go();
@@ -965,6 +1003,7 @@ class BackupManager {
         await _importTable('nutrition_target_profiles',
             payload['nutrition_target_profiles'] as List?);
         await _importTable('daily_records', payload['daily_records'] as List?);
+        await _restoreProgressPhotoRows(payload['progress_photos'] as List?);
 
         onProgress?.call('meals', 0.60);
         await _mealDb.importMealTemplates(backup.mealTemplates);
@@ -1260,6 +1299,7 @@ class BackupManager {
           debugPrint('Restoring meal previews failed: $e');
         }
       }
+      await _dropMissingProgressPhotos();
       await _pruneOrphanMedia();
       onProgress?.call('done', 1.0);
     }
@@ -1323,6 +1363,55 @@ class BackupManager {
     } catch (e) {
       debugPrint('Pruning orphaned workout photos failed: $e');
     }
+
+    try {
+      final dbInst = _dbHelper.dbInstance;
+      final rows = await dbInst.select(dbInst.progressPhotos).get();
+      final referenced = rows
+          .where((row) => row.deletedAt == null)
+          .map((row) => row.mediaPath)
+          .toSet();
+      await AppMediaStore.instance.pruneOrphans(
+          domain: MediaDomain.progress, referencedPaths: referenced);
+    } catch (e) {
+      debugPrint('Pruning orphaned progress photos failed: $e');
+    }
+  }
+
+  Future<void> _dropMissingProgressPhotos() async {
+    final dbInst = _dbHelper.dbInstance;
+    final rows = await dbInst.select(dbInst.progressPhotos).get();
+    var missing = 0;
+    for (final row in rows) {
+      final file = await AppMediaStore.instance.resolve(row.mediaPath);
+      if (file != null && await file.exists()) continue;
+      await (dbInst.delete(dbInst.progressPhotos)
+            ..where((t) => t.id.equals(row.id)))
+          .go();
+      missing++;
+    }
+    if (missing > 0) {
+      debugPrint(
+          'Skipped $missing progress photo record(s) with missing media.');
+    }
+  }
+
+  Future<void> _restoreProgressPhotoRows(List? rows) async {
+    if (rows == null) return;
+    for (final raw in rows) {
+      if (raw is! Map) throw const FormatException('Invalid progress photo');
+      final row = Map<String, dynamic>.from(raw);
+      final date = row['local_date'];
+      final path = row['media_path'];
+      if (date is! String ||
+          !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date) ||
+          DateTime.tryParse(date) == null ||
+          path is! String ||
+          !AppMediaStore.isProgressPhotoPath(path)) {
+        throw const FormatException('Invalid progress photo metadata');
+      }
+    }
+    await _importTable('progress_photos', rows);
   }
 
   Future<void> _restoreSavedFoodProducts(List? rows) async {

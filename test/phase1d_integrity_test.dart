@@ -252,7 +252,7 @@ void main() {
     final payload =
         jsonDecode(jsonEncode(await backup().generateBackupPayloadForTesting()))
             as Map<String, dynamic>;
-    expect(payload['schemaVersion'], 8);
+    expect(payload['schemaVersion'], 9);
     expect(await backup().importBackupPayloadForTesting(payload), isTrue);
     final restored = (await products.getProductByBarcode('whey'))!;
     expect(restored.id, originalFood.id);
@@ -284,7 +284,7 @@ void main() {
         isFalse);
     expect(
         (await diary.getEntriesForDate(sept10)).single.quantityInGrams, 293.8);
-    final future = Map<String, dynamic>.from(payload)..['schemaVersion'] = 9;
+    final future = Map<String, dynamic>.from(payload)..['schemaVersion'] = 10;
     expect(await backup().importBackupPayloadForTesting(future), isFalse);
     expect((await db.select(db.nutritionLogs).get()), hasLength(1));
     final unknownAliasColumn =

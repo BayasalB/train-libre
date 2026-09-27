@@ -228,7 +228,7 @@ void main() {
     await db.customSelect('SELECT 1;').get();
 
     // Verify schemaVersion getter
-    expect(db.schemaVersion, 34);
+    expect(db.schemaVersion, 35);
     expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
 
     // 4. Verify all 15 new columns exist

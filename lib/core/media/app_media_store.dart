@@ -16,7 +16,8 @@ import 'meal_image_processor.dart';
 /// backup archive alike.
 enum MediaDomain {
   meals,
-  workouts;
+  workouts,
+  progress;
 
   /// Folder of this domain, relative to the application support directory.
   String get folder => p.join(AppMediaStore.mediaRoot, name);
@@ -61,6 +62,16 @@ class AppMediaStore {
   /// because resolution never assumes a folder.
   static const String legacyMealFolder = 'meal_photos';
 
+  /// Only app-owned progress images may be exported or removed through this
+  /// feature. Stored references are POSIX relative paths on every platform.
+  static bool isProgressPhotoPath(String path) {
+    const prefix = 'media/progress/';
+    if (!path.startsWith(prefix)) return false;
+    final name = path.substring(prefix.length);
+    return RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]*\.jpg$').hasMatch(name) &&
+        p.posix.basename(path) == name;
+  }
+
   static const _uuid = Uuid();
 
   String? _basePath;
@@ -100,7 +111,9 @@ class AppMediaStore {
       await directoryOf(domain);
 
       final id = _uuid.v4();
-      final relative = p.join(domain.folder, '$id.jpg');
+      final relative = domain == MediaDomain.progress
+          ? p.posix.join(mediaRoot, domain.name, '$id.jpg')
+          : p.join(domain.folder, '$id.jpg');
       final absolute = p.join(base, relative);
 
       // Scaled rather than copied: a full-resolution camera photo is 3–8 MB,
@@ -403,7 +416,8 @@ class AppMediaStore {
         directories[p.basename(relative)] = p.dirname(relative);
       }
     } catch (e) {
-      debugPrint('[AppMediaStore] reading workout preview locations failed: $e');
+      debugPrint(
+          '[AppMediaStore] reading workout preview locations failed: $e');
     }
     return MediaThumbPlacement(
       basePath: base,
@@ -430,9 +444,11 @@ class MediaThumbPlacement {
   /// Where a preview no row claims goes, relative to [basePath].
   final String defaultDirectory;
 
-  Directory directoryFor(String fileName) => Directory(
-        p.join(basePath, directoriesByName[fileName] ?? defaultDirectory),
-      );
+  Directory directoryFor(String fileName) => Directory(p.join(
+        basePath,
+        (directoriesByName[fileName] ?? defaultDirectory)
+            .replaceAll('/', p.separator),
+      ));
 }
 
 typedef MealThumbPlacement = MediaThumbPlacement;

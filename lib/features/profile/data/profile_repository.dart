@@ -54,6 +54,11 @@ class ProfileRepository implements IProfileRepository {
   }
 
   @override
+  Future<void> updateMeasurementSession(
+      MeasurementSession original, MeasurementSession replacement) =>
+      _localDataSource.updateMeasurementSession(original, replacement);
+
+  @override
   Future<List<ChartDataPoint>> getChartDataForTypeAndRange(
       String type, DateTimeRange range) async {
     final raw = await _localDataSource.getChartDataForTypeAndRange(type, range);

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../data/database_helper.dart';
 import '../../diary/domain/models/nutrition_values.dart';
 import '../../diary/presentation/food_detail_screen.dart';
+import '../../profile/presentation/measurements_screen.dart';
 import '../../workout/presentation/workout_log_detail_screen.dart';
 import '../../workout/presentation/widgets/workout_day_card.dart';
 import '../data/today_repository.dart';
@@ -210,6 +211,13 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                   ? 'No bodyweight recorded for this day'
                                   : 'Bodyweight: ${formatFoodQuantity(data.weight!.value)} ${data.weight!.unit}',
                               key: const ValueKey('today-weight')),
+                          TextButton(
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const MeasurementsScreen(
+                                          initialMeasurementType: 'weight'))),
+                              child: const Text('Body progress')),
                         ]),
                         _card([
                           _progress('Calories', totals.calories,

@@ -49,6 +49,7 @@ class BackupArchive {
 
   /// Where workout previews go.
   static const String workoutThumbsFolder = '$thumbsFolder/workouts';
+  static const String progressPhotosFolder = 'photos/progress';
   static const String encryptedSuffix = '.enc';
 
   /// Previews are already-compressed JPEGs; deflating them again costs CPU and
@@ -78,6 +79,7 @@ class BackupArchive {
     required String payloadJson,
     List<File> thumbnails = const [],
     List<File> workoutThumbnails = const [],
+    List<File> progressPhotos = const [],
     String? passphrase,
   }) async {
     final cipher = passphrase == null || passphrase.isEmpty
@@ -139,6 +141,22 @@ class BackupArchive {
           name = '$name$encryptedSuffix';
         }
         _addBytes(encoder, '$workoutThumbsFolder/$name', bytes);
+      }
+      for (final photo in progressPhotos) {
+        List<int> bytes;
+        try {
+          bytes = await photo.readAsBytes();
+        } catch (e) {
+          throw StateError('Progress photo became unreadable during backup: '
+              '${photo.path}: $e');
+        }
+        var name = p.basename(photo.path);
+        if (!used.add('$progressPhotosFolder/$name')) continue;
+        if (cipher != null) {
+          bytes = await cipher.encrypt(bytes);
+          name = '$name$encryptedSuffix';
+        }
+        _addBytes(encoder, '$progressPhotosFolder/$name', bytes);
       }
     } finally {
       await encoder.close();
@@ -212,6 +230,40 @@ class BackupArchiveContents {
 
   /// The backup document, in the same shape a bare JSON backup has.
   final Map<String, dynamic> payload;
+
+  /// Restores app-stored progress images only when a restored row names them.
+  Future<int> extractProgressPhotos(
+      Directory directory, Set<String> expectedNames) async {
+    var written = 0;
+    for (final file in _archive.files) {
+      if (!file.isFile ||
+          !file.name.startsWith('${BackupArchive.progressPhotosFolder}/')) {
+        continue;
+      }
+      var name = p.basename(file.name);
+      if (_cipher != null) {
+        if (!name.endsWith(BackupArchive.encryptedSuffix)) continue;
+        name = name.substring(
+            0, name.length - BackupArchive.encryptedSuffix.length);
+      }
+      if (!expectedNames.contains(name) || name == '.' || name == '..') {
+        continue;
+      }
+      try {
+        final cipher = _cipher;
+        final bytes =
+            cipher == null ? file.content : await cipher.decrypt(file.content);
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+        await File(p.join(directory.path, name)).writeAsBytes(bytes);
+        written++;
+      } catch (e) {
+        debugPrint('[BackupArchive] skipping progress photo ${file.name}: $e');
+      }
+    }
+    return written;
+  }
 
   /// Writes the previews to disk and reports how many landed.
   ///

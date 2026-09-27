@@ -77,6 +77,9 @@ class _FakeProfileRepo implements IProfileRepository {
   @override
   Future<void> insertMeasurementSession(MeasurementSession session) async {}
   @override
+  Future<void> updateMeasurementSession(
+      MeasurementSession original, MeasurementSession replacement) async {}
+  @override
   Future<List<ChartDataPoint>> getChartDataForTypeAndRange(
           String type, DateTimeRange range) async =>
       const [];

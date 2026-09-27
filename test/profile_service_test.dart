@@ -52,6 +52,9 @@ class FakeProfileRepository implements IProfileRepository {
 
   @override
   Future<void> insertMeasurementSession(MeasurementSession session) async {}
+  @override
+  Future<void> updateMeasurementSession(
+      MeasurementSession original, MeasurementSession replacement) async {}
 
   @override
   Future<void> saveUserGoals(

@@ -69,7 +69,8 @@ void main() {
     expect(find.text('Carbs 34.8 g'), findsOneWidget);
     expect(find.text('Fat 58.4 g'), findsOneWidget);
     expect(find.textContaining('Training type is unset'), findsOneWidget);
-    await tester.ensureVisible(find.text('Label burger'));
+    await tester.scrollUntilVisible(find.text('Label burger'), 250,
+        scrollable: find.byType(Scrollable).last);
     expect(find.text('Label burger'), findsOneWidget);
     await tester.tap(find.byTooltip('Next day'));
     await tester.pumpAndSettle();

@@ -34,6 +34,8 @@ extension AppLocalizationsX on AppLocalizations {
         return measurementRightForearm;
       case 'abdomen':
         return measurementAbdomen;
+      case 'lower_belly':
+        return 'Lower Belly';
       case 'waist':
         return measurementWaist;
       case 'hips':

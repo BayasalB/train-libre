@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/database_helper.dart';
+import '../../../generated/app_localizations.dart';
 import '../../diary/domain/models/nutrition_values.dart';
 import '../../diary/domain/models/tracked_food_item.dart';
 import '../../today/domain/daily_record_models.dart';
+import '../../../util/l10n_ext.dart';
 import '../../workout/presentation/workout_log_detail_screen.dart';
 import '../../workout/presentation/widgets/workout_day_card.dart';
+import '../../profile/presentation/progress_photos_screen.dart';
 import '../data/history_repository.dart';
 
 class DayDetailScreen extends StatefulWidget {
@@ -243,6 +246,14 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                             ),
                         ]),
                         _card(context, 'Body measurements', [
+                          TextButton.icon(
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => ProgressPhotosScreen(
+                                          initialDate: _date))),
+                              icon: const Icon(Icons.photo_library_outlined),
+                              label: const Text('Progress photos')),
                           if (detail.measurements.isEmpty)
                             const Text('No measurements recorded'),
                           if (detail.measurements.isNotEmpty &&
@@ -252,7 +263,12 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                           for (final measurement in detail.measurements)
                             if (measurement.type != 'weight')
                               ListTile(
-                                  title: Text(measurement.type),
+                                  title: Text(AppLocalizations.of(context)
+                                          ?.getLocalizedMeasurementName(
+                                              measurement.type) ??
+                                      (measurement.type == 'lower_belly'
+                                          ? 'Lower Belly'
+                                          : measurement.type)),
                                   trailing: Text(
                                       '${formatFoodQuantity(measurement.value)} ${measurement.unit}')),
                         ]),

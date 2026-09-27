@@ -16263,6 +16263,422 @@ class MeasurementsCompanion extends UpdateCompanion<Measurement> {
   }
 }
 
+class $ProgressPhotosTable extends ProgressPhotos
+    with TableInfo<$ProgressPhotosTable, ProgressPhoto> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProgressPhotosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta =
+      const VerificationMeta('localId');
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+      'local_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+      clientDefault: () => const Uuid().v4());
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _localDateMeta =
+      const VerificationMeta('localDate');
+  @override
+  late final GeneratedColumn<String> localDate = GeneratedColumn<String>(
+      'local_date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaPathMeta =
+      const VerificationMeta('mediaPath');
+  @override
+  late final GeneratedColumn<String> mediaPath = GeneratedColumn<String>(
+      'media_path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        localId,
+        id,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        localDate,
+        mediaPath,
+        note
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'progress_photos';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProgressPhoto> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(_localIdMeta,
+          localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('local_date')) {
+      context.handle(_localDateMeta,
+          localDate.isAcceptableOrUnknown(data['local_date']!, _localDateMeta));
+    } else if (isInserting) {
+      context.missing(_localDateMeta);
+    }
+    if (data.containsKey('media_path')) {
+      context.handle(_mediaPathMeta,
+          mediaPath.isAcceptableOrUnknown(data['media_path']!, _mediaPathMeta));
+    } else if (isInserting) {
+      context.missing(_mediaPathMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  ProgressPhoto map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProgressPhoto(
+      localId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      localDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_date'])!,
+      mediaPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_path'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+    );
+  }
+
+  @override
+  $ProgressPhotosTable createAlias(String alias) {
+    return $ProgressPhotosTable(attachedDatabase, alias);
+  }
+}
+
+class ProgressPhoto extends DataClass implements Insertable<ProgressPhoto> {
+  final int localId;
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String localDate;
+  final String mediaPath;
+  final String? note;
+  const ProgressPhoto(
+      {required this.localId,
+      required this.id,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.localDate,
+      required this.mediaPath,
+      this.note});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['local_date'] = Variable<String>(localDate);
+    map['media_path'] = Variable<String>(mediaPath);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  ProgressPhotosCompanion toCompanion(bool nullToAbsent) {
+    return ProgressPhotosCompanion(
+      localId: Value(localId),
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      localDate: Value(localDate),
+      mediaPath: Value(mediaPath),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory ProgressPhoto.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProgressPhoto(
+      localId: serializer.fromJson<int>(json['localId']),
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      localDate: serializer.fromJson<String>(json['localDate']),
+      mediaPath: serializer.fromJson<String>(json['mediaPath']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'localDate': serializer.toJson<String>(localDate),
+      'mediaPath': serializer.toJson<String>(mediaPath),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  ProgressPhoto copyWith(
+          {int? localId,
+          String? id,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? localDate,
+          String? mediaPath,
+          Value<String?> note = const Value.absent()}) =>
+      ProgressPhoto(
+        localId: localId ?? this.localId,
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        localDate: localDate ?? this.localDate,
+        mediaPath: mediaPath ?? this.mediaPath,
+        note: note.present ? note.value : this.note,
+      );
+  ProgressPhoto copyWithCompanion(ProgressPhotosCompanion data) {
+    return ProgressPhoto(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      localDate: data.localDate.present ? data.localDate.value : this.localDate,
+      mediaPath: data.mediaPath.present ? data.mediaPath.value : this.mediaPath,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProgressPhoto(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('localDate: $localDate, ')
+          ..write('mediaPath: $mediaPath, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      localId, id, createdAt, updatedAt, deletedAt, localDate, mediaPath, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProgressPhoto &&
+          other.localId == this.localId &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.localDate == this.localDate &&
+          other.mediaPath == this.mediaPath &&
+          other.note == this.note);
+}
+
+class ProgressPhotosCompanion extends UpdateCompanion<ProgressPhoto> {
+  final Value<int> localId;
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> localDate;
+  final Value<String> mediaPath;
+  final Value<String?> note;
+  const ProgressPhotosCompanion({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.mediaPath = const Value.absent(),
+    this.note = const Value.absent(),
+  });
+  ProgressPhotosCompanion.insert({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String localDate,
+    required String mediaPath,
+    this.note = const Value.absent(),
+  })  : localDate = Value(localDate),
+        mediaPath = Value(mediaPath);
+  static Insertable<ProgressPhoto> custom({
+    Expression<int>? localId,
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? localDate,
+    Expression<String>? mediaPath,
+    Expression<String>? note,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (localDate != null) 'local_date': localDate,
+      if (mediaPath != null) 'media_path': mediaPath,
+      if (note != null) 'note': note,
+    });
+  }
+
+  ProgressPhotosCompanion copyWith(
+      {Value<int>? localId,
+      Value<String>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? localDate,
+      Value<String>? mediaPath,
+      Value<String?>? note}) {
+    return ProgressPhotosCompanion(
+      localId: localId ?? this.localId,
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      localDate: localDate ?? this.localDate,
+      mediaPath: mediaPath ?? this.mediaPath,
+      note: note ?? this.note,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (localDate.present) {
+      map['local_date'] = Variable<String>(localDate.value);
+    }
+    if (mediaPath.present) {
+      map['media_path'] = Variable<String>(mediaPath.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProgressPhotosCompanion(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('localDate: $localDate, ')
+          ..write('mediaPath: $mediaPath, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PostsTable extends Posts with TableInfo<$PostsTable, Post> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -26002,6 +26418,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SupplementLogsTable supplementLogs = $SupplementLogsTable(this);
   late final $FluidLogsTable fluidLogs = $FluidLogsTable(this);
   late final $MeasurementsTable measurements = $MeasurementsTable(this);
+  late final $ProgressPhotosTable progressPhotos = $ProgressPhotosTable(this);
   late final $PostsTable posts = $PostsTable(this);
   late final $SocialInteractionsTable socialInteractions =
       $SocialInteractionsTable(this);
@@ -26046,6 +26463,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       'CREATE INDEX idx_nutrition_consumed_at ON nutrition_logs (consumed_at)');
   late final Index idxFluidConsumedAt = Index('idx_fluid_consumed_at',
       'CREATE INDEX idx_fluid_consumed_at ON fluid_logs (consumed_at)');
+  late final Index idxProgressPhotosLocalDate = Index(
+      'idx_progress_photos_local_date',
+      'CREATE INDEX idx_progress_photos_local_date ON progress_photos (local_date)');
   late final Index idxMealEntriesConsumedAt = Index(
       'idx_meal_entries_consumed_at',
       'CREATE INDEX idx_meal_entries_consumed_at ON meal_entries (consumed_at)');
@@ -26075,6 +26495,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         supplementLogs,
         fluidLogs,
         measurements,
+        progressPhotos,
         posts,
         socialInteractions,
         meals,
@@ -26101,6 +26522,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         idxFoodAliasLookup,
         idxNutritionConsumedAt,
         idxFluidConsumedAt,
+        idxProgressPhotosLocalDate,
         idxMealEntriesConsumedAt
       ];
   @override
@@ -36830,6 +37252,223 @@ typedef $$MeasurementsTableProcessedTableManager = ProcessedTableManager<
     ),
     Measurement,
     PrefetchHooks Function()>;
+typedef $$ProgressPhotosTableCreateCompanionBuilder = ProgressPhotosCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  required String localDate,
+  required String mediaPath,
+  Value<String?> note,
+});
+typedef $$ProgressPhotosTableUpdateCompanionBuilder = ProgressPhotosCompanion
+    Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> localDate,
+  Value<String> mediaPath,
+  Value<String?> note,
+});
+
+class $$ProgressPhotosTableFilterComposer
+    extends Composer<_$AppDatabase, $ProgressPhotosTable> {
+  $$ProgressPhotosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localDate => $composableBuilder(
+      column: $table.localDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaPath => $composableBuilder(
+      column: $table.mediaPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+}
+
+class $$ProgressPhotosTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProgressPhotosTable> {
+  $$ProgressPhotosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localDate => $composableBuilder(
+      column: $table.localDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaPath => $composableBuilder(
+      column: $table.mediaPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProgressPhotosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProgressPhotosTable> {
+  $$ProgressPhotosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get localDate =>
+      $composableBuilder(column: $table.localDate, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaPath =>
+      $composableBuilder(column: $table.mediaPath, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$ProgressPhotosTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ProgressPhotosTable,
+    ProgressPhoto,
+    $$ProgressPhotosTableFilterComposer,
+    $$ProgressPhotosTableOrderingComposer,
+    $$ProgressPhotosTableAnnotationComposer,
+    $$ProgressPhotosTableCreateCompanionBuilder,
+    $$ProgressPhotosTableUpdateCompanionBuilder,
+    (
+      ProgressPhoto,
+      BaseReferences<_$AppDatabase, $ProgressPhotosTable, ProgressPhoto>
+    ),
+    ProgressPhoto,
+    PrefetchHooks Function()> {
+  $$ProgressPhotosTableTableManager(
+      _$AppDatabase db, $ProgressPhotosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProgressPhotosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProgressPhotosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProgressPhotosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> localDate = const Value.absent(),
+            Value<String> mediaPath = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+          }) =>
+              ProgressPhotosCompanion(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            localDate: localDate,
+            mediaPath: mediaPath,
+            note: note,
+          ),
+          createCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            required String localDate,
+            required String mediaPath,
+            Value<String?> note = const Value.absent(),
+          }) =>
+              ProgressPhotosCompanion.insert(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            localDate: localDate,
+            mediaPath: mediaPath,
+            note: note,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$ProgressPhotosTable, ProgressPhoto>(table),
+                    BaseReferences<_$AppDatabase, $ProgressPhotosTable,
+                        ProgressPhoto>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ProgressPhotosTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ProgressPhotosTable,
+    ProgressPhoto,
+    $$ProgressPhotosTableFilterComposer,
+    $$ProgressPhotosTableOrderingComposer,
+    $$ProgressPhotosTableAnnotationComposer,
+    $$ProgressPhotosTableCreateCompanionBuilder,
+    $$ProgressPhotosTableUpdateCompanionBuilder,
+    (
+      ProgressPhoto,
+      BaseReferences<_$AppDatabase, $ProgressPhotosTable, ProgressPhoto>
+    ),
+    ProgressPhoto,
+    PrefetchHooks Function()>;
 typedef $$PostsTableCreateCompanionBuilder = PostsCompanion Function({
   Value<int> localId,
   Value<String> id,
@@ -42809,6 +43448,8 @@ class $AppDatabaseManager {
       $$FluidLogsTableTableManager(_db, _db.fluidLogs);
   $$MeasurementsTableTableManager get measurements =>
       $$MeasurementsTableTableManager(_db, _db.measurements);
+  $$ProgressPhotosTableTableManager get progressPhotos =>
+      $$ProgressPhotosTableTableManager(_db, _db.progressPhotos);
   $$PostsTableTableManager get posts =>
       $$PostsTableTableManager(_db, _db.posts);
   $$SocialInteractionsTableTableManager get socialInteractions =>

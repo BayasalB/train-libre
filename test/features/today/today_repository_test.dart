@@ -301,7 +301,7 @@ void main() {
   });
 
   test(
-      'backup v8 restores records, target revisions and stable override references',
+      'current backup restores records, target revisions and stable override references',
       () async {
     await records.saveTargets(
         effectiveFrom: day, training: training, rest: rest);
@@ -315,7 +315,7 @@ void main() {
     final payload =
         jsonDecode(jsonEncode(await backup().generateBackupPayloadForTesting()))
             as Map<String, dynamic>;
-    expect(payload['schemaVersion'], 8);
+    expect(payload['schemaVersion'], 9);
     await DatabaseHelper.forTesting(db).clearAllUserData();
     expect(await db.select(db.dailyRecords).get(), isEmpty);
     expect(await backup().importBackupPayloadForTesting(payload), isTrue);
@@ -361,7 +361,7 @@ void main() {
             .data
             .values
             .single,
-        34);
+        35);
     expect(
         (await db.customSelect('SELECT * FROM off_products_archive').get())
             .map((r) => r.data)

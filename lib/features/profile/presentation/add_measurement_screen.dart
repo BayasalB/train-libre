@@ -37,6 +37,7 @@ class _AddMeasurementScreenState extends State<AddMeasurementScreen> {
     'fat_percent': '%',
     'waist': 'cm',
     'abdomen': 'cm',
+    'lower_belly': 'cm',
     'hips': 'cm',
     'neck': 'cm',
     'shoulder': 'cm',
@@ -125,6 +126,8 @@ class _AddMeasurementScreenState extends State<AddMeasurementScreen> {
         return l10n.measurementRightForearm;
       case 'abdomen':
         return l10n.measurementAbdomen;
+      case 'lower_belly':
+        return 'Lower Belly';
       case 'waist':
         return l10n.measurementWaist;
       case 'hips':
@@ -148,6 +151,7 @@ class _AddMeasurementScreenState extends State<AddMeasurementScreen> {
         return UnitDimension.weight;
       case 'waist':
       case 'abdomen':
+      case 'lower_belly':
       case 'hips':
       case 'neck':
       case 'shoulder':

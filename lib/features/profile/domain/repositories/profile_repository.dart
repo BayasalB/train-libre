@@ -17,6 +17,8 @@ abstract class IProfileRepository {
   Future<DateTime?> getEarliestMeasurementDate();
   Future<void> deleteMeasurementSession(int sessionId);
   Future<void> insertMeasurementSession(MeasurementSession session);
+  Future<void> updateMeasurementSession(
+      MeasurementSession original, MeasurementSession replacement);
   Future<List<ChartDataPoint>> getChartDataForTypeAndRange(
       String type, DateTimeRange range);
   Stream<List<ChartDataPoint>> watchChartDataForTypeAndRange(

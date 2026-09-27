@@ -111,7 +111,7 @@ void main() {
         expect(
             (await db.customSelect('PRAGMA user_version').getSingle())
                 .read<int>('user_version'),
-            34);
+            35);
         expect(
             (await db
                     .customSelect(

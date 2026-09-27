@@ -7,6 +7,8 @@ import '../domain/repositories/profile_repository.dart';
 import '../../../generated/app_localizations.dart';
 import '../domain/models/measurement.dart';
 import '../domain/models/measurement_session.dart';
+import '../domain/latest_measurements.dart';
+import 'progress_photos_screen.dart';
 import '../../../util/design_constants.dart';
 import '../../../widgets/common/bottom_content_spacer.dart';
 import '../../../widgets/common/common.dart';
@@ -160,7 +162,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     final range = _activeDateRange;
     return _sessions
         .where((s) =>
-            s.timestamp.isAfter(range.start) &&
+            !s.timestamp.isBefore(range.start) &&
             s.timestamp.isBefore(range.end.add(const Duration(seconds: 1))))
         .toList();
   }
@@ -328,6 +330,20 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                     ),
                     const SizedBox(height: DesignConstants.spacingL),
                     // ── Chart (follows same date range) ──
+                    _buildLatestMeasurements(l10n, unitService),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: DesignConstants.screenPaddingHorizontal),
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: const Text('Progress photos'),
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ProgressPhotosScreen())),
+                      ),
+                    ),
+                    const SizedBox(height: DesignConstants.spacingL),
                     _buildChartSection(l10n, colorScheme, textTheme),
                     const SizedBox(height: DesignConstants.spacingXL),
                     // ── Session list header ──
@@ -382,6 +398,48 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
         onPressed: () => _showMeasurementBottomMenu(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  Widget _buildLatestMeasurements(
+      AppLocalizations l10n, UnitService unitService) {
+    final latest = latestMeasurements(_sessions);
+    const preferred = [
+      'weight',
+      'waist',
+      'lower_belly',
+      'chest',
+      'hips',
+      'shoulder',
+    ];
+    final visible = preferred.where(latest.containsKey).toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: DesignConstants.screenPaddingHorizontal),
+      child: SummaryCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Latest measurements',
+                style: Theme.of(context).textTheme.titleMedium),
+            for (final type in visible)
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.getLocalizedMeasurementName(type)),
+                subtitle: latest[type]!.change == null
+                    ? null
+                    : Text('Change from previous: '
+                        '${_displayMeasurementValue(type, latest[type]!.change!, unitService).toStringAsFixed(1)} '
+                        '${_getMeasurementUnit(type, unitService)}'),
+                trailing: Text(
+                    '${_displayMeasurementValue(type, latest[type]!.value, unitService).toStringAsFixed(1)} '
+                    '${_getMeasurementUnit(type, unitService)}'),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -533,6 +591,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
       case 'left_forearm':
       case 'right_forearm':
       case 'abdomen':
+      case 'lower_belly':
       case 'waist':
       case 'hips':
       case 'left_thigh':
@@ -559,6 +618,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
       case 'left_forearm':
       case 'right_forearm':
       case 'abdomen':
+      case 'lower_belly':
       case 'waist':
       case 'hips':
       case 'left_thigh':
@@ -711,6 +771,7 @@ class _MeasurementFormSheetState extends State<MeasurementFormSheet> {
     'fat_percent': '%',
     'waist': 'cm',
     'abdomen': 'cm',
+    'lower_belly': 'cm',
     'hips': 'cm',
     'neck': 'cm',
     'shoulder': 'cm',
@@ -764,6 +825,7 @@ class _MeasurementFormSheetState extends State<MeasurementFormSheet> {
         return UnitDimension.weight;
       case 'waist':
       case 'abdomen':
+      case 'lower_belly':
       case 'hips':
       case 'neck':
       case 'shoulder':
@@ -841,16 +903,24 @@ class _MeasurementFormSheetState extends State<MeasurementFormSheet> {
       }
     });
 
-    if (widget.existingSession?.id != null) {
-      await _repository.deleteMeasurementSession(widget.existingSession!.id!);
+    if (measurements.isEmpty) return;
+    final replacement = MeasurementSession(
+        id: widget.existingSession?.id,
+        timestamp: _selectedDateTime,
+        measurements: measurements);
+    try {
+      if (widget.existingSession case final original?) {
+        await _repository.updateMeasurementSession(original, replacement);
+      } else {
+        await _repository.insertMeasurementSession(replacement);
+      }
+      if (mounted) widget.onSaved();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Could not save measurements. Please try again.')));
+      }
     }
-    if (measurements.isNotEmpty) {
-      await _repository.insertMeasurementSession(
-        MeasurementSession(
-            timestamp: _selectedDateTime, measurements: measurements),
-      );
-    }
-    if (mounted) widget.onSaved();
   }
 
   @override

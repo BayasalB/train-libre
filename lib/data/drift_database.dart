@@ -680,6 +680,14 @@ class Measurements extends Table with HybridId, MetaColumns {
   IntColumn get legacySessionId => integer().nullable()();
 }
 
+/// Progress photos use an explicit local day; timestamps remain audit metadata.
+@TableIndex(name: 'idx_progress_photos_local_date', columns: {#localDate})
+class ProgressPhotos extends Table with HybridId, MetaColumns {
+  TextColumn get localDate => text()(); // YYYY-MM-DD
+  TextColumn get mediaPath => text()(); // Relative to app support directory
+  TextColumn get note => text().nullable()();
+}
+
 // 16. Posts (Social)
 class Posts extends Table with HybridId, MetaColumns {
   TextColumn get userId => text()();
@@ -859,6 +867,7 @@ class DailyRecords extends Table with HybridId, MetaColumns {
     SupplementLogs,
     FluidLogs, // Added
     Measurements,
+    ProgressPhotos,
     Posts,
     SocialInteractions,
     Meals,
@@ -891,7 +900,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 34;
+  int get schemaVersion => 35;
 
   /// v32 changes numeric affinities only. Copies every column, ID, timestamp
   /// and archive hash unchanged; it never reconstructs lost fractional data.
@@ -1630,6 +1639,15 @@ class AppDatabase extends _$AppDatabase {
                 await reconcileSchema();
                 await customStatement(
                     'CREATE INDEX IF NOT EXISTS idx_target_effective_date ON nutrition_target_profiles(kind, effective_from)');
+              });
+            }
+            if (from < 35) {
+              await transaction(() async {
+                if (!await _tableExists(this, progressPhotos.actualTableName)) {
+                  await m.createTable(progressPhotos);
+                }
+                await customStatement(
+                    'CREATE INDEX IF NOT EXISTS idx_progress_photos_local_date ON progress_photos(local_date)');
               });
             }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(

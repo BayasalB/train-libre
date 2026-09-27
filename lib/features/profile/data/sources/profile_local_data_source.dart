@@ -78,7 +78,9 @@ class ProfileLocalDataSource {
 
   Future<List<MeasurementSession>> getMeasurementSessions(
       {DateTime? updatedSince}) async {
-    final rows = await dbInstance.select(dbInstance.measurements).get();
+    final rows = await (dbInstance.select(dbInstance.measurements)
+          ..where((t) => t.deletedAt.isNull()))
+        .get();
     final Map<int, List<Measurement>> sessionsMap = {};
     final Map<int, DateTime> sessionsTimeMap = {};
     final Map<int, DateTime> sessionsUpdateMap = {};
@@ -327,9 +329,22 @@ class ProfileLocalDataSource {
     unawaited(TelemetryService.instance
         .trackFeatureUsed(featureKey: FeatureKey.bodyMeasurementLogged));
     await dbInstance.transaction(() async {
-      await (dbInstance.delete(dbInstance.measurements)
-            ..where((t) => t.type.equals('weight') & t.date.equals(date)))
-          .go();
+      final existing = await (dbInstance.select(dbInstance.measurements)
+            ..where((t) =>
+                t.type.equals('weight') &
+                t.date.equals(date) &
+                t.deletedAt.isNull())
+            ..limit(1))
+          .getSingleOrNull();
+      if (existing != null) {
+        await (dbInstance.update(dbInstance.measurements)
+              ..where((t) => t.localId.equals(existing.localId)))
+            .write(db.MeasurementsCompanion(
+          value: drift.Value(weightKg),
+          updatedAt: drift.Value(DateTime.now()),
+        ));
+        return;
+      }
       await dbInstance.into(dbInstance.measurements).insert(
             db.MeasurementsCompanion.insert(
               type: 'weight',
@@ -360,26 +375,98 @@ class ProfileLocalDataSource {
     await (dbInstance.delete(dbInstance.measurements)
           ..where((tbl) =>
               tbl.legacySessionId.equals(sessionId) |
-              tbl.date.equals(DateTime.fromMillisecondsSinceEpoch(sessionId))))
+              (tbl.legacySessionId.isNull() &
+                  tbl.date
+                      .equals(DateTime.fromMillisecondsSinceEpoch(sessionId)))))
         .go();
   }
 
   Future<int> insertMeasurementSession(MeasurementSession session) async {
+    _validateSession(session);
     unawaited(TelemetryService.instance
         .trackFeatureUsed(featureKey: FeatureKey.bodyMeasurementLogged));
-    await dbInstance.batch((batch) {
-      for (final m in session.measurements) {
-        batch.insert(
-            dbInstance.measurements,
-            db.MeasurementsCompanion.insert(
-                type: m.type,
-                value: m.value,
-                unit: m.unit,
-                date: session.timestamp,
-                legacySessionId: drift.Value(session.id)),
-            mode: drift.InsertMode.insertOrReplace);
+    final groupId = session.id ?? DateTime.now().microsecondsSinceEpoch;
+    await dbInstance.transaction(() async {
+      await dbInstance.batch((batch) {
+        for (final m in session.measurements) {
+          batch.insert(
+              dbInstance.measurements,
+              db.MeasurementsCompanion.insert(
+                  type: m.type,
+                  value: m.value,
+                  unit: m.unit,
+                  date: session.timestamp,
+                  legacySessionId: drift.Value(groupId)));
+        }
+      });
+    });
+    return groupId;
+  }
+
+  Future<void> updateMeasurementSession(
+      MeasurementSession original, MeasurementSession replacement) async {
+    _validateSession(replacement);
+    final sessionId = original.id;
+    if (sessionId == null) throw ArgumentError('Session ID is required');
+    await dbInstance.transaction(() async {
+      final oldRows = await (dbInstance.select(dbInstance.measurements)
+            ..where((t) =>
+                t.legacySessionId.equals(sessionId) |
+                (t.legacySessionId.isNull() &
+                    t.date.equals(original.timestamp))))
+          .get();
+      if (oldRows.isEmpty) throw StateError('Measurement session not found');
+      final byType = <String, db.Measurement>{};
+      for (final row in oldRows) {
+        byType.putIfAbsent(row.type, () => row);
+      }
+      final nextTypes = replacement.measurements.map((m) => m.type).toSet();
+      for (final row in oldRows) {
+        if (!nextTypes.contains(row.type) ||
+            byType[row.type]?.localId != row.localId) {
+          await (dbInstance.delete(dbInstance.measurements)
+                ..where((t) => t.localId.equals(row.localId)))
+              .go();
+        }
+      }
+      for (final measurement in replacement.measurements) {
+        final row = byType[measurement.type];
+        if (row == null) {
+          await dbInstance.into(dbInstance.measurements).insert(
+                db.MeasurementsCompanion.insert(
+                  type: measurement.type,
+                  value: measurement.value,
+                  unit: measurement.unit,
+                  date: replacement.timestamp,
+                  legacySessionId: drift.Value(sessionId),
+                ),
+              );
+        } else {
+          await (dbInstance.update(dbInstance.measurements)
+                ..where((t) => t.localId.equals(row.localId)))
+              .write(db.MeasurementsCompanion(
+            value: drift.Value(measurement.value),
+            unit: drift.Value(measurement.unit),
+            date: drift.Value(replacement.timestamp),
+            legacySessionId: drift.Value(sessionId),
+            updatedAt: drift.Value(DateTime.now()),
+          ));
+        }
       }
     });
-    return session.id ?? DateTime.now().millisecondsSinceEpoch;
+  }
+
+  void _validateSession(MeasurementSession session) {
+    if (session.measurements.isEmpty) {
+      throw ArgumentError('At least one measurement is required');
+    }
+    final types = <String>{};
+    for (final measurement in session.measurements) {
+      if (!types.add(measurement.type) ||
+          !measurement.value.isFinite ||
+          measurement.value <= 0) {
+        throw ArgumentError('Invalid or duplicate measurement');
+      }
+    }
   }
 }

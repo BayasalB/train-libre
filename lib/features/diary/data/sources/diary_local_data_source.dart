@@ -192,6 +192,7 @@ class DiaryLocalDataSource {
             mealType: row.mealType,
             updatedAt: row.updatedAt,
             archiveLocalId: row.archiveLocalId,
+            mealEntryId: row.mealEntryId,
           ),
         )
         .toList();

@@ -1,6 +1,7 @@
 import 'main_tab_navigation.dart';
 import '../../today/presentation/today_screen.dart';
 import '../../today/presentation/target_profiles_screen.dart';
+import '../../history/presentation/history_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../diary/domain/models/nutrition_values.dart';
 import 'dart:async';
@@ -1132,6 +1133,16 @@ class _MainScreenState extends State<MainScreen>
       child: ListView(
           padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 8, 16, 170),
           children: [
+            ListTile(
+                leading: const Icon(Icons.calendar_month),
+                title: const Text('History'),
+                subtitle:
+                    const Text('Browse days, food, workouts and progress'),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            HistoryScreen(onOpenDiary: _openDiary)))),
             ListTile(
                 leading: const Icon(Icons.flag),
                 title: const Text('Manual nutrition targets'),

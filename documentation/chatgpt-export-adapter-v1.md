@@ -36,7 +36,12 @@ phrases determine food status. A later named confirmation can turn a planned
 item into consumed, and a later cancellation reverses it; both source message
 IDs remain in trace references. A one-to-one explicit grams correction replaces
 the prior quantity; a raw/uncooked-weight clarification excludes the old entry
-until reviewed. Conflicting explicit alias definitions are disabled and warned
+until reviewed. A later explicit percentage of that raw weight may update the
+same excluded candidate, but the edible quantity and nutrition still require
+review. A bare correction such as `293.8g bsn` updates a quantity only when
+there is exactly one possible same-day entry with the same unit. A product
+count without a serving unit or consumption state is warned about, not logged.
+Conflicting explicit alias definitions are disabled and warned
 about. Unknown foods remain unlinked. Nutrition is
 calculated only when a compatible per-100 or per-serving snapshot was directly
 provided; the adapter never invents macros. Explicit user-provided 100 g/ml
@@ -63,7 +68,9 @@ Review is grouped by date. Each candidate can be included or excluded, and
 supported date, quantity, status, Saved Food identity, provenance, confidence,
 measurement value, workout set, and nutrition values are editable. Low
 confidence candidates are visibly marked, and assistant estimates are
-excluded by default. **Generate and validate** runs the Phase 3A validator;
+excluded by default. The user must explicitly acknowledge the extraction
+review before generating output; editing a candidate clears that acknowledgement.
+**Generate and validate** runs the Phase 3A validator;
 errors block Files export and Phase 3B handoff. The Files action uses the iOS
 share sheet and removes its temporary source file afterward; the handoff opens
 the ordinary Phase 3B preview and mapping UI.

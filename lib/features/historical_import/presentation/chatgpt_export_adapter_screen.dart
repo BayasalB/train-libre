@@ -55,7 +55,12 @@ ChatFitnessExtraction _extractSelected(_ExtractionRequest request) =>
 /// Local-only adapter. The only route to a database write is the existing
 /// Phase 3B review screen, after portable v1 validation and its own confirmation.
 class ChatGptExportAdapterScreen extends StatefulWidget {
-  const ChatGptExportAdapterScreen({super.key});
+  const ChatGptExportAdapterScreen(
+      {super.key, this.initialCatalog, this.initialExtraction});
+
+  /// Allows a synthetic catalog to exercise the same review UI in tests.
+  final ChatExportCatalog? initialCatalog;
+  final ChatFitnessExtraction? initialExtraction;
 
   @override
   State<ChatGptExportAdapterScreen> createState() =>
@@ -71,11 +76,18 @@ class _ChatGptExportAdapterScreenState
   String? _portableJson;
   String? _error;
   bool _busy = false;
+  bool _reviewAcknowledged = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _catalog = widget.initialCatalog;
+    _extraction = widget.initialExtraction;
+  }
 
   Future<void> _pickExport() async {
     final selected = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['zip', 'json']);
+        type: FileType.custom, allowedExtensions: ['zip', 'json']);
     if (selected.isEmpty || selected.any((file) => file.path == null)) return;
     setState(() {
       _busy = true;
@@ -83,6 +95,7 @@ class _ChatGptExportAdapterScreenState
       _catalog = null;
       _extraction = null;
       _portableJson = null;
+      _reviewAcknowledged = false;
       _selectedBranches.clear();
     });
     try {
@@ -103,6 +116,7 @@ class _ChatGptExportAdapterScreenState
       _busy = true;
       _error = null;
       _portableJson = null;
+      _reviewAcknowledged = false;
     });
     try {
       final result = await compute(_extractSelected,
@@ -115,7 +129,10 @@ class _ChatGptExportAdapterScreenState
     }
   }
 
-  void _invalidate() => setState(() => _portableJson = null);
+  void _invalidate() => setState(() {
+        _portableJson = null;
+        _reviewAcknowledged = false;
+      });
 
   void _generate() {
     try {
@@ -282,8 +299,18 @@ class _ChatGptExportAdapterScreenState
               ],
             ),
           const SizedBox(height: 8),
+          CheckboxListTile(
+            value: _reviewAcknowledged,
+            title: const Text('I reviewed the extracted records and warnings'),
+            subtitle: const Text(
+                'Uncertain estimates stay excluded unless you include them explicitly.'),
+            onChanged: _busy
+                ? null
+                : (value) =>
+                    setState(() => _reviewAcknowledged = value ?? false),
+          ),
           FilledButton(
-            onPressed: _busy ? null : _generate,
+            onPressed: _busy || !_reviewAcknowledged ? null : _generate,
             child: const Text('Generate and validate portable JSON v1'),
           ),
           if (_portableJson != null) ...[

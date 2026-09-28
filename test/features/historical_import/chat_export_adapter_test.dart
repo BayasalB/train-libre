@@ -683,6 +683,54 @@ void main() {
     expect(find.text('Generate and validate portable JSON v1'), findsNothing);
   });
 
+  testWidgets('portable generation requires explicit extraction review',
+      (tester) async {
+    final catalog = reader.read(
+        'conversations.json',
+        utf8.encode(jsonEncode([
+          {
+            'id': 'review-chat',
+            'title': 'Synthetic review chat',
+            'messages': [
+              {
+                'id': 'weight-message',
+                'role': 'user',
+                'create_time': '2026-09-24T08:00:00+08:00',
+                'content': 'Weight 99.5 kg'
+              }
+            ]
+          }
+        ])));
+    final extraction =
+        ChatFitnessAdapter().extract(catalog, {'review-chat': null});
+    await tester.pumpWidget(MaterialApp(
+        home: ChatGptExportAdapterScreen(
+            initialCatalog: catalog, initialExtraction: extraction)));
+    final generate = find.widgetWithText(
+        FilledButton, 'Generate and validate portable JSON v1');
+    await tester.scrollUntilVisible(generate, 300,
+        scrollable: find.byType(Scrollable).first);
+    expect(tester.widget<FilledButton>(generate).onPressed, isNull);
+    final acknowledgement =
+        find.text('I reviewed the extracted records and warnings');
+    await tester.scrollUntilVisible(acknowledgement, -200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(acknowledgement);
+    await tester.pump();
+    expect(tester.widget<FilledButton>(generate).onPressed, isNotNull);
+    final day = find.text('2026-09-24 (1)');
+    await tester.scrollUntilVisible(day, -200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(day);
+    await tester.pumpAndSettle();
+    final measurement = extraction.candidates.single;
+    final valueField = find.byKey(ValueKey('${measurement.id}-value'));
+    await tester.ensureVisible(valueField);
+    await tester.enterText(valueField, '99.0');
+    await tester.pump();
+    expect(tester.widget<FilledButton>(generate).onPressed, isNull);
+  });
+
   testWidgets(
       'validated adapter output enters Phase 3B preview without a write',
       (tester) async {

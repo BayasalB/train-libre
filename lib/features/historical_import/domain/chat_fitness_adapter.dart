@@ -774,9 +774,45 @@ class ChatFitnessAdapter {
       Map<String, ChatFitnessCandidate> aliases,
       List<String> warnings) {
     final text = source.message.text;
+    final portion = RegExp(
+            r'\b(?:ate|consumed|idsen)\s+(?:(?:about|approximately|approx\.?)\s+)?(\d+(?:\.\d+)?)\s*%\s*(?:of\s*)?(?:that\s*)?(.+)',
+            caseSensitive: false)
+        .firstMatch(text);
+    if (portion != null) {
+      final percent = double.tryParse(portion.group(1)!);
+      final hint = _norm(portion.group(2)!);
+      final matches = entries
+          .where((entry) =>
+              entry.date == date &&
+              !entry.included &&
+              entry.warnings.any((w) => w.contains('Raw/uncooked weight')) &&
+              hint.contains(_norm('${entry.fields['name']}')))
+          .toList();
+      if (percent != null &&
+          percent > 0 &&
+          percent <= 100 &&
+          matches.length == 1) {
+        final entry = matches.single;
+        final raw = double.tryParse('${entry.fields['quantity']}');
+        if (raw != null && raw.isFinite) {
+          entry.fields['quantity'] = (raw * percent / 100).toString();
+          entry.addSource(source.ref);
+          entry.warnings.add(
+              'Raw-weight portion derived from an explicit percentage; verify the edible quantity and nutrition before including.');
+          return;
+        }
+      }
+      warnings.add(
+          '${source.ref}: percentage portion cannot be tied to one raw-weight food; review manually.');
+      return;
+    }
+    final rawWeightCorrection =
+        RegExp(r'\b(?:tuuhii|raw weight|uncooked)\b', caseSensitive: false)
+            .hasMatch(text);
     if (RegExp(r'\bkcal\b|\b(?:rep|reps|sets?)\b|\b(?:waist|chest|weight)\b',
                 caseSensitive: false)
             .hasMatch(text) &&
+        !rawWeightCorrection &&
         !RegExp(r'\b(?:idsen|idlee|uusan|eaten|drank|consumed|beldsen)\b|идсэн|идлээ|уусан|бэлдсэн',
                 caseSensitive: false)
             .hasMatch(text)) {
@@ -809,6 +845,29 @@ class ChatFitnessAdapter {
         } else {
           warnings.add(
               '${source.ref}: raw-weight statement cannot be tied to one food; review manually.');
+        }
+        continue;
+      }
+      final bareCorrection = RegExp(
+              r'^\s*(\d+(?:\.\d+)?)\s*(g|ml)\s*(?:bsn|baisan)\s*$',
+              caseSensitive: false)
+          .firstMatch(segment);
+      if (bareCorrection != null) {
+        final matches = entries
+            .where((entry) =>
+                entry.date == date &&
+                entry.included &&
+                entry.fields['quantityUnit'] ==
+                    bareCorrection.group(2)!.toLowerCase())
+            .toList();
+        if (matches.length == 1) {
+          final entry = matches.single;
+          entry.fields['quantity'] = bareCorrection.group(1)!;
+          entry.addSource(source.ref);
+          entry.warnings.add('Quantity corrected by later user message.');
+        } else {
+          warnings.add(
+              '${source.ref}: bare quantity correction has ${matches.length} possible foods; review manually.');
         }
         continue;
       }
@@ -885,7 +944,14 @@ class ChatFitnessAdapter {
                   caseSensitive: false)
               .firstMatch(segment)
           : null;
-      if (qty == null && trailingQty == null) continue;
+      if (qty == null && trailingQty == null) {
+        if (RegExp(r'^[\p{L}][\p{L}\s-]{2,80}\s+\d+(?:\.\d+)?$', unicode: true)
+            .hasMatch(segment)) {
+          warnings.add(
+              '${source.ref}: product count has no serving unit or consumed/planned state; review manually.');
+        }
+        continue;
+      }
       if (!planned && !consumed) {
         warnings.add(
             '${source.ref}: quantity statement has no clear consumed/planned verb; candidate excluded by default.');

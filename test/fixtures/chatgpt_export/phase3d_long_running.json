@@ -1,0 +1,44 @@
+[
+  {
+    "id": "synthetic-cut-2026-a",
+    "title": "Muscle Cut Plan",
+    "messages": [
+      {"id":"a01","role":"user","create_time":"2026-09-24T07:00:00+08:00","content":"Nutrition label: Hercules Oats 100g = 288.97 kcal P 15.65 C 11.85 F 19.89"},
+      {"id":"a02","role":"user","create_time":"2026-09-24T07:01:00+08:00","content":"ovyoos = Hercules Oats"},
+      {"id":"a03","role":"user","create_time":"2026-09-24T07:02:00+08:00","content":"Nutrition label: Kirkland Whey 100g = 370 kcal P 71.5 C 11.5 F 4.25"},
+      {"id":"a04","role":"user","create_time":"2026-09-24T07:03:00+08:00","content":"uurag = Kirkland Whey"},
+      {"id":"a05","role":"user","create_time":"2026-09-24T08:00:00+08:00","content":"293.8g ovyoos idsen"},
+      {"id":"a06","role":"user","create_time":"2026-09-24T08:10:00+08:00","content":"45.5g uurag beldsen"},
+      {"id":"a07","role":"user","create_time":"2026-09-24T08:30:00+08:00","content":"uurgaa uusan"},
+      {"id":"a08","role":"user","create_time":"2026-09-24T12:00:00+08:00","content":"1 serving Tsingtao zero planned"},
+      {"id":"a08b","role":"user","create_time":"2026-09-24T12:10:00+08:00","content":"Pearl River 2"},
+      {"id":"a09","role":"user","create_time":"2026-09-24T12:20:00+08:00","content":"Tsingtao zero boliloo"},
+      {"id":"a10","role":"user","create_time":"2026-09-24T13:00:00+08:00","content":"300g Burger idsen"},
+      {"id":"a11","role":"user","create_time":"2026-09-24T13:05:00+08:00","content":"300g bish 293.8g Burger"},
+      {"id":"a12","role":"user","create_time":"2026-09-24T14:00:00+08:00","content":"800g beef idsen"},
+      {"id":"a13","role":"user","create_time":"2026-09-24T14:05:00+08:00","content":"800g raw weight"},
+      {"id":"a14","role":"user","create_time":"2026-09-24T14:10:00+08:00","content":"I ate about 65% of that beef"},
+      {"id":"a15","role":"user","create_time":"2026-09-24T15:00:00+08:00","content":"Weight 99.5 kg, Waist 100 cm, Lower Belly 103.0 cm, Chest 124 cm"},
+      {"id":"a16","role":"user","create_time":"2026-09-24T18:00:00+08:00","content":"Training type: Legs\nDaily note: Solid session.\nSquat\n70kg 8 rep\n100kg 5 rep\n130kg 3 rep\n135kg 2 rep\n100kg 10 rep 2 set"},
+      {"id":"a17","role":"user","create_time":"2026-09-24T23:00:00+08:00","content":"9/24 final total 2588 kcal P 202.9 C 250 F 90 locked"}
+    ]
+  },
+  {
+    "id": "synthetic-cut-2026-b",
+    "title": "Muscle Cut Plan 2",
+    "messages": [
+      {"id":"b01","role":"user","create_time":"2026-10-12T09:00:00+08:00","content":"today 21.3g ovyoos idsen"},
+      {"id":"b02","role":"user","create_time":"2026-10-12T12:00:00+08:00","content":"1 serving Restaurant Burger idsen"},
+      {"id":"b03","role":"assistant","create_time":"2026-10-12T12:01:00+08:00","content":"Restaurant Burger photo estimate: 720 kcal P 35 C 68 F 34"},
+      {"id":"b04","role":"user","create_time":"2026-10-13T08:00:00+08:00","content":"yesterday 45.5g uurag uusan"},
+      {"id":"b05","role":"user","create_time":"2026-11-02T20:00:00+08:00","content":"11/2 final total 2100 kcal P 180 C 200 F 70 locked"}
+    ]
+  },
+  {
+    "id": "synthetic-unrelated-private",
+    "title": "Unrelated private chat",
+    "messages": [
+      {"id":"u01","role":"user","create_time":"2026-09-24T12:00:00+08:00","content":"Private unrelated text must never enter the fitness import."}
+    ]
+  }
+]

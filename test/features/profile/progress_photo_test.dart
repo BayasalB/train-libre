@@ -11,6 +11,7 @@ import 'package:train_libre/core/media/app_media_store.dart';
 import 'package:train_libre/data/database_helper.dart';
 import 'package:train_libre/data/drift_database.dart';
 import 'package:train_libre/features/profile/data/progress_photo_repository.dart';
+import 'package:train_libre/features/today/data/day_lock_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -156,5 +157,21 @@ void main() {
     payload.remove('progress_photos');
     expect(await backup.importBackupPayloadForTesting(payload), isTrue);
     expect(await db.select(db.progressPhotos).get(), isEmpty);
+  });
+
+  test('locked date blocks photo add, edit and delete without losing media',
+      () async {
+    final existing =
+        await photos.add(await sourceFile('before-lock.jpg'), date);
+    final stored = (await AppMediaStore.instance.resolve(existing.mediaPath))!;
+    await DayLockRepository(db).lock(date);
+    await expectLater(photos.add(await sourceFile('after-lock.jpg'), date),
+        throwsA(isA<DayLockedException>()));
+    await expectLater(photos.updateNote(existing.id, 'change'),
+        throwsA(isA<DayLockedException>()));
+    await expectLater(
+        photos.delete(existing.id), throwsA(isA<DayLockedException>()));
+    expect(await stored.exists(), isTrue);
+    expect((await db.select(db.progressPhotos).get()).single.note, isNull);
   });
 }

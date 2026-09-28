@@ -1693,6 +1693,693 @@ class DailyRecordsCompanion extends UpdateCompanion<DailyRecord> {
   }
 }
 
+class $DayLocksTable extends DayLocks with TableInfo<$DayLocksTable, DayLock> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DayLocksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta =
+      const VerificationMeta('localId');
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+      'local_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+      clientDefault: () => const Uuid().v4());
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _localDateMeta =
+      const VerificationMeta('localDate');
+  @override
+  late final GeneratedColumn<String> localDate = GeneratedColumn<String>(
+      'local_date', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _lockedAtMeta =
+      const VerificationMeta('lockedAt');
+  @override
+  late final GeneratedColumn<DateTime> lockedAt = GeneratedColumn<DateTime>(
+      'locked_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _revisionMeta =
+      const VerificationMeta('revision');
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+      'revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _targetKindMeta =
+      const VerificationMeta('targetKind');
+  @override
+  late final GeneratedColumn<String> targetKind = GeneratedColumn<String>(
+      'target_kind', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetProfileIdMeta =
+      const VerificationMeta('targetProfileId');
+  @override
+  late final GeneratedColumn<String> targetProfileId = GeneratedColumn<String>(
+      'target_profile_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetCaloriesMeta =
+      const VerificationMeta('targetCalories');
+  @override
+  late final GeneratedColumn<double> targetCalories = GeneratedColumn<double>(
+      'target_calories', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _targetProteinMeta =
+      const VerificationMeta('targetProtein');
+  @override
+  late final GeneratedColumn<double> targetProtein = GeneratedColumn<double>(
+      'target_protein', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _targetCarbsMeta =
+      const VerificationMeta('targetCarbs');
+  @override
+  late final GeneratedColumn<double> targetCarbs = GeneratedColumn<double>(
+      'target_carbs', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _targetFatMeta =
+      const VerificationMeta('targetFat');
+  @override
+  late final GeneratedColumn<double> targetFat = GeneratedColumn<double>(
+      'target_fat', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        localId,
+        id,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        localDate,
+        lockedAt,
+        revision,
+        targetKind,
+        targetProfileId,
+        targetCalories,
+        targetProtein,
+        targetCarbs,
+        targetFat
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'day_locks';
+  @override
+  VerificationContext validateIntegrity(Insertable<DayLock> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(_localIdMeta,
+          localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('local_date')) {
+      context.handle(_localDateMeta,
+          localDate.isAcceptableOrUnknown(data['local_date']!, _localDateMeta));
+    } else if (isInserting) {
+      context.missing(_localDateMeta);
+    }
+    if (data.containsKey('locked_at')) {
+      context.handle(_lockedAtMeta,
+          lockedAt.isAcceptableOrUnknown(data['locked_at']!, _lockedAtMeta));
+    } else if (isInserting) {
+      context.missing(_lockedAtMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(_revisionMeta,
+          revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta));
+    }
+    if (data.containsKey('target_kind')) {
+      context.handle(
+          _targetKindMeta,
+          targetKind.isAcceptableOrUnknown(
+              data['target_kind']!, _targetKindMeta));
+    }
+    if (data.containsKey('target_profile_id')) {
+      context.handle(
+          _targetProfileIdMeta,
+          targetProfileId.isAcceptableOrUnknown(
+              data['target_profile_id']!, _targetProfileIdMeta));
+    }
+    if (data.containsKey('target_calories')) {
+      context.handle(
+          _targetCaloriesMeta,
+          targetCalories.isAcceptableOrUnknown(
+              data['target_calories']!, _targetCaloriesMeta));
+    }
+    if (data.containsKey('target_protein')) {
+      context.handle(
+          _targetProteinMeta,
+          targetProtein.isAcceptableOrUnknown(
+              data['target_protein']!, _targetProteinMeta));
+    }
+    if (data.containsKey('target_carbs')) {
+      context.handle(
+          _targetCarbsMeta,
+          targetCarbs.isAcceptableOrUnknown(
+              data['target_carbs']!, _targetCarbsMeta));
+    }
+    if (data.containsKey('target_fat')) {
+      context.handle(_targetFatMeta,
+          targetFat.isAcceptableOrUnknown(data['target_fat']!, _targetFatMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  DayLock map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DayLock(
+      localId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      localDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_date'])!,
+      lockedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}locked_at'])!,
+      revision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}revision'])!,
+      targetKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_kind']),
+      targetProfileId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_profile_id']),
+      targetCalories: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_calories']),
+      targetProtein: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_protein']),
+      targetCarbs: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_carbs']),
+      targetFat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_fat']),
+    );
+  }
+
+  @override
+  $DayLocksTable createAlias(String alias) {
+    return $DayLocksTable(attachedDatabase, alias);
+  }
+}
+
+class DayLock extends DataClass implements Insertable<DayLock> {
+  final int localId;
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String localDate;
+  final DateTime lockedAt;
+  final int revision;
+  final String? targetKind;
+  final String? targetProfileId;
+  final double? targetCalories;
+  final double? targetProtein;
+  final double? targetCarbs;
+  final double? targetFat;
+  const DayLock(
+      {required this.localId,
+      required this.id,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.localDate,
+      required this.lockedAt,
+      required this.revision,
+      this.targetKind,
+      this.targetProfileId,
+      this.targetCalories,
+      this.targetProtein,
+      this.targetCarbs,
+      this.targetFat});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['local_date'] = Variable<String>(localDate);
+    map['locked_at'] = Variable<DateTime>(lockedAt);
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || targetKind != null) {
+      map['target_kind'] = Variable<String>(targetKind);
+    }
+    if (!nullToAbsent || targetProfileId != null) {
+      map['target_profile_id'] = Variable<String>(targetProfileId);
+    }
+    if (!nullToAbsent || targetCalories != null) {
+      map['target_calories'] = Variable<double>(targetCalories);
+    }
+    if (!nullToAbsent || targetProtein != null) {
+      map['target_protein'] = Variable<double>(targetProtein);
+    }
+    if (!nullToAbsent || targetCarbs != null) {
+      map['target_carbs'] = Variable<double>(targetCarbs);
+    }
+    if (!nullToAbsent || targetFat != null) {
+      map['target_fat'] = Variable<double>(targetFat);
+    }
+    return map;
+  }
+
+  DayLocksCompanion toCompanion(bool nullToAbsent) {
+    return DayLocksCompanion(
+      localId: Value(localId),
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      localDate: Value(localDate),
+      lockedAt: Value(lockedAt),
+      revision: Value(revision),
+      targetKind: targetKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetKind),
+      targetProfileId: targetProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetProfileId),
+      targetCalories: targetCalories == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetCalories),
+      targetProtein: targetProtein == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetProtein),
+      targetCarbs: targetCarbs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetCarbs),
+      targetFat: targetFat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetFat),
+    );
+  }
+
+  factory DayLock.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DayLock(
+      localId: serializer.fromJson<int>(json['localId']),
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      localDate: serializer.fromJson<String>(json['localDate']),
+      lockedAt: serializer.fromJson<DateTime>(json['lockedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      targetKind: serializer.fromJson<String?>(json['targetKind']),
+      targetProfileId: serializer.fromJson<String?>(json['targetProfileId']),
+      targetCalories: serializer.fromJson<double?>(json['targetCalories']),
+      targetProtein: serializer.fromJson<double?>(json['targetProtein']),
+      targetCarbs: serializer.fromJson<double?>(json['targetCarbs']),
+      targetFat: serializer.fromJson<double?>(json['targetFat']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'localDate': serializer.toJson<String>(localDate),
+      'lockedAt': serializer.toJson<DateTime>(lockedAt),
+      'revision': serializer.toJson<int>(revision),
+      'targetKind': serializer.toJson<String?>(targetKind),
+      'targetProfileId': serializer.toJson<String?>(targetProfileId),
+      'targetCalories': serializer.toJson<double?>(targetCalories),
+      'targetProtein': serializer.toJson<double?>(targetProtein),
+      'targetCarbs': serializer.toJson<double?>(targetCarbs),
+      'targetFat': serializer.toJson<double?>(targetFat),
+    };
+  }
+
+  DayLock copyWith(
+          {int? localId,
+          String? id,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? localDate,
+          DateTime? lockedAt,
+          int? revision,
+          Value<String?> targetKind = const Value.absent(),
+          Value<String?> targetProfileId = const Value.absent(),
+          Value<double?> targetCalories = const Value.absent(),
+          Value<double?> targetProtein = const Value.absent(),
+          Value<double?> targetCarbs = const Value.absent(),
+          Value<double?> targetFat = const Value.absent()}) =>
+      DayLock(
+        localId: localId ?? this.localId,
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        localDate: localDate ?? this.localDate,
+        lockedAt: lockedAt ?? this.lockedAt,
+        revision: revision ?? this.revision,
+        targetKind: targetKind.present ? targetKind.value : this.targetKind,
+        targetProfileId: targetProfileId.present
+            ? targetProfileId.value
+            : this.targetProfileId,
+        targetCalories:
+            targetCalories.present ? targetCalories.value : this.targetCalories,
+        targetProtein:
+            targetProtein.present ? targetProtein.value : this.targetProtein,
+        targetCarbs: targetCarbs.present ? targetCarbs.value : this.targetCarbs,
+        targetFat: targetFat.present ? targetFat.value : this.targetFat,
+      );
+  DayLock copyWithCompanion(DayLocksCompanion data) {
+    return DayLock(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      localDate: data.localDate.present ? data.localDate.value : this.localDate,
+      lockedAt: data.lockedAt.present ? data.lockedAt.value : this.lockedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      targetKind:
+          data.targetKind.present ? data.targetKind.value : this.targetKind,
+      targetProfileId: data.targetProfileId.present
+          ? data.targetProfileId.value
+          : this.targetProfileId,
+      targetCalories: data.targetCalories.present
+          ? data.targetCalories.value
+          : this.targetCalories,
+      targetProtein: data.targetProtein.present
+          ? data.targetProtein.value
+          : this.targetProtein,
+      targetCarbs:
+          data.targetCarbs.present ? data.targetCarbs.value : this.targetCarbs,
+      targetFat: data.targetFat.present ? data.targetFat.value : this.targetFat,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayLock(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('localDate: $localDate, ')
+          ..write('lockedAt: $lockedAt, ')
+          ..write('revision: $revision, ')
+          ..write('targetKind: $targetKind, ')
+          ..write('targetProfileId: $targetProfileId, ')
+          ..write('targetCalories: $targetCalories, ')
+          ..write('targetProtein: $targetProtein, ')
+          ..write('targetCarbs: $targetCarbs, ')
+          ..write('targetFat: $targetFat')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      localId,
+      id,
+      createdAt,
+      updatedAt,
+      deletedAt,
+      localDate,
+      lockedAt,
+      revision,
+      targetKind,
+      targetProfileId,
+      targetCalories,
+      targetProtein,
+      targetCarbs,
+      targetFat);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DayLock &&
+          other.localId == this.localId &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.localDate == this.localDate &&
+          other.lockedAt == this.lockedAt &&
+          other.revision == this.revision &&
+          other.targetKind == this.targetKind &&
+          other.targetProfileId == this.targetProfileId &&
+          other.targetCalories == this.targetCalories &&
+          other.targetProtein == this.targetProtein &&
+          other.targetCarbs == this.targetCarbs &&
+          other.targetFat == this.targetFat);
+}
+
+class DayLocksCompanion extends UpdateCompanion<DayLock> {
+  final Value<int> localId;
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> localDate;
+  final Value<DateTime> lockedAt;
+  final Value<int> revision;
+  final Value<String?> targetKind;
+  final Value<String?> targetProfileId;
+  final Value<double?> targetCalories;
+  final Value<double?> targetProtein;
+  final Value<double?> targetCarbs;
+  final Value<double?> targetFat;
+  const DayLocksCompanion({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.lockedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.targetKind = const Value.absent(),
+    this.targetProfileId = const Value.absent(),
+    this.targetCalories = const Value.absent(),
+    this.targetProtein = const Value.absent(),
+    this.targetCarbs = const Value.absent(),
+    this.targetFat = const Value.absent(),
+  });
+  DayLocksCompanion.insert({
+    this.localId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String localDate,
+    required DateTime lockedAt,
+    this.revision = const Value.absent(),
+    this.targetKind = const Value.absent(),
+    this.targetProfileId = const Value.absent(),
+    this.targetCalories = const Value.absent(),
+    this.targetProtein = const Value.absent(),
+    this.targetCarbs = const Value.absent(),
+    this.targetFat = const Value.absent(),
+  })  : localDate = Value(localDate),
+        lockedAt = Value(lockedAt);
+  static Insertable<DayLock> custom({
+    Expression<int>? localId,
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? localDate,
+    Expression<DateTime>? lockedAt,
+    Expression<int>? revision,
+    Expression<String>? targetKind,
+    Expression<String>? targetProfileId,
+    Expression<double>? targetCalories,
+    Expression<double>? targetProtein,
+    Expression<double>? targetCarbs,
+    Expression<double>? targetFat,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (localDate != null) 'local_date': localDate,
+      if (lockedAt != null) 'locked_at': lockedAt,
+      if (revision != null) 'revision': revision,
+      if (targetKind != null) 'target_kind': targetKind,
+      if (targetProfileId != null) 'target_profile_id': targetProfileId,
+      if (targetCalories != null) 'target_calories': targetCalories,
+      if (targetProtein != null) 'target_protein': targetProtein,
+      if (targetCarbs != null) 'target_carbs': targetCarbs,
+      if (targetFat != null) 'target_fat': targetFat,
+    });
+  }
+
+  DayLocksCompanion copyWith(
+      {Value<int>? localId,
+      Value<String>? id,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? localDate,
+      Value<DateTime>? lockedAt,
+      Value<int>? revision,
+      Value<String?>? targetKind,
+      Value<String?>? targetProfileId,
+      Value<double?>? targetCalories,
+      Value<double?>? targetProtein,
+      Value<double?>? targetCarbs,
+      Value<double?>? targetFat}) {
+    return DayLocksCompanion(
+      localId: localId ?? this.localId,
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      localDate: localDate ?? this.localDate,
+      lockedAt: lockedAt ?? this.lockedAt,
+      revision: revision ?? this.revision,
+      targetKind: targetKind ?? this.targetKind,
+      targetProfileId: targetProfileId ?? this.targetProfileId,
+      targetCalories: targetCalories ?? this.targetCalories,
+      targetProtein: targetProtein ?? this.targetProtein,
+      targetCarbs: targetCarbs ?? this.targetCarbs,
+      targetFat: targetFat ?? this.targetFat,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (localDate.present) {
+      map['local_date'] = Variable<String>(localDate.value);
+    }
+    if (lockedAt.present) {
+      map['locked_at'] = Variable<DateTime>(lockedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (targetKind.present) {
+      map['target_kind'] = Variable<String>(targetKind.value);
+    }
+    if (targetProfileId.present) {
+      map['target_profile_id'] = Variable<String>(targetProfileId.value);
+    }
+    if (targetCalories.present) {
+      map['target_calories'] = Variable<double>(targetCalories.value);
+    }
+    if (targetProtein.present) {
+      map['target_protein'] = Variable<double>(targetProtein.value);
+    }
+    if (targetCarbs.present) {
+      map['target_carbs'] = Variable<double>(targetCarbs.value);
+    }
+    if (targetFat.present) {
+      map['target_fat'] = Variable<double>(targetFat.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayLocksCompanion(')
+          ..write('localId: $localId, ')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('localDate: $localDate, ')
+          ..write('lockedAt: $lockedAt, ')
+          ..write('revision: $revision, ')
+          ..write('targetKind: $targetKind, ')
+          ..write('targetProfileId: $targetProfileId, ')
+          ..write('targetCalories: $targetCalories, ')
+          ..write('targetProtein: $targetProtein, ')
+          ..write('targetCarbs: $targetCarbs, ')
+          ..write('targetFat: $targetFat')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AppSettingsTable extends AppSettings
     with TableInfo<$AppSettingsTable, AppSetting> {
   @override
@@ -26396,6 +27083,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NutritionTargetProfilesTable nutritionTargetProfiles =
       $NutritionTargetProfilesTable(this);
   late final $DailyRecordsTable dailyRecords = $DailyRecordsTable(this);
+  late final $DayLocksTable dayLocks = $DayLocksTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $ExercisesTable exercises = $ExercisesTable(this);
   late final $RoutinesTable routines = $RoutinesTable(this);
@@ -26477,6 +27165,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         profiles,
         nutritionTargetProfiles,
         dailyRecords,
+        dayLocks,
         appSettings,
         exercises,
         routines,
@@ -27711,6 +28400,309 @@ typedef $$DailyRecordsTableProcessedTableManager = ProcessedTableManager<
     (DailyRecord, $$DailyRecordsTableReferences),
     DailyRecord,
     PrefetchHooks Function({bool targetOverrideId})>;
+typedef $$DayLocksTableCreateCompanionBuilder = DayLocksCompanion Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  required String localDate,
+  required DateTime lockedAt,
+  Value<int> revision,
+  Value<String?> targetKind,
+  Value<String?> targetProfileId,
+  Value<double?> targetCalories,
+  Value<double?> targetProtein,
+  Value<double?> targetCarbs,
+  Value<double?> targetFat,
+});
+typedef $$DayLocksTableUpdateCompanionBuilder = DayLocksCompanion Function({
+  Value<int> localId,
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> localDate,
+  Value<DateTime> lockedAt,
+  Value<int> revision,
+  Value<String?> targetKind,
+  Value<String?> targetProfileId,
+  Value<double?> targetCalories,
+  Value<double?> targetProtein,
+  Value<double?> targetCarbs,
+  Value<double?> targetFat,
+});
+
+class $$DayLocksTableFilterComposer
+    extends Composer<_$AppDatabase, $DayLocksTable> {
+  $$DayLocksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localDate => $composableBuilder(
+      column: $table.localDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lockedAt => $composableBuilder(
+      column: $table.lockedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get revision => $composableBuilder(
+      column: $table.revision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetKind => $composableBuilder(
+      column: $table.targetKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetProfileId => $composableBuilder(
+      column: $table.targetProfileId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetCalories => $composableBuilder(
+      column: $table.targetCalories,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetProtein => $composableBuilder(
+      column: $table.targetProtein, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetCarbs => $composableBuilder(
+      column: $table.targetCarbs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetFat => $composableBuilder(
+      column: $table.targetFat, builder: (column) => ColumnFilters(column));
+}
+
+class $$DayLocksTableOrderingComposer
+    extends Composer<_$AppDatabase, $DayLocksTable> {
+  $$DayLocksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+      column: $table.localId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localDate => $composableBuilder(
+      column: $table.localDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lockedAt => $composableBuilder(
+      column: $table.lockedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+      column: $table.revision, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetKind => $composableBuilder(
+      column: $table.targetKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetProfileId => $composableBuilder(
+      column: $table.targetProfileId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetCalories => $composableBuilder(
+      column: $table.targetCalories,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetProtein => $composableBuilder(
+      column: $table.targetProtein,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetCarbs => $composableBuilder(
+      column: $table.targetCarbs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetFat => $composableBuilder(
+      column: $table.targetFat, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DayLocksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DayLocksTable> {
+  $$DayLocksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get localDate =>
+      $composableBuilder(column: $table.localDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lockedAt =>
+      $composableBuilder(column: $table.lockedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get targetKind => $composableBuilder(
+      column: $table.targetKind, builder: (column) => column);
+
+  GeneratedColumn<String> get targetProfileId => $composableBuilder(
+      column: $table.targetProfileId, builder: (column) => column);
+
+  GeneratedColumn<double> get targetCalories => $composableBuilder(
+      column: $table.targetCalories, builder: (column) => column);
+
+  GeneratedColumn<double> get targetProtein => $composableBuilder(
+      column: $table.targetProtein, builder: (column) => column);
+
+  GeneratedColumn<double> get targetCarbs => $composableBuilder(
+      column: $table.targetCarbs, builder: (column) => column);
+
+  GeneratedColumn<double> get targetFat =>
+      $composableBuilder(column: $table.targetFat, builder: (column) => column);
+}
+
+class $$DayLocksTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DayLocksTable,
+    DayLock,
+    $$DayLocksTableFilterComposer,
+    $$DayLocksTableOrderingComposer,
+    $$DayLocksTableAnnotationComposer,
+    $$DayLocksTableCreateCompanionBuilder,
+    $$DayLocksTableUpdateCompanionBuilder,
+    (DayLock, BaseReferences<_$AppDatabase, $DayLocksTable, DayLock>),
+    DayLock,
+    PrefetchHooks Function()> {
+  $$DayLocksTableTableManager(_$AppDatabase db, $DayLocksTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DayLocksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DayLocksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DayLocksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> localDate = const Value.absent(),
+            Value<DateTime> lockedAt = const Value.absent(),
+            Value<int> revision = const Value.absent(),
+            Value<String?> targetKind = const Value.absent(),
+            Value<String?> targetProfileId = const Value.absent(),
+            Value<double?> targetCalories = const Value.absent(),
+            Value<double?> targetProtein = const Value.absent(),
+            Value<double?> targetCarbs = const Value.absent(),
+            Value<double?> targetFat = const Value.absent(),
+          }) =>
+              DayLocksCompanion(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            localDate: localDate,
+            lockedAt: lockedAt,
+            revision: revision,
+            targetKind: targetKind,
+            targetProfileId: targetProfileId,
+            targetCalories: targetCalories,
+            targetProtein: targetProtein,
+            targetCarbs: targetCarbs,
+            targetFat: targetFat,
+          ),
+          createCompanionCallback: ({
+            Value<int> localId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            required String localDate,
+            required DateTime lockedAt,
+            Value<int> revision = const Value.absent(),
+            Value<String?> targetKind = const Value.absent(),
+            Value<String?> targetProfileId = const Value.absent(),
+            Value<double?> targetCalories = const Value.absent(),
+            Value<double?> targetProtein = const Value.absent(),
+            Value<double?> targetCarbs = const Value.absent(),
+            Value<double?> targetFat = const Value.absent(),
+          }) =>
+              DayLocksCompanion.insert(
+            localId: localId,
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            localDate: localDate,
+            lockedAt: lockedAt,
+            revision: revision,
+            targetKind: targetKind,
+            targetProfileId: targetProfileId,
+            targetCalories: targetCalories,
+            targetProtein: targetProtein,
+            targetCarbs: targetCarbs,
+            targetFat: targetFat,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$DayLocksTable, DayLock>(table),
+                    BaseReferences<_$AppDatabase, $DayLocksTable, DayLock>(
+                        db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DayLocksTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DayLocksTable,
+    DayLock,
+    $$DayLocksTableFilterComposer,
+    $$DayLocksTableOrderingComposer,
+    $$DayLocksTableAnnotationComposer,
+    $$DayLocksTableCreateCompanionBuilder,
+    $$DayLocksTableUpdateCompanionBuilder,
+    (DayLock, BaseReferences<_$AppDatabase, $DayLocksTable, DayLock>),
+    DayLock,
+    PrefetchHooks Function()>;
 typedef $$AppSettingsTableCreateCompanionBuilder = AppSettingsCompanion
     Function({
   Value<int> localId,
@@ -43412,6 +44404,8 @@ class $AppDatabaseManager {
           _db, _db.nutritionTargetProfiles);
   $$DailyRecordsTableTableManager get dailyRecords =>
       $$DailyRecordsTableTableManager(_db, _db.dailyRecords);
+  $$DayLocksTableTableManager get dayLocks =>
+      $$DayLocksTableTableManager(_db, _db.dayLocks);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$ExercisesTableTableManager get exercises =>

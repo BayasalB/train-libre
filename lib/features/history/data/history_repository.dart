@@ -22,6 +22,7 @@ class HistoryDaySummary {
   final int workoutCount;
   final int measurementCount;
   final bool hasRecord;
+  final bool locked;
 
   const HistoryDaySummary({
     required this.date,
@@ -35,6 +36,7 @@ class HistoryDaySummary {
     required this.workoutCount,
     required this.measurementCount,
     required this.hasRecord,
+    this.locked = false,
   });
 
   bool get hasActivity =>
@@ -66,6 +68,7 @@ class HistoryRepository {
   Stream<List<HistoryDaySummary>> watchMonth(DateTime month) => database
       .customSelect('SELECT 1', readsFrom: {
         database.dailyRecords,
+        database.dayLocks,
         database.nutritionLogs,
         database.fluidLogs,
         database.offProductsArchive,
@@ -80,6 +83,7 @@ class HistoryRepository {
   Stream<HistoryDayDetail> watchDay(DateTime date) => database
       .customSelect('SELECT 1', readsFrom: {
         database.dailyRecords,
+        database.dayLocks,
         database.nutritionTargetProfiles,
         database.nutritionLogs,
         database.fluidLogs,
@@ -146,6 +150,12 @@ class HistoryRepository {
               ..where((t) =>
                   t.date.isBiggerOrEqualValue(startKey) &
                   t.date.isSmallerThanValue(endKey) &
+                  t.deletedAt.isNull()))
+            .get();
+        final locks = await (database.select(database.dayLocks)
+              ..where((t) =>
+                  t.localDate.isBiggerOrEqualValue(startKey) &
+                  t.localDate.isSmallerThanValue(endKey) &
                   t.deletedAt.isNull()))
             .get();
         final logs = await (database.select(database.nutritionLogs)
@@ -223,6 +233,7 @@ class HistoryRepository {
               .add(entry);
         }
         final recordsByDay = {for (final row in records) row.date: row};
+        final lockedDates = locks.map((row) => row.localDate).toSet();
         final workoutCount = <String, int>{};
         for (final row in workouts) {
           workoutCount.update(localDateKey(row.startTime), (n) => n + 1,
@@ -275,7 +286,8 @@ class HistoryRepository {
               missingFoods: missing,
               workoutCount: workoutCount[key] ?? 0,
               measurementCount: measurementCount[key] ?? 0,
-              hasRecord: record != null);
+              hasRecord: record != null,
+              locked: lockedDates.contains(key));
         });
       });
 }

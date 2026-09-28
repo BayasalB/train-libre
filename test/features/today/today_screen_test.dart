@@ -117,4 +117,34 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));
   });
+
+  testWidgets('Lock Day is visible and requires explicit Unlock before edits',
+      (tester) async {
+    await seed();
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('lock-day')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('unlock-day')), findsOneWidget);
+    final training = tester.widget<DropdownButtonFormField<TrainingType>>(
+        find.byType(DropdownButtonFormField<TrainingType>));
+    expect(training.onChanged, isNull);
+    await tester.scrollUntilVisible(find.text('Edit notes'), 250,
+        scrollable: find.byType(Scrollable).first);
+    expect(
+        tester
+            .widget<TextButton>(find.widgetWithText(TextButton, 'Edit notes'))
+            .onPressed,
+        isNull);
+    tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position
+        .jumpTo(0);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('unlock-day')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('lock-day')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
 }

@@ -9,10 +9,12 @@ import '../../workout/data/sources/workout_local_data_source.dart';
 import '../../workout/data/workout_day_read_model.dart';
 import '../domain/daily_record_models.dart';
 import 'daily_record_repository.dart';
+import 'day_lock_repository.dart';
 
 class TodayData {
   final DateTime date;
   final db.DailyRecord? record;
+  final db.DayLock? dayLock;
   final ResolvedDailyTargets targets;
   final DailyNutritionState nutrition;
   final List<TrackedFoodItem> foods;
@@ -24,6 +26,7 @@ class TodayData {
   const TodayData(
       {required this.date,
       required this.record,
+      required this.dayLock,
       required this.targets,
       required this.nutrition,
       required this.foods,
@@ -43,11 +46,13 @@ class TodayData {
 class TodayRepository {
   final db.AppDatabase database;
   late final DailyRecordRepository records = DailyRecordRepository(database);
+  late final DayLockRepository locks = DayLockRepository(database);
   TodayRepository(this.database);
 
   Stream<TodayData> watch(DateTime date) => database
       .customSelect('SELECT 1', readsFrom: {
         database.dailyRecords,
+        database.dayLocks,
         database.nutritionTargetProfiles,
         database.nutritionLogs,
         database.fluidLogs,
@@ -131,6 +136,7 @@ class TodayRepository {
         return TodayData(
             date: start,
             record: record,
+            dayLock: await locks.get(start),
             targets: await records.resolve(start, record: record),
             nutrition: nutrition,
             foods: foods,

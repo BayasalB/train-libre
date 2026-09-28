@@ -10,6 +10,9 @@ import '../../workout/presentation/widgets/workout_day_card.dart';
 import '../data/today_repository.dart';
 import '../domain/daily_record_models.dart';
 import 'target_profiles_screen.dart';
+import 'day_actions.dart';
+import '../../diary/data/day_copy_service.dart';
+import '../../diary/domain/day_copy_request.dart';
 
 /// A local read model; all edits remain in the existing database repositories.
 class TodayScreen extends StatefulWidget {
@@ -34,6 +37,7 @@ class TodayScreen extends StatefulWidget {
 class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
   late final TodayRepository _repo =
       widget.repository ?? TodayRepository(DatabaseHelper.instance.dbInstance);
+  late final DayCopyService _copy = DayCopyService(_repo.database);
   late DateTime selectedDate = localDay(widget.initialDate ?? DateTime.now());
   late DateTime _lastToday = localDay(DateTime.now());
   late Stream<TodayData> _stream = _repo.watch(selectedDate);
@@ -82,6 +86,7 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _editNotes(TodayData data) async {
+    if (data.dayLock != null) return;
     var draft = data.record?.notes ?? '';
     final result = await showDialog<String>(
         context: context,
@@ -188,6 +193,10 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 170),
                       children: [
                         _card([
+                          DayLockAction(
+                              date: data.date,
+                              lock: data.dayLock,
+                              repository: _repo.locks),
                           DropdownButtonFormField<TrainingType>(
                               key: ValueKey(
                                   'training-${data.trainingType.name}'),
@@ -199,12 +208,15 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                   .map((t) => DropdownMenuItem(
                                       value: t, child: Text(t.label)))
                                   .toList(),
-                              onChanged: (type) {
-                                if (type != null) {
-                                  _save(() => _repo.records
-                                      .saveDay(data.date, trainingType: type));
-                                }
-                              }),
+                              onChanged: data.dayLock != null
+                                  ? null
+                                  : (type) {
+                                      if (type != null) {
+                                        _save(() => _repo.records.saveDay(
+                                            data.date,
+                                            trainingType: type));
+                                      }
+                                    }),
                           const SizedBox(height: 12),
                           Text(
                               data.weight == null
@@ -251,7 +263,9 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                               style: Theme.of(context).textTheme.titleLarge),
                           if (widget.onAddFood != null)
                             FilledButton.icon(
-                                onPressed: widget.onAddFood,
+                                onPressed: data.dayLock == null
+                                    ? widget.onAddFood
+                                    : null,
                                 icon: const Icon(Icons.add),
                                 label: const Text('Add food')),
                           if (data.foods.isEmpty &&
@@ -264,6 +278,17 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                 title: Text(food.item.name),
                                 subtitle: Text(
                                     '${formatFoodQuantity(food.entry.quantityInGrams)} g · ${food.calculatedCalories.toStringAsFixed(0)} kcal'),
+                                trailing: IconButton(
+                                  tooltip: 'Copy food',
+                                  icon: const Icon(Icons.copy_outlined),
+                                  onPressed: () => showCopyToDate(
+                                      context,
+                                      _copy,
+                                      DayCopyRequest(
+                                          sourceDate: data.date,
+                                          destinationDate: DateTime.now(),
+                                          foodEntryId: food.entry.id)),
+                                ),
                                 onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -282,8 +307,34 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                 '${data.missingFoods} food snapshot(s) unavailable; totals may be incomplete.'),
                           if (widget.onOpenDiary != null)
                             TextButton(
-                                onPressed: () => widget.onOpenDiary!(data.date),
+                                onPressed: data.dayLock == null
+                                    ? () => widget.onOpenDiary!(data.date)
+                                    : null,
                                 child: const Text('Edit food log')),
+                          TextButton.icon(
+                            onPressed: () => showDayCopyPreview(
+                                context,
+                                _copy,
+                                DayCopyRequest(
+                                    sourceDate: DateTime(data.date.year,
+                                        data.date.month, data.date.day - 1),
+                                    destinationDate: data.date,
+                                    mealType: 'breakfast')),
+                            icon: const Icon(Icons.replay),
+                            label: const Text("Repeat Yesterday's Breakfast"),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => showDayCopyPreview(
+                                context,
+                                _copy,
+                                DayCopyRequest(
+                                    sourceDate: DateTime(data.date.year,
+                                        data.date.month, data.date.day - 1),
+                                    destinationDate: data.date),
+                                dayOptions: true),
+                            icon: const Icon(Icons.content_copy),
+                            label: const Text('Copy Previous Day'),
+                          ),
                         ]),
                         _card([
                           Text('Workout',
@@ -319,7 +370,9 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                   : 'No notes yet',
                               key: const ValueKey('today-notes')),
                           TextButton(
-                              onPressed: () => _editNotes(data),
+                              onPressed: data.dayLock == null
+                                  ? () => _editNotes(data)
+                                  : null,
                               child: const Text('Edit notes'))
                         ]),
                       ]);

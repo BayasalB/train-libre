@@ -9,6 +9,7 @@ import '../../../data/database_helper.dart';
 import '../../../data/drift_database.dart' as db;
 import '../../today/domain/daily_record_models.dart';
 import '../data/progress_photo_repository.dart';
+import '../../today/data/day_lock_repository.dart';
 
 class ProgressPhotosScreen extends StatefulWidget {
   final DateTime? initialDate;
@@ -41,15 +42,26 @@ class _ProgressPhotosScreenState extends State<ProgressPhotosScreen> {
   }
 
   Future<void> _addPhoto() async {
+    try {
+      await DayLockRepository(_repository.database).requireUnlocked(_date);
+    } on DayLockedException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+      return;
+    }
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) return;
     setState(() => _saving = true);
     try {
       await _repository.add(File(image.path), _date);
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Could not save photo. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(error is DayLockedException
+                ? error.toString()
+                : 'Could not save photo. Please try again.')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -78,7 +90,16 @@ class _ProgressPhotosScreenState extends State<ProgressPhotosScreen> {
             ));
     final note = controller.text;
     controller.dispose();
-    if (saved == true) await _repository.updateNote(photo.id, note);
+    if (saved == true) {
+      try {
+        await _repository.updateNote(photo.id, note);
+      } on DayLockedException catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error.toString())));
+        }
+      }
+    }
   }
 
   Future<void> _deletePhoto(db.ProgressPhoto photo) async {
@@ -97,7 +118,16 @@ class _ProgressPhotosScreenState extends State<ProgressPhotosScreen> {
                     child: const Text('Delete')),
               ],
             ));
-    if (confirmed == true) await _repository.delete(photo.id);
+    if (confirmed == true) {
+      try {
+        await _repository.delete(photo.id);
+      } on DayLockedException catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error.toString())));
+        }
+      }
+    }
   }
 
   Future<void> _viewPhoto(db.ProgressPhoto photo) async {

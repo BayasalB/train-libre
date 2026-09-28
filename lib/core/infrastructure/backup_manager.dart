@@ -48,7 +48,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 9;
+  static const int currentSchemaVersion = 10;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -347,6 +347,7 @@ class BackupManager {
     payload['cardio_activities'] = await _fetchTable('cardio_activities');
     payload['cardio_samples'] = await _fetchTable('cardio_samples');
     payload['daily_records'] = await _fetchTable('daily_records');
+    payload['day_locks'] = await _fetchTable('day_locks');
     payload['nutrition_target_profiles'] =
         await _fetchTable('nutrition_target_profiles');
     payload['food_aliases'] = await _fetchTable('food_aliases');
@@ -636,7 +637,7 @@ class BackupManager {
 
   bool _isAcceptedBackupMetadata(Map<String, dynamic> payload) {
     final version = payload['schemaVersion'];
-    // Backup format revisions 6-9 are distinct from the SQLite user_version.
+    // Backup format revisions 6-10 are distinct from the SQLite user_version.
     // A future revision may contain fields this build cannot restore safely.
     if (version is int && version > currentSchemaVersion) return false;
     final rawAppName = payload['appName']?.toString().trim();
@@ -780,6 +781,7 @@ class BackupManager {
       'cardio_activities',
       'cardio_samples',
       'daily_records',
+      'day_locks',
       'nutrition_target_profiles',
       'food_aliases',
       'progress_photos',
@@ -856,6 +858,9 @@ class BackupManager {
         await dbInst.delete(dbInst.cardioActivities).go();
 
         // Clear general user tables
+        // A full restore replaces lock state. Drop locks before protected rows;
+        // imported locks are installed last in the same transaction.
+        await dbInst.delete(dbInst.dayLocks).go();
         await dbInst.delete(dbInst.dailyRecords).go();
         await dbInst.delete(dbInst.nutritionTargetProfiles).go();
         await dbInst.delete(dbInst.dailyGoalsHistory).go();
@@ -1300,6 +1305,10 @@ class BackupManager {
         }
       }
       await _dropMissingProgressPhotos();
+      // Restore lock state only after optional media repair has finished.
+      // Older backups have no day_locks key and legitimately restore unlocked.
+      await _dbHelper.dbInstance.transaction(
+          () => _importTable('day_locks', payload['day_locks'] as List?));
       await _pruneOrphanMedia();
       onProgress?.call('done', 1.0);
     }

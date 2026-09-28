@@ -14,6 +14,47 @@ import '../services/telemetry/telemetry_service.dart';
 
 part 'drift_database.g.dart';
 
+/// SQLite guards are installed for every connection after schema repair.
+/// They make the lock check and protected write one atomic SQLite statement.
+Future<void> installDayLockGuards(AppDatabase db) async {
+  final dates = <String, String>{
+    'daily_records': 'ROW.date',
+    'progress_photos': 'ROW.local_date',
+    'nutrition_logs': "date(ROW.consumed_at, 'unixepoch', 'localtime')",
+    'meal_entries': "date(ROW.consumed_at, 'unixepoch', 'localtime')",
+    'fluid_logs': "date(ROW.consumed_at, 'unixepoch', 'localtime')",
+    'supplement_logs': "date(ROW.taken_at, 'unixepoch', 'localtime')",
+    'measurements': "date(ROW.date, 'unixepoch', 'localtime')",
+    'workout_logs': "date(ROW.start_time, 'unixepoch', 'localtime')",
+    'set_logs':
+        "(SELECT date(start_time, 'unixepoch', 'localtime') FROM workout_logs WHERE id = ROW.workout_log_id)",
+    'workout_exercise_logs':
+        "(SELECT date(start_time, 'unixepoch', 'localtime') FROM workout_logs WHERE id = ROW.workout_log_id)",
+    'cardio_activities':
+        "(SELECT date(start_time, 'unixepoch', 'localtime') FROM workout_logs WHERE id = ROW.workout_log_id)",
+    'cardio_samples':
+        "(SELECT date(w.start_time, 'unixepoch', 'localtime') FROM cardio_activities a JOIN workout_logs w ON w.id = a.workout_log_id WHERE a.id = ROW.cardio_activity_id)",
+  };
+  for (final entry in dates.entries) {
+    for (final operation in ['INSERT', 'UPDATE', 'DELETE']) {
+      final name = 'day_lock_${entry.key}_${operation.toLowerCase()}';
+      final affected = operation == 'UPDATE'
+          ? '${entry.value.replaceAll('ROW.', 'OLD.')}, ${entry.value.replaceAll('ROW.', 'NEW.')}'
+          : entry.value
+              .replaceAll('ROW.', operation == 'DELETE' ? 'OLD.' : 'NEW.');
+      await db.customStatement('''
+        CREATE TRIGGER IF NOT EXISTS $name BEFORE $operation ON ${entry.key}
+        BEGIN
+          SELECT RAISE(ABORT, 'day_locked') WHERE EXISTS (
+            SELECT 1 FROM day_locks
+            WHERE local_date IN ($affected) AND deleted_at IS NULL
+          );
+        END
+      ''');
+    }
+  }
+}
+
 // --- Mixins for recurring columns ---
 
 /// Guarantees the hybrid architecture:
@@ -846,11 +887,26 @@ class DailyRecords extends Table with HybridId, MetaColumns {
       text().nullable().references(NutritionTargetProfiles, #id)();
 }
 
+/// A locked local calendar day. Targets are frozen as display context only;
+/// nutrition and bodyweight continue to come from their existing source rows.
+class DayLocks extends Table with HybridId, MetaColumns {
+  TextColumn get localDate => text().unique()();
+  DateTimeColumn get lockedAt => dateTime()();
+  IntColumn get revision => integer().withDefault(const Constant(1))();
+  TextColumn get targetKind => text().nullable()();
+  TextColumn get targetProfileId => text().nullable()();
+  RealColumn get targetCalories => real().nullable()();
+  RealColumn get targetProtein => real().nullable()();
+  RealColumn get targetCarbs => real().nullable()();
+  RealColumn get targetFat => real().nullable()();
+}
+
 @DriftDatabase(
   tables: [
     Profiles,
     NutritionTargetProfiles,
     DailyRecords,
+    DayLocks,
     AppSettings,
     Exercises,
     Routines,
@@ -900,7 +956,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 35;
+  int get schemaVersion => 36;
 
   /// v32 changes numeric affinities only. Copies every column, ID, timestamp
   /// and archive hash unchanged; it never reconstructs lost fractional data.
@@ -1016,6 +1072,7 @@ class AppDatabase extends _$AppDatabase {
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           await reconcileSchema();
+          await installDayLockGuards(this);
         },
         onCreate: (Migrator m) async {
           await m.createAll();
@@ -1648,6 +1705,13 @@ class AppDatabase extends _$AppDatabase {
                 }
                 await customStatement(
                     'CREATE INDEX IF NOT EXISTS idx_progress_photos_local_date ON progress_photos(local_date)');
+              });
+            }
+            if (from < 36) {
+              await transaction(() async {
+                if (!await _tableExists(this, dayLocks.actualTableName)) {
+                  await m.createTable(dayLocks);
+                }
               });
             }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(

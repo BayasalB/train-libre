@@ -11,6 +11,9 @@ import '../../workout/presentation/workout_log_detail_screen.dart';
 import '../../workout/presentation/widgets/workout_day_card.dart';
 import '../../profile/presentation/progress_photos_screen.dart';
 import '../data/history_repository.dart';
+import '../../today/presentation/day_actions.dart';
+import '../../diary/data/day_copy_service.dart';
+import '../../diary/domain/day_copy_request.dart';
 
 class DayDetailScreen extends StatefulWidget {
   final DateTime date;
@@ -35,6 +38,7 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
 
   late final HistoryRepository _repository = widget.repository ??
       HistoryRepository(DatabaseHelper.instance.dbInstance);
+  late final DayCopyService _copy = DayCopyService(_repository.database);
   late DateTime _date = localDay(widget.date);
   late Stream<HistoryDayDetail> _detail = _repository.watchDay(_date);
 
@@ -57,6 +61,7 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
   }
 
   Future<void> _editNotes(HistoryDayDetail detail) async {
+    if (detail.today.dayLock != null) return;
     var draft = detail.today.record?.notes ?? '';
     final result = await showDialog<String>(
         context: context,
@@ -156,6 +161,10 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 100),
                       children: [
                         _card(context, 'Day', [
+                          DayLockAction(
+                              date: _date,
+                              lock: day.dayLock,
+                              repository: _repository.today.locks),
                           DropdownButtonFormField<TrainingType>(
                               key: ValueKey(
                                   'history-training-${day.trainingType.name}'),
@@ -166,12 +175,15 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                                   .map((type) => DropdownMenuItem(
                                       value: type, child: Text(type.label)))
                                   .toList(),
-                              onChanged: (type) {
-                                if (type != null) {
-                                  _save(() => _repository.today.records
-                                      .saveDay(_date, trainingType: type));
-                                }
-                              }),
+                              onChanged: day.dayLock != null
+                                  ? null
+                                  : (type) {
+                                      if (type != null) {
+                                        _save(() => _repository.today.records
+                                            .saveDay(_date,
+                                                trainingType: type));
+                                      }
+                                    }),
                           Text(
                               day.weight == null
                                   ? 'No bodyweight recorded'
@@ -195,8 +207,30 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                               day.fluids.isEmpty)
                             const Text('No food logged'),
                           for (final meal in foodsByMeal.entries) ...[
-                            Text(mealLabels[meal.key]!,
-                                style: Theme.of(context).textTheme.titleMedium),
+                            Row(children: [
+                              Expanded(
+                                  child: Text(mealLabels[meal.key]!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium)),
+                              IconButton(
+                                tooltip: 'Copy meal',
+                                icon: const Icon(Icons.copy_outlined),
+                                onPressed: () => showCopyToDate(
+                                    context,
+                                    _copy,
+                                    DayCopyRequest(
+                                        sourceDate: _date,
+                                        destinationDate: DateTime.now(),
+                                        mealEntryId:
+                                            meal.value.first.entry.mealEntryId,
+                                        mealType: meal.value.first.entry
+                                                    .mealEntryId ==
+                                                null
+                                            ? meal.value.first.entry.mealType
+                                            : null)),
+                              ),
+                            ]),
                             for (final tracked in meal.value)
                               ListTile(
                                   title: Text(tracked.item.name),
@@ -220,7 +254,9 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                                 '${day.missingFoods} food snapshot(s) unavailable; totals may be incomplete.'),
                           if (widget.onOpenDiary != null)
                             TextButton(
-                                onPressed: () => widget.onOpenDiary!(_date),
+                                onPressed: day.dayLock == null
+                                    ? () => widget.onOpenDiary!(_date)
+                                    : null,
                                 child: const Text('Edit food log')),
                         ]),
                         _card(context, 'Workouts', [
@@ -279,7 +315,9 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                                   : 'No notes yet',
                               key: const ValueKey('day-detail-notes')),
                           TextButton(
-                              onPressed: () => _editNotes(detail),
+                              onPressed: day.dayLock == null
+                                  ? () => _editNotes(detail)
+                                  : null,
                               child: const Text('Edit notes')),
                         ]),
                       ]);

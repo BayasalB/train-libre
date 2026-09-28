@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../data/drift_database.dart' as drift_db
     hide Supplement, SupplementLog, WorkoutLog;
 import 'package:drift/drift.dart' as drift;
+import '../../../today/data/day_lock_repository.dart';
 import '../../../../data/database_helper.dart';
 import '../../../../util/date_util.dart';
 import '../../domain/models/food_entry.dart';
@@ -301,6 +302,10 @@ class DiaryLocalDataSource {
     final old = await (_db.select(_db.fluidLogs)
           ..where((t) => t.localId.equals(entry.id!)))
         .getSingleOrNull();
+    if (old != null) {
+      await DayLockRepository(_db).requireUnlocked(old.consumedAt);
+    }
+    await DayLockRepository(_db).requireUnlocked(entry.timestamp);
 
     String? linkedUuid;
     if (entry.linkedFoodEntryId != null) {
@@ -345,6 +350,8 @@ class DiaryLocalDataSource {
           ..where((tbl) => tbl.localId.equals(entry.id!)))
         .getSingleOrNull();
     if (previous == null) return;
+    await DayLockRepository(_db).requireUnlocked(previous.consumedAt);
+    await DayLockRepository(_db).requireUnlocked(entry.timestamp);
 
     final product = await (_db.select(_db.products)
           ..where((tbl) => tbl.barcode.equals(entry.barcode))
@@ -474,6 +481,7 @@ class DiaryLocalDataSource {
   }
 
   Future<int> insertFluidEntry(FluidEntry entry) async {
+    await DayLockRepository(_db).requireUnlocked(entry.timestamp);
     String? linkedUuid;
     if (entry.linkedFoodEntryId != null) {
       final log = await (_db.select(_db.nutritionLogs)
@@ -522,6 +530,7 @@ class DiaryLocalDataSource {
     FoodEntry entry, {
     String telemetrySource = FoodLogSource.manualSearch,
   }) async {
+    await DayLockRepository(_db).requireUnlocked(entry.timestamp);
     unawaited(TelemetryService.instance.incrementFoodLogCount(
       source: FoodLogSource.sanitize(telemetrySource),
     ));
@@ -654,6 +663,7 @@ class DiaryLocalDataSource {
           ..where((t) => t.localId.equals(id)))
         .getSingleOrNull();
     if (fluidLog == null) return;
+    await DayLockRepository(_db).requireUnlocked(fluidLog.consumedAt);
 
     if (fluidLog.linkedNutritionLogId != null) {
       await (_db.delete(_db.nutritionLogs)
@@ -675,6 +685,7 @@ class DiaryLocalDataSource {
           ..where((t) => t.localId.equals(id)))
         .getSingleOrNull();
     if (log != null) {
+      await DayLockRepository(_db).requireUnlocked(log.consumedAt);
       await (_db.delete(_db.fluidLogs)
             ..where((t) => t.linkedNutritionLogId.equals(log.id)))
           .go();
@@ -1019,6 +1030,7 @@ class DiaryLocalDataSource {
   }
 
   Future<String> insertMealEntry(MealEntry entry) async {
+    await DayLockRepository(_db).requireUnlocked(entry.consumedAt);
     final now = DateTime.now();
     final companion = drift_db.MealEntriesCompanion(
       id: drift.Value(entry.id.isNotEmpty ? entry.id : const Uuid().v4()),
@@ -1039,6 +1051,11 @@ class DiaryLocalDataSource {
   }
 
   Future<void> updateMealEntry(MealEntry entry) async {
+    final previous = await getMealEntryById(entry.id);
+    if (previous != null) {
+      await DayLockRepository(_db).requireUnlocked(previous.consumedAt);
+    }
+    await DayLockRepository(_db).requireUnlocked(entry.consumedAt);
     final companion = drift_db.MealEntriesCompanion(
       userId: drift.Value(entry.userId),
       consumedAt: drift.Value(entry.consumedAt),
@@ -1078,6 +1095,8 @@ class DiaryLocalDataSource {
             ..where((tbl) => tbl.id.equals(mealEntryId)))
           .getSingleOrNull();
       if (mealRow == null) return;
+      await DayLockRepository(_db).requireUnlocked(mealRow.consumedAt);
+      await DayLockRepository(_db).requireUnlocked(newConsumedAt);
 
       final delta = newConsumedAt.difference(mealRow.consumedAt);
       if (delta == Duration.zero) return;
@@ -1129,28 +1148,29 @@ class DiaryLocalDataSource {
 
   Future<void> deleteMealEntry(String id,
       {required bool deleteFoodLogs}) async {
-    if (deleteFoodLogs) {
-      final logs = await (_db.select(_db.nutritionLogs)
-            ..where((t) => t.mealEntryId.equals(id)))
-          .get();
-      for (final log in logs) {
-        await deleteFoodEntry(log.localId);
+    final entry = await _db.transaction(() async {
+      final meal = await (_db.select(_db.mealEntries)
+            ..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+      if (meal == null) return null;
+      await DayLockRepository(_db).requireUnlocked(meal.consumedAt);
+      if (deleteFoodLogs) {
+        final logs = await (_db.select(_db.nutritionLogs)
+              ..where((t) => t.mealEntryId.equals(id)))
+            .get();
+        for (final log in logs) {
+          await _deleteFoodEntryInTransaction(log.localId);
+        }
+      } else {
+        await (_db.update(_db.nutritionLogs)
+              ..where((t) => t.mealEntryId.equals(id)))
+            .write(const drift_db.NutritionLogsCompanion(
+                mealEntryId: drift.Value(null)));
       }
-    } else {
-      // Unlink entries from meal entry so they remain in diary as individual items
-      await (_db.update(_db.nutritionLogs)
-            ..where((t) => t.mealEntryId.equals(id)))
-          .write(
-        const drift_db.NutritionLogsCompanion(
-          mealEntryId: drift.Value(null),
-        ),
-      );
-    }
-    // The photo belongs to the meal entry, so it goes with it — otherwise the
-    // files accumulate forever with nothing referencing them.
-    final entry = await (_db.select(_db.mealEntries)
-          ..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+      await (_db.delete(_db.mealEntries)..where((t) => t.id.equals(id))).go();
+      return meal;
+    });
+    // Delete media only after the protected database transaction commits.
     if (entry != null) {
       final meta = MealCaptureMeta.tryParse(entry.captureMeta);
       await MealPhotoStore.instance.delete(
@@ -1159,7 +1179,5 @@ class DiaryLocalDataSource {
         extraPaths: meta?.extraPhotoPaths ?? const [],
       );
     }
-
-    await (_db.delete(_db.mealEntries)..where((t) => t.id.equals(id))).go();
   }
 }

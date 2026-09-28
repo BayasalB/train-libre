@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:drift/drift.dart' as drift;
+import '../../../today/data/day_lock_repository.dart';
 import '../../../../services/telemetry/telemetry_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -293,6 +294,7 @@ class ProfileLocalDataSource {
 
   Future<void> saveInitialWeight(double weightKg) async {
     final now = DateTime.now();
+    await DayLockRepository(dbInstance).requireUnlocked(now);
     await dbInstance.into(dbInstance.measurements).insert(
           db.MeasurementsCompanion(
             type: const drift.Value('weight'),
@@ -329,6 +331,7 @@ class ProfileLocalDataSource {
     unawaited(TelemetryService.instance
         .trackFeatureUsed(featureKey: FeatureKey.bodyMeasurementLogged));
     await dbInstance.transaction(() async {
+      await DayLockRepository(dbInstance).requireUnlocked(date);
       final existing = await (dbInstance.select(dbInstance.measurements)
             ..where((t) =>
                 t.type.equals('weight') &
@@ -359,6 +362,7 @@ class ProfileLocalDataSource {
 
   Future<void> saveInitialBodyFatPercentage(double bodyFat) async {
     final now = DateTime.now();
+    await DayLockRepository(dbInstance).requireUnlocked(now);
     await dbInstance.into(dbInstance.measurements).insert(
           db.MeasurementsCompanion(
             type: const drift.Value('body_fat'),
@@ -372,6 +376,16 @@ class ProfileLocalDataSource {
   }
 
   Future<void> deleteMeasurementSession(int sessionId) async {
+    final rows = await (dbInstance.select(dbInstance.measurements)
+          ..where((tbl) =>
+              tbl.legacySessionId.equals(sessionId) |
+              (tbl.legacySessionId.isNull() &
+                  tbl.date
+                      .equals(DateTime.fromMillisecondsSinceEpoch(sessionId)))))
+        .get();
+    for (final row in rows) {
+      await DayLockRepository(dbInstance).requireUnlocked(row.date);
+    }
     await (dbInstance.delete(dbInstance.measurements)
           ..where((tbl) =>
               tbl.legacySessionId.equals(sessionId) |
@@ -387,6 +401,7 @@ class ProfileLocalDataSource {
         .trackFeatureUsed(featureKey: FeatureKey.bodyMeasurementLogged));
     final groupId = session.id ?? DateTime.now().microsecondsSinceEpoch;
     await dbInstance.transaction(() async {
+      await DayLockRepository(dbInstance).requireUnlocked(session.timestamp);
       await dbInstance.batch((batch) {
         for (final m in session.measurements) {
           batch.insert(
@@ -409,6 +424,9 @@ class ProfileLocalDataSource {
     final sessionId = original.id;
     if (sessionId == null) throw ArgumentError('Session ID is required');
     await dbInstance.transaction(() async {
+      await DayLockRepository(dbInstance).requireUnlocked(original.timestamp);
+      await DayLockRepository(dbInstance)
+          .requireUnlocked(replacement.timestamp);
       final oldRows = await (dbInstance.select(dbInstance.measurements)
             ..where((t) =>
                 t.legacySessionId.equals(sessionId) |

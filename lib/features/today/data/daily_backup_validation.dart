@@ -60,4 +60,59 @@ void validateDailyBackup(Map<String, dynamic> payload) {
       }
     }
   }
+  final lockedDates = <String>{};
+  for (final row in rows('day_locks')) {
+    const supportedColumns = {
+      'local_id',
+      'id',
+      'created_at',
+      'updated_at',
+      'deleted_at',
+      'local_date',
+      'locked_at',
+      'revision',
+      'target_kind',
+      'target_profile_id',
+      'target_calories',
+      'target_protein',
+      'target_carbs',
+      'target_fat'
+    };
+    if (row.keys.any((key) => !supportedColumns.contains(key)) ||
+        row['created_at'] is! int ||
+        row['updated_at'] is! int ||
+        (row['deleted_at'] != null && row['deleted_at'] is! int)) {
+      throw const FormatException('Invalid day lock columns');
+    }
+    final date = row['local_date'];
+    if (date is! String ||
+        !lockedDates.add(date) ||
+        row['locked_at'] is! int ||
+        row['revision'] is! int ||
+        (row['revision'] as int) < 1) {
+      throw const FormatException('Invalid day lock');
+    }
+    parseLocalDateKey(date);
+    final kind = row['target_kind'];
+    final profileId = row['target_profile_id'];
+    if (kind != null &&
+        kind != TargetKind.training.name &&
+        kind != TargetKind.rest.name) {
+      throw const FormatException('Invalid locked target kind');
+    }
+    if (profileId != null && !byId.containsKey(profileId)) {
+      throw const FormatException('Locked target profile is missing');
+    }
+    for (final field in [
+      'target_calories',
+      'target_protein',
+      'target_carbs',
+      'target_fat'
+    ]) {
+      final value = row[field];
+      if (value != null && (value is! num || !value.isFinite || value < 0)) {
+        throw const FormatException('Invalid locked target context');
+      }
+    }
+  }
 }

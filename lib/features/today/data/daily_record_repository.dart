@@ -1,20 +1,28 @@
 import 'package:drift/drift.dart';
 import '../../../data/drift_database.dart';
 import '../domain/daily_record_models.dart';
+import 'day_lock_repository.dart';
 
 class ResolvedDailyTargets {
   final NutritionTargetProfile? profile;
   final bool unsetFallback;
   final bool overridden;
+  final bool locked;
   const ResolvedDailyTargets(this.profile,
-      {this.unsetFallback = false, this.overridden = false});
+      {this.unsetFallback = false,
+      this.overridden = false,
+      this.locked = false});
   String get explanation => profile == null
-      ? 'No manual targets for this date. Set training and rest targets.'
-      : overridden
-          ? 'Manual target override for this day'
-          : unsetFallback
-              ? 'Training type is unset. Using training-day targets; this is not a Rest day.'
-              : 'Manual ${profile!.kind}-day targets · effective ${profile!.effectiveFrom}';
+      ? locked
+          ? 'No manual target was set when this day was locked.'
+          : 'No manual targets for this date. Set training and rest targets.'
+      : locked
+          ? 'Target context preserved when this day was locked'
+          : overridden
+              ? 'Manual target override for this day'
+              : unsetFallback
+                  ? 'Training type is unset. Using training-day targets; this is not a Rest day.'
+                  : 'Manual ${profile!.kind}-day targets · effective ${profile!.effectiveFrom}';
 }
 
 class DailyRecordRepository {
@@ -34,6 +42,7 @@ class DailyRecordRepository {
       String? targetOverrideId,
       bool clearTargetOverride = false}) async {
     await db.transaction(() async {
+      await DayLockRepository(db).requireUnlocked(date);
       final current = await getDay(date);
       final now = clock();
       if (targetOverrideId != null) {
@@ -86,6 +95,27 @@ class DailyRecordRepository {
   Future<ResolvedDailyTargets> resolve(DateTime date,
       {DailyRecord? record}) async {
     final day = record ?? await getDay(date);
+    final lock = await DayLockRepository(db).get(date);
+    if (lock != null) {
+      final id = lock.targetProfileId;
+      if (id == null) return const ResolvedDailyTargets(null, locked: true);
+      final profile = await (db.select(db.nutritionTargetProfiles)
+            ..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+      if (profile == null) {
+        throw StateError('Locked target profile unavailable');
+      }
+      return ResolvedDailyTargets(
+          profile.copyWith(
+            calories: lock.targetCalories,
+            protein: lock.targetProtein,
+            carbs: lock.targetCarbs,
+            fat: lock.targetFat,
+          ),
+          locked: true,
+          unsetFallback: day?.trainingType == null ||
+              day?.trainingType == TrainingType.unset.name);
+    }
     if (day?.targetOverrideId != null) {
       final override = await (db.select(db.nutritionTargetProfiles)
             ..where((t) =>

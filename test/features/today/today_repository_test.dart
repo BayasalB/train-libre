@@ -315,7 +315,7 @@ void main() {
     final payload =
         jsonDecode(jsonEncode(await backup().generateBackupPayloadForTesting()))
             as Map<String, dynamic>;
-    expect(payload['schemaVersion'], 9);
+    expect(payload['schemaVersion'], 10);
     await DatabaseHelper.forTesting(db).clearAllUserData();
     expect(await db.select(db.dailyRecords).get(), isEmpty);
     expect(await backup().importBackupPayloadForTesting(payload), isTrue);
@@ -361,7 +361,7 @@ void main() {
             .data
             .values
             .single,
-        35);
+        36);
     expect(
         (await db.customSelect('SELECT * FROM off_products_archive').get())
             .map((r) => r.data)

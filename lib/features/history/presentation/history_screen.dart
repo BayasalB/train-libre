@@ -88,7 +88,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               subtitle: Text(day.hasActivity
                                   ? '${day.trainingType.label} · ${day.calories.toStringAsFixed(0)} kcal · P ${day.protein.toStringAsFixed(1)} g'
                                   : 'No entries'),
-                              trailing: const Icon(Icons.chevron_right),
+                              trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (day.locked)
+                                      const Icon(Icons.lock_outline,
+                                          size: 17,
+                                          semanticLabel: 'Locked day'),
+                                    const Icon(Icons.chevron_right),
+                                  ]),
                               onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (_) => DayDetailScreen(

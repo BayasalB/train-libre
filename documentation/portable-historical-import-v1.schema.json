@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://train-libre.local/schemas/portable-historical-import-v1.schema.json",
+  "title": "Train Libre portable historical import v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "metadata"],
+  "properties": {
+    "formatVersion": { "const": 1 },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "savedFoods": { "$ref": "#/$defs/savedFoods" },
+    "foodAliases": { "$ref": "#/$defs/foodAliases" },
+    "nutritionSnapshots": { "$ref": "#/$defs/nutritionSnapshots" },
+    "foodEntries": { "$ref": "#/$defs/foodEntries" },
+    "meals": { "$ref": "#/$defs/meals" },
+    "dailyRecords": { "$ref": "#/$defs/dailyRecords" },
+    "targetProfiles": { "$ref": "#/$defs/targetProfiles" },
+    "workouts": { "$ref": "#/$defs/workouts" },
+    "exercises": { "$ref": "#/$defs/exercises" },
+    "workoutSets": { "$ref": "#/$defs/workoutSets" },
+    "measurements": { "$ref": "#/$defs/measurements" },
+    "progressPhotos": { "$ref": "#/$defs/progressPhotos" },
+    "lockedDays": { "$ref": "#/$defs/lockedDays" }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "decimal": { "type": "string", "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$" },
+    "positiveDecimal": { "type": "string", "pattern": "^(?!(?:0|0\\.0+)$)(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$" },
+    "date": { "type": "string", "format": "date", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestamp": { "type": "string", "format": "date-time", "pattern": "T.*(?:Z|[+-][0-9]{2}:[0-9]{2})$" },
+    "provenance": { "enum": ["exactLabel", "userConfirmed", "finalDailyTotal", "assistantEstimate", "restaurantEstimate", "inferredApproximate", "legacyObservation"] },
+    "trainingType": { "enum": ["unset", "chest", "back", "shoulder", "legs", "arms", "fullBody", "rest"] },
+    "nutritionFields": {
+      "type": "object",
+      "properties": {
+        "calories": { "$ref": "#/$defs/decimal" },
+        "protein": { "$ref": "#/$defs/decimal" },
+        "carbs": { "$ref": "#/$defs/decimal" },
+        "fat": { "$ref": "#/$defs/decimal" },
+        "fiber": { "$ref": "#/$defs/decimal" },
+        "sugar": { "$ref": "#/$defs/decimal" },
+        "sodium": { "$ref": "#/$defs/decimal" }
+      },
+      "anyOf": [
+        { "required": ["calories"] }, { "required": ["protein"] },
+        { "required": ["carbs"] }, { "required": ["fat"] },
+        { "required": ["fiber"] }, { "required": ["sugar"] },
+        { "required": ["sodium"] }
+      ]
+    },
+    "metadata": {
+      "type": "object", "additionalProperties": false, "required": ["source"],
+      "properties": {
+        "source": { "$ref": "#/$defs/text" },
+        "sourceId": { "$ref": "#/$defs/text" },
+        "exportedAt": { "$ref": "#/$defs/timestamp" },
+        "notes": { "$ref": "#/$defs/text" }
+      }
+    },
+    "savedFoods": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "name"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/text" },
+          "brand": { "$ref": "#/$defs/text" },
+          "servingSize": { "$ref": "#/$defs/positiveDecimal" },
+          "servingUnit": { "enum": ["g", "ml", "serving"] },
+          "nutritionSnapshotId": { "$ref": "#/$defs/id" },
+          "localFoodRef": { "$ref": "#/$defs/id" },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" },
+          "verified": { "type": "boolean" },
+          "verifiedAt": { "$ref": "#/$defs/timestamp" },
+          "productPhotoRef": { "$ref": "#/$defs/text" },
+          "nutritionLabelPhotoRef": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "foodAliases": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "foodId", "alias"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "foodId": { "$ref": "#/$defs/id" },
+          "alias": { "$ref": "#/$defs/text" }, "language": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "nutritionSnapshots": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "basis", "provenance"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "basis": { "enum": ["per100g", "per100ml", "perServing"] },
+          "calories": { "$ref": "#/$defs/decimal" },
+          "protein": { "$ref": "#/$defs/decimal" },
+          "carbs": { "$ref": "#/$defs/decimal" },
+          "fat": { "$ref": "#/$defs/decimal" },
+          "fiber": { "$ref": "#/$defs/decimal" },
+          "sugar": { "$ref": "#/$defs/decimal" },
+          "sodium": { "$ref": "#/$defs/decimal" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        },
+        "anyOf": [
+          { "required": ["calories"] }, { "required": ["protein"] },
+          { "required": ["carbs"] }, { "required": ["fat"] },
+          { "required": ["fiber"] }, { "required": ["sugar"] },
+          { "required": ["sodium"] }
+        ]
+      }
+    },
+    "foodEntries": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date", "name", "status"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "name": { "$ref": "#/$defs/text" },
+          "status": { "enum": ["consumed", "planned", "cancelled"] },
+          "quantity": { "$ref": "#/$defs/positiveDecimal" },
+          "quantityUnit": { "enum": ["g", "ml", "serving"] },
+          "savedFoodId": { "$ref": "#/$defs/id" },
+          "localFoodRef": { "$ref": "#/$defs/id" },
+          "nutritionSnapshotId": { "$ref": "#/$defs/id" },
+          "mealId": { "$ref": "#/$defs/id" },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    },
+    "meals": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date", "name"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "name": { "$ref": "#/$defs/text" }, "notes": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "dailyRecords": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "trainingType": { "$ref": "#/$defs/trainingType" },
+          "notes": { "$ref": "#/$defs/text" },
+          "targetProfileId": { "$ref": "#/$defs/id" },
+          "reportedTotal": {
+            "type": "object", "additionalProperties": false,
+            "required": ["provenance"],
+            "properties": {
+              "calories": { "$ref": "#/$defs/decimal" },
+              "protein": { "$ref": "#/$defs/decimal" },
+              "carbs": { "$ref": "#/$defs/decimal" },
+              "fat": { "$ref": "#/$defs/decimal" },
+              "fiber": { "$ref": "#/$defs/decimal" },
+              "sugar": { "$ref": "#/$defs/decimal" },
+              "sodium": { "$ref": "#/$defs/decimal" },
+              "provenance": { "$ref": "#/$defs/provenance" }
+            },
+            "anyOf": [
+              { "required": ["calories"] }, { "required": ["protein"] },
+              { "required": ["carbs"] }, { "required": ["fat"] },
+              { "required": ["fiber"] }, { "required": ["sugar"] },
+              { "required": ["sodium"] }
+            ]
+          }
+        }
+      }
+    },
+    "targetProfiles": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "kind", "effectiveFrom"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["training", "rest"] },
+          "effectiveFrom": { "$ref": "#/$defs/date" },
+          "calories": { "$ref": "#/$defs/positiveDecimal" },
+          "protein": { "$ref": "#/$defs/decimal" },
+          "carbs": { "$ref": "#/$defs/decimal" },
+          "fat": { "$ref": "#/$defs/decimal" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        },
+        "anyOf": [
+          { "required": ["calories"] }, { "required": ["protein"] },
+          { "required": ["carbs"] }, { "required": ["fat"] }
+        ]
+      }
+    },
+    "workouts": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "name": { "$ref": "#/$defs/text" },
+          "trainingType": { "$ref": "#/$defs/trainingType" },
+          "startedAt": { "$ref": "#/$defs/timestamp" },
+          "endedAt": { "$ref": "#/$defs/timestamp" },
+          "durationSeconds": { "$ref": "#/$defs/positiveDecimal" },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    },
+    "exercises": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "workoutId", "name"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "workoutId": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/text" }, "notes": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "workoutSets": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "exerciseId"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "exerciseId": { "$ref": "#/$defs/id" },
+          "weight": { "$ref": "#/$defs/decimal" },
+          "weightUnit": { "enum": ["kg", "lb"] },
+          "reps": { "type": "integer", "minimum": 0 },
+          "durationSeconds": { "$ref": "#/$defs/positiveDecimal" },
+          "setCount": { "type": "integer", "minimum": 1 },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    },
+    "measurements": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date", "type", "value", "unit"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "type": { "enum": ["weight", "fat_percent", "waist", "abdomen", "lower_belly", "hips", "neck", "shoulder", "chest", "left_bicep", "right_bicep", "left_forearm", "right_forearm", "left_thigh", "right_thigh", "left_calf", "right_calf"] },
+          "value": { "$ref": "#/$defs/positiveDecimal" },
+          "unit": { "enum": ["kg", "lb", "cm", "in", "%"] },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    },
+    "progressPhotos": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "mediaRef": { "$ref": "#/$defs/text" },
+          "notes": { "$ref": "#/$defs/text" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    },
+    "lockedDays": {
+      "type": "array", "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "date", "lockedAt"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "date": { "$ref": "#/$defs/date" },
+          "lockedAt": { "$ref": "#/$defs/timestamp" },
+          "provenance": { "$ref": "#/$defs/provenance" }
+        }
+      }
+    }
+  }
+}

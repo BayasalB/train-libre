@@ -1,0 +1,120 @@
+{
+  "formatVersion": 1,
+  "metadata": {
+    "source": "Manually reviewed ChatGPT conversation extract",
+    "sourceId": "chat-export-2026-09",
+    "exportedAt": "2026-09-28T12:00:00+08:00",
+    "notes": "Example only; no data is imported by opening this file."
+  },
+  "savedFoods": [
+    {
+      "id": "food-oats",
+      "name": "Hercules Oats",
+      "servingSize": "100",
+      "servingUnit": "g",
+      "nutritionSnapshotId": "snapshot-oats",
+      "provenance": "exactLabel",
+      "verified": true,
+      "verifiedAt": "2026-09-23T08:00:00+08:00"
+    }
+  ],
+  "foodAliases": [
+    { "id": "alias-ovyoos", "foodId": "food-oats", "alias": "ovyoos", "language": "mn-Latn" },
+    { "id": "alias-овьёос", "foodId": "food-oats", "alias": "овьёос", "language": "mn-Cyrl" }
+  ],
+  "nutritionSnapshots": [
+    {
+      "id": "snapshot-oats", "basis": "per100g", "calories": "360",
+      "protein": "12", "carbs": "60", "fat": "7",
+      "provenance": "exactLabel"
+    },
+    {
+      "id": "snapshot-restaurant", "basis": "perServing", "calories": "720.5",
+      "protein": "35.2", "carbs": "68.4", "fat": "34.1",
+      "provenance": "restaurantEstimate"
+    }
+  ],
+  "meals": [
+    { "id": "meal-breakfast", "date": "2026-09-23", "name": "Breakfast" },
+    { "id": "meal-lunch", "date": "2026-09-27", "name": "Lunch" }
+  ],
+  "foodEntries": [
+    {
+      "id": "entry-oats", "date": "2026-09-23", "name": "Hercules Oats",
+      "status": "consumed", "quantity": "80", "quantityUnit": "g",
+      "savedFoodId": "food-oats", "nutritionSnapshotId": "snapshot-oats",
+      "mealId": "meal-breakfast", "provenance": "userConfirmed"
+    },
+    {
+      "id": "entry-restaurant", "date": "2026-09-27", "name": "Restaurant burger",
+      "status": "consumed", "quantity": "1", "quantityUnit": "serving",
+      "nutritionSnapshotId": "snapshot-restaurant", "mealId": "meal-lunch",
+      "provenance": "restaurantEstimate"
+    },
+    {
+      "id": "entry-planned", "date": "2026-09-27", "name": "Oats later",
+      "status": "planned", "quantity": "45.5", "quantityUnit": "g",
+      "nutritionSnapshotId": "snapshot-oats", "provenance": "legacyObservation"
+    },
+    {
+      "id": "entry-cancelled", "date": "2026-09-27", "name": "Cancelled snack",
+      "status": "cancelled", "provenance": "userConfirmed"
+    }
+  ],
+  "dailyRecords": [
+    { "id": "day-full", "date": "2026-09-23", "trainingType": "back", "notes": "Complete food day." },
+    {
+      "id": "day-total-only", "date": "2026-09-24", "trainingType": "shoulder",
+      "reportedTotal": {
+        "calories": "2588", "protein": "202.9", "provenance": "finalDailyTotal"
+      }
+    },
+    { "id": "day-workout", "date": "2026-09-25", "trainingType": "legs" },
+    { "id": "day-measurement", "date": "2026-09-26" },
+    { "id": "day-restaurant", "date": "2026-09-27" }
+  ],
+  "targetProfiles": [
+    {
+      "id": "target-training", "kind": "training", "effectiveFrom": "2026-09-01",
+      "calories": "2750", "protein": "200", "carbs": "300", "fat": "85",
+      "provenance": "userConfirmed"
+    },
+    {
+      "id": "target-rest", "kind": "rest", "effectiveFrom": "2026-09-01",
+      "calories": "2300", "protein": "200", "carbs": "220", "fat": "75",
+      "provenance": "userConfirmed"
+    }
+  ],
+  "workouts": [
+    {
+      "id": "workout-legs", "date": "2026-09-25", "name": "Leg day",
+      "trainingType": "legs", "notes": "Partial historical record",
+      "provenance": "userConfirmed"
+    }
+  ],
+  "exercises": [
+    { "id": "exercise-squat", "workoutId": "workout-legs", "name": "Squat" }
+  ],
+  "workoutSets": [
+    { "id": "set-1", "exerciseId": "exercise-squat", "weight": "70", "weightUnit": "kg", "reps": 8 },
+    { "id": "set-2", "exerciseId": "exercise-squat", "weight": "100", "weightUnit": "kg", "reps": 5 },
+    { "id": "set-3", "exerciseId": "exercise-squat", "weight": "130", "weightUnit": "kg", "reps": 3 },
+    { "id": "set-4", "exerciseId": "exercise-squat", "weight": "135", "weightUnit": "kg", "reps": 2 },
+    { "id": "set-5", "exerciseId": "exercise-squat", "weight": "100", "weightUnit": "kg", "reps": 10, "setCount": 2 }
+  ],
+  "measurements": [
+    { "id": "measure-weight", "date": "2026-09-26", "type": "weight", "value": "99.5", "unit": "kg" },
+    { "id": "measure-waist", "date": "2026-09-26", "type": "waist", "value": "100", "unit": "cm" },
+    { "id": "measure-lower-belly", "date": "2026-09-26", "type": "lower_belly", "value": "103.0", "unit": "cm" },
+    { "id": "measure-abdomen", "date": "2026-09-26", "type": "abdomen", "value": "101.3", "unit": "cm" }
+  ],
+  "progressPhotos": [
+    { "id": "photo-1", "date": "2026-09-26", "notes": "Original image not bundled in this JSON." }
+  ],
+  "lockedDays": [
+    {
+      "id": "lock-2026-09-24", "date": "2026-09-24",
+      "lockedAt": "2026-09-24T23:12:00+08:00", "provenance": "finalDailyTotal"
+    }
+  ]
+}

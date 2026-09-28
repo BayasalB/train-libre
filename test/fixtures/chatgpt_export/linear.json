@@ -1,0 +1,38 @@
+[
+  {
+    "id": "synthetic-fitness-a",
+    "title": "Muscle Cut Plan",
+    "messages": [
+      {"id":"m01","role":"user","create_time":"2026-09-24T08:00:00+08:00","content":"Nutrition label: Hercules Oats 100g = 360 kcal P 12 C 60 F 7"},
+      {"id":"m02","role":"user","create_time":"2026-09-24T08:01:00+08:00","content":"ovyoos = Hercules Oats"},
+      {"id":"m03","role":"user","create_time":"2026-09-24T08:05:00+08:00","content":"today 80g ovyoos idsen"},
+      {"id":"m04","role":"user","create_time":"2026-09-24T09:00:00+08:00","content":"40g uurag beldsen"},
+      {"id":"m05","role":"user","create_time":"2026-09-24T09:15:00+08:00","content":"uurgaa uusan"},
+      {"id":"m06","role":"user","create_time":"2026-09-24T12:00:00+08:00","content":"1 serving Burger idsen"},
+      {"id":"m07","role":"user","create_time":"2026-09-24T12:20:00+08:00","content":"Burger-iig ideegui"},
+      {"id":"m08","role":"user","create_time":"2026-09-24T23:00:00+08:00","content":"9/24 нийт 1703 kcal | P 152.8 | C 180 | F 45 🔒"},
+      {"id":"m09","role":"user","create_time":"2026-09-24T07:10:00+08:00","content":"Weight 99.5 kg"},
+      {"id":"m10","role":"user","create_time":"2026-09-24T07:20:00+08:00","content":"Weight 99.0 kg"},
+      {"id":"m11","role":"user","create_time":"2026-09-24T07:30:00+08:00","content":"Chest 124 cm"},
+      {"id":"m12","role":"user","create_time":"2026-09-24T07:40:00+08:00","content":"Chest 124 bish, daraa ni hemjinee"},
+      {"id":"m13","role":"user","create_time":"2026-09-24T18:00:00+08:00","content":"Training type: Legs\nSquat\n70kg 8 rep\n100kg 5 rep\n130kg 3 rep\n135kg 2 rep\n100kg 10 rep 2 set"},
+      {"id":"m14","role":"user","create_time":"2026-09-25T09:00:00+08:00","content":"yesterday 45.5g ovyoos idsen"},
+      {"id":"m15","role":"user","create_time":"2026-09-25T13:00:00+08:00","content":"1 serving Restaurant Burger idsen"},
+      {"id":"m16","role":"assistant","create_time":"2026-09-25T13:01:00+08:00","content":"Restaurant Burger photo estimate: 720 kcal P 35 C 68 F 34"}
+    ]
+  },
+  {
+    "id": "synthetic-unrelated",
+    "title": "Garden ideas",
+    "messages": [
+      {"id":"u1","role":"user","create_time":"2026-09-24T12:00:00+08:00","content":"I ate 200g carrots today."}
+    ]
+  },
+  {
+    "id": "synthetic-fitness-b",
+    "title": "Muscle Cut Plan 2",
+    "messages": [
+      {"id":"b1","role":"user","create_time":"2026-09-26T08:00:00+08:00","content":"Waist 100 cm, Lower Belly 103.0 cm"}
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "synthetic-tree",
+    "title": "Fitness branch example",
+    "current_node": "active",
+    "mapping": {
+      "root": {"id":"root","parent":null,"children":["user"],"message":null},
+      "user": {"id":"user","parent":"root","children":["discarded","active"],
+        "message":{"id":"tree-user","author":{"role":"user"},"create_time":1790304000,"content":{"parts":["Weight 99.5 kg"]}}},
+      "discarded": {"id":"discarded","parent":"user","children":[],
+        "message":{"id":"tree-discarded","author":{"role":"assistant"},"create_time":1790304010,"content":{"parts":["Wrong branch 900 kcal"]}}},
+      "active": {"id":"active","parent":"user","children":[],
+        "message":{"id":"tree-active","author":{"role":"assistant"},"create_time":1790304020,"content":{"parts":["Active branch response"]}}}
+    }
+  }
+]

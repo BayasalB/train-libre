@@ -9,8 +9,11 @@ import '../data/historical_import_service.dart';
 /// A deliberately reviewed path for portable v1 JSON. Opening a file only
 /// reads it; the confirmation button is the first path to any live write.
 class HistoricalImportScreen extends StatefulWidget {
-  const HistoricalImportScreen({super.key, this.service});
+  const HistoricalImportScreen({super.key, this.service, this.initialJson});
   final HistoricalImportService? service;
+
+  /// Reviewed adapter output; this still enters the normal Phase 3B preview.
+  final String? initialJson;
 
   @override
   State<HistoricalImportScreen> createState() => _HistoricalImportScreenState();
@@ -31,10 +34,26 @@ class _HistoricalImportScreenState extends State<HistoricalImportScreen> {
   final Map<String, String> _exerciseLinks = {};
   final Map<String, String> _entryFoodLinks = {};
 
+  @override
+  void initState() {
+    super.initState();
+    final json = widget.initialJson;
+    if (json != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _previewJson(json);
+      });
+    }
+  }
+
   Future<void> _select() async {
     final selected = await FilePicker.pickFiles(
         type: FileType.custom, allowedExtensions: ['json']);
     if (selected.isEmpty || selected.single.path == null) return;
+    final json = await File(selected.single.path!).readAsString();
+    await _previewJson(json);
+  }
+
+  Future<void> _previewJson(String json) async {
     setState(() {
       _busy = true;
       _error = null;
@@ -42,7 +61,6 @@ class _HistoricalImportScreenState extends State<HistoricalImportScreen> {
       _preview = null;
     });
     try {
-      final json = await File(selected.single.path!).readAsString();
       final preview = await _service.preview(json);
       final ids = {
         ...preview.foodSuggestions.values.expand((e) => e),

@@ -17,6 +17,7 @@ class MealReviewComparisonCard extends StatelessWidget {
   final Key dismissibleKey;
   final String name;
   final double estimatedGrams;
+  final String quantityUnit;
   final double confidence;
 
   /// Optional badge shown before the name — the numbered pin that matches the
@@ -35,6 +36,7 @@ class MealReviewComparisonCard extends StatelessWidget {
     required this.dismissibleKey,
     required this.name,
     required this.estimatedGrams,
+    this.quantityUnit = 'g',
     required this.confidence,
     this.leading,
     required this.matchedFood,
@@ -284,7 +286,7 @@ class MealReviewComparisonCard extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 child: Text(
-                                  '${formatFoodQuantity(estimatedGrams)}g',
+                                  '${formatFoodQuantity(estimatedGrams)} $quantityUnit',
                                   style: theme.textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),

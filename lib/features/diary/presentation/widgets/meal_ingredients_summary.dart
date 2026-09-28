@@ -9,11 +9,13 @@ import '../../../../widgets/common/summary_card.dart';
 class MealIngredientSummaryItem {
   final String name;
   final double grams;
+  final String unit;
   final int kcal;
 
   const MealIngredientSummaryItem({
     required this.name,
     required this.grams,
+    this.unit = 'g',
     required this.kcal,
   });
 }
@@ -92,7 +94,7 @@ class MealIngredientsSummary extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${formatFoodQuantity(entry.value.grams)} g',
+                                '${formatFoodQuantity(entry.value.grams)} ${entry.value.unit}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),

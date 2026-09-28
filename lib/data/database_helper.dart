@@ -69,6 +69,11 @@ class DatabaseHelper {
     await dbInst.customStatement('PRAGMA foreign_keys = OFF');
     try {
       await dbInst.transaction(() async {
+        // Reset import identity together with its live rows. Otherwise a later
+        // re-import would incorrectly skip records removed by this reset.
+        await dbInst.delete(dbInst.dayLocks).go();
+        await dbInst.customStatement('DELETE FROM historical_import_records');
+        await dbInst.customStatement('DELETE FROM historical_import_batches');
         await dbInst.delete(dbInst.dailyRecords).go();
         await dbInst.delete(dbInst.nutritionTargetProfiles).go();
         await dbInst.delete(dbInst.dailyGoalsHistory).go();

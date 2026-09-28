@@ -1,4 +1,3 @@
-import '../../domain/models/nutrition_values.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../generated/app_localizations.dart';
@@ -40,7 +39,10 @@ class FoodEntryTile extends StatelessWidget {
         Navigator.of(context)
             .push(
           MaterialPageRoute(
-            builder: (context) => FoodDetailScreen(trackedItem: trackedItem),
+            builder: (context) => FoodDetailScreen(
+              trackedItem: trackedItem,
+              readOnly: trackedItem.item.metadata.servingUnit == 'serving',
+            ),
           ),
         )
             .then((_) {
@@ -57,8 +59,7 @@ class FoodEntryTile extends StatelessWidget {
                 languageCode: baseFoodLang,
               )
             : trackedItem.item.getLocalizedName(context),
-        amountLabel:
-            '${formatFoodQuantity(trackedItem.entry.quantityInGrams)}${l10n.unit_grams}',
+        amountLabel: trackedItem.displayQuantity,
         energyLabel:
             '${trackedItem.calculatedCalories.round()} ${l10n.unit_kcal}',
       ),

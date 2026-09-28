@@ -61,13 +61,17 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
 
   late FoodItem _displayItem;
   double? _trackedQuantity;
+  bool get _isHistoricalServing =>
+      _displayItem.metadata.servingUnit == 'serving';
   bool get _hasPortionInfo => _trackedQuantity != null;
 
   /// True when the food item carries a declared serving size > 1g.
   /// Controls visibility of the portion ↔ 100g toggle across both diary
   /// and catalog contexts.
   bool get _hasPortionToggle =>
-      _trackedQuantity != null && _trackedQuantity! > 0;
+      !_isHistoricalServing &&
+      _trackedQuantity != null &&
+      _trackedQuantity! > 0;
 
   // ---------- DEV: Inline editing ----------
   bool _devEditing = false; // toggled via secret tap
@@ -98,13 +102,16 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
       _showPer100g = _trackedQuantity == 0;
     } else {
       _displayItem = widget.foodItem!;
-      _trackedQuantity = _displayItem.metadata.servingUnit ==
-              (_displayItem.isFluid || _displayItem.isLiquid == true
-                  ? 'ml'
-                  : 'g')
-          ? _displayItem.metadata.servingSize
-          : null;
-      _showPer100g = _trackedQuantity == null || _trackedQuantity == 0;
+      _trackedQuantity = _isHistoricalServing
+          ? 1
+          : _displayItem.metadata.servingUnit ==
+                  (_displayItem.isFluid || _displayItem.isLiquid == true
+                      ? 'ml'
+                      : 'g')
+              ? _displayItem.metadata.servingSize
+              : null;
+      _showPer100g = !_isHistoricalServing &&
+          (_trackedQuantity == null || _trackedQuantity == 0);
     }
     _checkIfFavorite();
   }
@@ -679,11 +686,13 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        (_showPer100g || !_hasPortionInfo)
-                            ? l10n.nutritionPer100g
-                            : l10n.nutritionPerPortion(
-                                _trackedQuantity ?? 100,
-                              ),
+                        _isHistoricalServing
+                            ? 'Nutrition for ${formatFoodQuantity(_trackedQuantity ?? 1)} serving'
+                            : (_showPer100g || !_hasPortionInfo)
+                                ? l10n.nutritionPer100g
+                                : l10n.nutritionPerPortion(
+                                    _trackedQuantity ?? 100,
+                                  ),
                         style: textTheme.titleLarge,
                       ),
                     ),

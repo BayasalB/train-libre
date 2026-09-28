@@ -38,6 +38,7 @@ class QuantityDialogContent extends StatefulWidget {
 }
 
 class QuantityDialogContentState extends State<QuantityDialogContent> {
+  bool get _isServing => widget.item.metadata.servingUnit == 'serving';
   late final TextEditingController _quantityController;
   late final TextEditingController _caffeineController;
   late final TextEditingController _sugarController;
@@ -144,7 +145,11 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
     final locale = Localizations.localeOf(context).toString();
     final formattedDate = DateFormat.yMd(locale).format(_selectedDateTime);
     final formattedTime = DateFormat.Hm(locale).format(_selectedDateTime);
-    final unit = _isLiquid ? l10n.unit_milliliters : l10n.unit_grams;
+    final unit = _isServing
+        ? 'serving'
+        : _isLiquid
+            ? l10n.unit_milliliters
+            : l10n.unit_grams;
 
     String getLocalizedMealName(String key) {
       switch (key) {
@@ -169,8 +174,11 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
           controller: _quantityController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            labelText:
-                _isLiquid ? l10n.amount_in_milliliters : l10n.amount_in_grams,
+            labelText: _isServing
+                ? 'Amount in servings'
+                : _isLiquid
+                    ? l10n.amount_in_milliliters
+                    : l10n.amount_in_grams,
             suffixText: unit,
           ),
           autofocus: true,
@@ -207,12 +215,13 @@ class QuantityDialogContentState extends State<QuantityDialogContent> {
           ],
         ),
         const Divider(height: 24),
-        PlatformAdaptiveSwitchListTile(
-          title: Text(l10n.add_to_water_intake),
-          value: _isLiquid,
-          onChanged: (bool value) => setState(() => _isLiquid = value),
-          contentPadding: EdgeInsets.zero,
-        ),
+        if (!_isServing)
+          PlatformAdaptiveSwitchListTile(
+            title: Text(l10n.add_to_water_intake),
+            value: _isLiquid,
+            onChanged: (bool value) => setState(() => _isLiquid = value),
+            contentPadding: EdgeInsets.zero,
+          ),
         if (_isLiquid) ...[
           const SizedBox(height: DesignConstants.spacingS),
           TextFormField(

@@ -10,6 +10,7 @@ import '../../../core/infrastructure/export_manager.dart';
 import '../../../core/infrastructure/import_manager.dart';
 import '../../../generated/app_localizations.dart';
 import '../../../widgets/common/summary_card.dart';
+import '../../historical_import/presentation/historical_import_screen.dart';
 import '../../onboarding/presentation/onboarding_screen.dart';
 import '../../exercise_catalog/presentation/exercise_mapping_screen.dart';
 import '../../../services/local_app_data_reset_service.dart';
@@ -442,6 +443,15 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                         );
                       }
                     },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.history),
+                    title: const Text('Import historical JSON'),
+                    subtitle: const Text(
+                        'Preview and merge portable formatVersion 1'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HistoricalImportScreen(),
+                    )),
                   ),
                   const Divider(height: 1),
                   if (!isApple)

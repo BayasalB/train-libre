@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import '../../../data/drift_database.dart' as db;
 import '../../diary/data/sources/diary_local_data_source.dart';
@@ -22,6 +24,7 @@ class TodayData {
   final db.Measurement? weight;
   final List<db.WorkoutLog> workouts;
   final WorkoutDayReadModel workoutDetails;
+  final Set<String> unknownWorkoutTimes;
   final int missingFoods;
   const TodayData(
       {required this.date,
@@ -34,6 +37,7 @@ class TodayData {
       required this.weight,
       required this.workouts,
       required this.workoutDetails,
+      this.unknownWorkoutTimes = const {},
       required this.missingFoods});
   TrainingType get trainingType =>
       TrainingType.values.byName(record?.trainingType ?? 'unset');
@@ -132,6 +136,18 @@ class TodayRepository {
             .get();
         final workoutDetails =
             await WorkoutDayReadModel.load(database, workouts);
+        final importedWorkouts = await database.customSelect('''
+          SELECT local_uuid,payload_json FROM historical_import_records
+          WHERE collection='workouts' AND local_date=? AND local_uuid IS NOT NULL
+        ''', variables: [Variable.withString(localDateKey(start))]).get();
+        final unknownWorkoutTimes = <String>{};
+        for (final row in importedWorkouts) {
+          final payload = jsonDecode(row.read<String>('payload_json'))
+              as Map<String, dynamic>;
+          if (payload['startedAt'] == null) {
+            unknownWorkoutTimes.add(row.read<String>('local_uuid'));
+          }
+        }
         final record = await records.getDay(start);
         return TodayData(
             date: start,
@@ -144,6 +160,7 @@ class TodayRepository {
             weight: weight,
             workouts: workouts,
             workoutDetails: workoutDetails,
+            unknownWorkoutTimes: unknownWorkoutTimes,
             missingFoods: entries.length - foods.length);
       });
 }

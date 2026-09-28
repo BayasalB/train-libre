@@ -63,6 +63,7 @@ class LocalAppDataResetService implements LocalAppDataResetter {
         'SharedPreferences settings/state',
         'workout logs, routines, set logs, and custom exercises',
         'nutrition logs, meals, hydration, favorites, and custom foods',
+        'historical import audit identity and daily locks',
         'measurements, supplements, supplement logs, and goals/history',
         'Health step imports and health export status cache',
         'sleep imports/canonical data/derived analyses',

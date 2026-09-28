@@ -201,6 +201,29 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                               'Carbs ${totals.carbs.toStringAsFixed(1)} g · Fat ${totals.fat.toStringAsFixed(1)} g'),
                           Text(day.targets.explanation),
                         ]),
+                        if (detail.reportedTotals.isNotEmpty)
+                          _card(context, 'Reported historical total', [
+                            for (final total in detail.reportedTotals)
+                              Text(
+                                  'Reported ${total['calories'] ?? '—'} kcal · '
+                                  'P ${total['protein'] ?? '—'} g · '
+                                  'C ${total['carbs'] ?? '—'} g · '
+                                  'F ${total['fat'] ?? '—'} g\n'
+                                  'Source: ${total['provenance']}'),
+                            const Text(
+                                'Kept separate from calculated food totals.'),
+                          ]),
+                        if (detail.importedTargetObservations.isNotEmpty)
+                          _card(context, 'Imported target observations', [
+                            for (final target
+                                in detail.importedTargetObservations)
+                              Text(
+                                  '${target['kind']} · ${target['effectiveFrom']} · '
+                                  '${target['calories'] ?? '—'} kcal · '
+                                  'P ${target['protein'] ?? '—'} · '
+                                  'C ${target['carbs'] ?? '—'} · '
+                                  'F ${target['fat'] ?? '—'}'),
+                          ]),
                         _card(context, 'Foods and meals', [
                           if (day.foods.isEmpty &&
                               detail.unavailableFoods.isEmpty &&
@@ -235,7 +258,7 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                               ListTile(
                                   title: Text(tracked.item.name),
                                   subtitle: Text(
-                                      '${formatFoodQuantity(tracked.entry.quantityInGrams)} g · ${tracked.calculatedCalories.toStringAsFixed(0)} kcal')),
+                                      '${tracked.displayQuantity} · ${tracked.calculatedCalories.toStringAsFixed(0)} kcal')),
                           ],
                           for (final fluid in day.fluids
                               .where((f) => f.linkedFoodEntryId == null))
@@ -265,6 +288,8 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
                           for (final workout in day.workouts)
                             WorkoutDayCard(
                               workout: workout,
+                              timeKnown:
+                                  !day.unknownWorkoutTimes.contains(workout.id),
                               summary: day.workoutDetails.summaries[workout.id],
                               sets: detail.setsByWorkoutId[workout.id] ??
                                   const [],

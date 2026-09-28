@@ -12,6 +12,7 @@ class WorkoutDayCard extends StatelessWidget {
   final List<db.SetLog> sets;
   final List<db.WorkoutExerciseLog> exerciseNotes;
   final bool compact;
+  final bool timeKnown;
   final VoidCallback? onOpen;
 
   const WorkoutDayCard({
@@ -21,6 +22,7 @@ class WorkoutDayCard extends StatelessWidget {
     this.sets = const [],
     this.exerciseNotes = const [],
     this.compact = false,
+    this.timeKnown = true,
     this.onOpen,
   });
 
@@ -36,7 +38,9 @@ class WorkoutDayCard extends StatelessWidget {
     final count = summary;
     final subtitle = completed
         ? [
-            '$time${end == null ? '' : ' - $end'}',
+            timeKnown
+                ? '$time${end == null ? '' : ' - $end'}'
+                : 'Time unknown (historical date only)',
             if (validDuration) '${duration.inMinutes} min',
             if (count != null) '${count.exerciseCount} exercises',
             if (count != null) '${count.workingSetCount} working sets',

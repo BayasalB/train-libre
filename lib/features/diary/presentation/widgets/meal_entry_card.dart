@@ -1,4 +1,3 @@
-import '../../domain/models/nutrition_values.dart';
 // lib/features/diary/presentation/widgets/meal_entry_card.dart
 
 import 'dart:io';
@@ -90,7 +89,9 @@ class _MealEntryCardState extends State<MealEntryCard> {
       totalKcal += it.item.nutritionFor(it.entry.quantityInGrams).calories;
     }
 
-    final timeStr = DateFormat('HH:mm').format(widget.mealEntry.consumedAt);
+    final timeStr = widget.mealEntry.source == 'historicalImport'
+        ? 'time unknown'
+        : DateFormat('HH:mm').format(widget.mealEntry.consumedAt);
     final countStr =
         '${l10n.mealIngredientCount(widget.items.length)} · $timeStr';
     // The preview, not the full photo: this is a list, and decoding a 1600 px
@@ -294,8 +295,7 @@ class _MealEntryCardState extends State<MealEntryCard> {
                                     : null,
                                 child: DiaryFoodRow(
                                   name: tracked.item.name,
-                                  amountLabel:
-                                      '${formatFoodQuantity(tracked.entry.quantityInGrams)} g',
+                                  amountLabel: tracked.displayQuantity,
                                   energyLabel: '$itemKcal kcal',
                                   isNested: true,
                                 ),

@@ -55,6 +55,44 @@ Future<void> installDayLockGuards(AppDatabase db) async {
   }
 }
 
+/// Portable-import audit data is deliberately separate from the interchange
+/// document and from authoritative nutrition/workout tables. Additive v37.
+Future<void> createHistoricalImportSchema(AppDatabase db) async {
+  await db.customStatement('''
+    CREATE TABLE IF NOT EXISTS historical_import_batches (
+      id TEXT NOT NULL PRIMARY KEY,
+      source_key TEXT NOT NULL,
+      source TEXT NOT NULL,
+      format_version INTEGER NOT NULL,
+      checksum TEXT NOT NULL,
+      imported_at INTEGER NOT NULL,
+      status TEXT NOT NULL,
+      counts_json TEXT NOT NULL,
+      report_json TEXT NOT NULL,
+      recovery_backup_path TEXT NOT NULL
+    )
+  ''');
+  await db.customStatement('''
+    CREATE TABLE IF NOT EXISTS historical_import_records (
+      source_key TEXT NOT NULL,
+      collection TEXT NOT NULL,
+      external_id TEXT NOT NULL,
+      import_batch_id TEXT NOT NULL REFERENCES historical_import_batches(id),
+      payload_json TEXT NOT NULL,
+      payload_hash TEXT NOT NULL,
+      local_date TEXT,
+      local_table TEXT,
+      local_uuid TEXT,
+      state TEXT NOT NULL,
+      PRIMARY KEY (source_key, collection, external_id)
+    )
+  ''');
+  await db.customStatement('''
+    CREATE INDEX IF NOT EXISTS idx_historical_import_records_date
+    ON historical_import_records(local_date, collection)
+  ''');
+}
+
 // --- Mixins for recurring columns ---
 
 /// Guarantees the hybrid architecture:
@@ -956,7 +994,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 36;
+  int get schemaVersion => 37;
 
   /// v32 changes numeric affinities only. Copies every column, ID, timestamp
   /// and archive hash unchanged; it never reconstructs lost fractional data.
@@ -1072,10 +1110,12 @@ class AppDatabase extends _$AppDatabase {
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           await reconcileSchema();
+          await createHistoricalImportSchema(this);
           await installDayLockGuards(this);
         },
         onCreate: (Migrator m) async {
           await m.createAll();
+          await createHistoricalImportSchema(this);
           await _createSleepPersistenceSchema(this);
           await customStatement('''
           CREATE TABLE IF NOT EXISTS health_export_records (
@@ -1713,6 +1753,9 @@ class AppDatabase extends _$AppDatabase {
                   await m.createTable(dayLocks);
                 }
               });
+            }
+            if (from < 37) {
+              await transaction(() => createHistoricalImportSchema(this));
             }
             unawaited(TelemetryService.instance.trackDbMigrationStatus(
               fromVersion: from,

@@ -277,7 +277,7 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                 contentPadding: EdgeInsets.zero,
                                 title: Text(food.item.name),
                                 subtitle: Text(
-                                    '${formatFoodQuantity(food.entry.quantityInGrams)} g · ${food.calculatedCalories.toStringAsFixed(0)} kcal'),
+                                    '${food.displayQuantity} · ${food.calculatedCalories.toStringAsFixed(0)} kcal'),
                                 trailing: IconButton(
                                   tooltip: 'Copy food',
                                   icon: const Icon(Icons.copy_outlined),
@@ -345,6 +345,8 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                           for (final workout in data.workouts)
                             WorkoutDayCard(
                                 workout: workout,
+                                timeKnown: !data.unknownWorkoutTimes
+                                    .contains(workout.id),
                                 summary:
                                     data.workoutDetails.summaries[workout.id],
                                 compact: true,

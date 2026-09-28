@@ -111,8 +111,12 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
     if (index < 0) return;
     setState(() {
       final current = _items[index];
-      final newQuantity =
-          (current.entry.quantityInGrams + delta).clamp(5, 5000).toDouble();
+      final serving = current.item.metadata.servingUnit == 'serving';
+      final newQuantity = serving
+          ? (current.entry.quantityInGrams + delta.sign)
+              .clamp(0.1, 100)
+              .toDouble()
+          : (current.entry.quantityInGrams + delta).clamp(5, 5000).toDouble();
       _items[index] = TrackedFoodItem(
         item: current.item,
         entry: current.entry.copyWith(quantityInGrams: newQuantity),
@@ -142,8 +146,12 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: l10n.mealDetailAmountInGrams,
-                suffixText: 'g',
+                labelText: current.item.metadata.servingUnit == 'serving'
+                    ? 'Amount in servings'
+                    : l10n.mealDetailAmountInGrams,
+                suffixText: current.item.metadata.servingUnit == 'serving'
+                    ? 'serving'
+                    : 'g',
                 border: OutlineInputBorder(
                   borderRadius:
                       BorderRadius.circular(DesignConstants.borderRadiusM),
@@ -189,6 +197,7 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
         builder: (_) => FoodDetailScreen(
           foodItem: tracked.item,
           trackedItem: tracked,
+          readOnly: tracked.item.metadata.servingUnit == 'serving',
         ),
       ),
     );
@@ -743,6 +752,11 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                         name: tracked.item.name,
                                         estimatedGrams:
                                             tracked.entry.quantityInGrams,
+                                        quantityUnit:
+                                            tracked.item.metadata.servingUnit ==
+                                                    'serving'
+                                                ? 'serving'
+                                                : 'g',
                                         // A saved entry carries no open uncertainty; the
                                         // card hides the chip above 0.7 anyway.
                                         confidence: 1.0,
@@ -782,6 +796,11 @@ class _MealEntryScreenState extends State<MealEntryScreen> {
                                         (item) => MealIngredientSummaryItem(
                                           name: item.item.name,
                                           grams: item.entry.quantityInGrams,
+                                          unit:
+                                              item.item.metadata.servingUnit ==
+                                                      'serving'
+                                                  ? 'serving'
+                                                  : 'g',
                                           kcal: item.calculatedCalories.round(),
                                         ),
                                       )

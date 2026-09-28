@@ -48,7 +48,7 @@ class BackupManager {
   static const String currentApplicationId = 'com.rfivesix.trainlibre';
 
   // Backwards compatibility for tests
-  static const int currentSchemaVersion = 10;
+  static const int currentSchemaVersion = 11;
   static const List<String> legacyBackupAppNames = ['Hypertrack'];
   static const List<String> legacyApplicationIds = ['com.rfivesix.hypertrack'];
   static const List<String> legacyBackupFilePrefixes = ['hypertrack-backup'];
@@ -352,6 +352,10 @@ class BackupManager {
         await _fetchTable('nutrition_target_profiles');
     payload['food_aliases'] = await _fetchTable('food_aliases');
     payload['progress_photos'] = await _fetchTable('progress_photos');
+    payload['historical_import_batches'] =
+        await _fetchTable('historical_import_batches');
+    payload['historical_import_records'] =
+        await _fetchTable('historical_import_records');
     // Include personalized catalog foods as well, so restore works offline on a new device.
     payload['saved_food_products'] = (await dbInst.customSelect('''
       SELECT p.* FROM products p WHERE p.source = 'user'
@@ -637,7 +641,7 @@ class BackupManager {
 
   bool _isAcceptedBackupMetadata(Map<String, dynamic> payload) {
     final version = payload['schemaVersion'];
-    // Backup format revisions 6-10 are distinct from the SQLite user_version.
+    // Backup format revisions 6-11 are distinct from the SQLite user_version.
     // A future revision may contain fields this build cannot restore safely.
     if (version is int && version > currentSchemaVersion) return false;
     final rawAppName = payload['appName']?.toString().trim();
@@ -785,6 +789,8 @@ class BackupManager {
       'nutrition_target_profiles',
       'food_aliases',
       'progress_photos',
+      'historical_import_batches',
+      'historical_import_records',
       'saved_food_products',
       'user_food_overrides',
       'user_food_override_translations',
@@ -861,6 +867,8 @@ class BackupManager {
         // A full restore replaces lock state. Drop locks before protected rows;
         // imported locks are installed last in the same transaction.
         await dbInst.delete(dbInst.dayLocks).go();
+        await dbInst.customStatement('DELETE FROM historical_import_records');
+        await dbInst.customStatement('DELETE FROM historical_import_batches');
         await dbInst.delete(dbInst.dailyRecords).go();
         await dbInst.delete(dbInst.nutritionTargetProfiles).go();
         await dbInst.delete(dbInst.dailyGoalsHistory).go();
@@ -1263,6 +1271,10 @@ class BackupManager {
         onProgress?.call('cardio_data', 0.999);
         await _importTable('cardio_activities', payload['cardio_activities']);
         await _importTable('cardio_samples', payload['cardio_samples']);
+        await _importTable('historical_import_batches',
+            payload['historical_import_batches']);
+        await _importTable('historical_import_records',
+            payload['historical_import_records']);
         await _importTable('user_food_overrides',
             payload['user_food_overrides'] ?? payload['userFoodOverrides']);
         await _importTable(

@@ -346,7 +346,7 @@ void main() {
     raw.execute('PRAGMA user_version = 35');
     raw.close();
     connect();
-    expect(database.schemaVersion, 36);
+    expect(database.schemaVersion, 37);
     expect((await diary.getEntriesForDate(first)).single.id, id);
     expect(
         await database.customSelect('PRAGMA foreign_key_check').get(), isEmpty);

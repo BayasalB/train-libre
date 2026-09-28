@@ -86,7 +86,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               key: ValueKey('history-day-$dateKey'),
                               title: Text(DateFormat.MMMd().format(day.date)),
                               subtitle: Text(day.hasActivity
-                                  ? '${day.trainingType.label} · ${day.calories.toStringAsFixed(0)} kcal · P ${day.protein.toStringAsFixed(1)} g'
+                                  ? '${day.trainingType.label} · ${day.calories.toStringAsFixed(0)} calculated kcal · P ${day.protein.toStringAsFixed(1)} g'
+                                      '${day.reportedTotals.isEmpty ? '' : day.reportedTotals.length == 1 ? ' · Reported ${day.reportedTotals.single['calories'] ?? '—'} kcal' : ' · ${day.reportedTotals.length} reported totals'}'
                                   : 'No entries'),
                               trailing: Row(
                                   mainAxisSize: MainAxisSize.min,

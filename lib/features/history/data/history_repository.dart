@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../../data/drift_database.dart' as db;
@@ -23,6 +25,7 @@ class HistoryDaySummary {
   final int measurementCount;
   final bool hasRecord;
   final bool locked;
+  final List<Map<String, dynamic>> reportedTotals;
 
   const HistoryDaySummary({
     required this.date,
@@ -37,6 +40,7 @@ class HistoryDaySummary {
     required this.measurementCount,
     required this.hasRecord,
     this.locked = false,
+    this.reportedTotals = const [],
   });
 
   bool get hasActivity =>
@@ -53,9 +57,13 @@ class HistoryDayDetail {
   final Map<String, List<db.SetLog>> setsByWorkoutId;
   final Map<String, String> mealTitles;
   final List<FoodEntry> unavailableFoods;
+  final List<Map<String, dynamic>> reportedTotals;
+  final List<Map<String, dynamic>> importedTargetObservations;
 
   const HistoryDayDetail(this.today, this.measurements, this.setsByWorkoutId,
-      this.mealTitles, this.unavailableFoods);
+      this.mealTitles, this.unavailableFoods,
+      {this.reportedTotals = const [],
+      this.importedTargetObservations = const []});
 }
 
 /// Month-bounded reads over the same rows used by Today. Nothing is persisted.
@@ -134,8 +142,46 @@ class HistoryRepository {
                 ? meal.title!.trim()
                 : meal.mealType
         };
+        final imported = await database.customSelect('''
+          SELECT collection,payload_json FROM historical_import_records
+          WHERE local_date=? AND collection='dailyRecords'
+        ''', variables: [Variable.withString(localDateKey(day))]).get();
+        final historicalTargets = await database.customSelect('''
+          SELECT payload_json FROM historical_import_records
+          WHERE collection='targetProfiles' AND state='observation'
+            AND local_date<=?
+        ''', variables: [Variable.withString(localDateKey(day))]).get();
+        final reported = <Map<String, dynamic>>[];
+        final targets = <Map<String, dynamic>>[];
+        for (final row in imported) {
+          final payload = jsonDecode(row.read<String>('payload_json'))
+              as Map<String, dynamic>;
+          if (row.read<String>('collection') == 'dailyRecords' &&
+              payload['reportedTotal'] is Map<String, dynamic>) {
+            reported.add(payload['reportedTotal'] as Map<String, dynamic>);
+          }
+        }
+        final targetByKind = <String, Map<String, dynamic>>{};
+        for (final row in historicalTargets) {
+          final payload = jsonDecode(row.read<String>('payload_json'))
+              as Map<String, dynamic>;
+          final from = payload['effectiveFrom'];
+          final kind = payload['kind'];
+          if (from is! String ||
+              kind is! String ||
+              from.compareTo(localDateKey(day)) > 0) {
+            continue;
+          }
+          final old = targetByKind[kind];
+          if (old == null ||
+              from.compareTo(old['effectiveFrom'] as String) > 0) {
+            targetByKind[kind] = payload;
+          }
+        }
+        targets.addAll(targetByKind.values);
         return HistoryDayDetail(data, measurements,
-            data.workoutDetails.setsByWorkoutId, mealTitles, unavailableFoods);
+            data.workoutDetails.setsByWorkoutId, mealTitles, unavailableFoods,
+            reportedTotals: reported, importedTargetObservations: targets);
       });
 
   Future<List<HistoryDaySummary>> loadMonth(DateTime month) =>
@@ -180,6 +226,24 @@ class HistoryRepository {
                   t.date.isBiggerOrEqualValue(start) &
                   t.date.isSmallerThanValue(end)))
             .get();
+        final imported = await database.customSelect('''
+          SELECT local_date,payload_json FROM historical_import_records
+          WHERE collection='dailyRecords' AND local_date>=? AND local_date<?
+        ''', variables: [
+          Variable.withString(startKey),
+          Variable.withString(endKey)
+        ]).get();
+        final reportedByDay = <String, List<Map<String, dynamic>>>{};
+        for (final row in imported) {
+          final payload = jsonDecode(row.read<String>('payload_json'))
+              as Map<String, dynamic>;
+          final total = payload['reportedTotal'];
+          if (total is Map<String, dynamic>) {
+            reportedByDay
+                .putIfAbsent(row.read<String>('local_date'), () => [])
+                .add(total);
+          }
+        }
 
         final products = ProductLocalDataSource(database);
         final archiveIds =
@@ -287,7 +351,8 @@ class HistoryRepository {
               workoutCount: workoutCount[key] ?? 0,
               measurementCount: measurementCount[key] ?? 0,
               hasRecord: record != null,
-              locked: lockedDates.contains(key));
+              locked: lockedDates.contains(key),
+              reportedTotals: reportedByDay[key] ?? const []);
         });
       });
 }

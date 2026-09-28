@@ -37,6 +37,7 @@ import '../../workout/presentation/edit_routine_screen.dart';
 import '../../workout/presentation/live_workout_screen.dart';
 import '../../workout/presentation/workout_morph_route.dart';
 import '../../diary/presentation/nutrition_hub_screen.dart';
+import '../../diary/presentation/local_smart_log_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 import '../../analytics/presentation/statistics_hub_screen.dart';
 import '../../workout/presentation/workout_hub_screen.dart';
@@ -1677,6 +1678,12 @@ class _MainScreenState extends State<MainScreen>
                       key: _todayKey,
                       topInset: kToolbarHeight,
                       onAddFood: () => _handleAddFood(),
+                      onSmartLog: (date) => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  LocalSmartLogScreen(initialDate: date),
+                            ),
+                          ),
                       onOpenDiary: _openDiary,
                       onOpenWorkout: () => _onNavigationTapped(1)),
                 ),

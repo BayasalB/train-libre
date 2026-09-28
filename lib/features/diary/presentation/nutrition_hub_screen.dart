@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/database_helper.dart';
 import '../../../generated/app_localizations.dart';
 import 'add_food_screen.dart';
+import 'local_smart_log_screen.dart';
 import 'meal_screen.dart';
 import '../../profile/presentation/goals_screen.dart';
 import '../../supplements/presentation/supplement_hub_screen.dart';
@@ -287,6 +288,14 @@ class _NutritionHubScreenState extends State<NutritionHubScreen> {
                 ),
                 const SizedBox(height: DesignConstants.spacingXL),
                 AppSectionHeader(title: l10n.nutritionSectionToolsAndLibrary),
+                ListTile(
+                  leading: const Icon(Icons.edit_note),
+                  title: const Text('Smart Log · Offline'),
+                  subtitle: const Text('Type Mongolian or English food notes'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const LocalSmartLogScreen(),
+                  )),
+                ),
                 RepaintBoundary(
                   child: Builder(
                     builder: (sourceCtx) => MorphSourceScope(

@@ -20,6 +20,7 @@ class TodayScreen extends StatefulWidget {
   final double topInset;
   final DateTime? initialDate;
   final VoidCallback? onAddFood;
+  final ValueChanged<DateTime>? onSmartLog;
   final ValueChanged<DateTime>? onOpenDiary;
   final VoidCallback? onOpenWorkout;
   const TodayScreen(
@@ -28,6 +29,7 @@ class TodayScreen extends StatefulWidget {
       this.topInset = 0,
       this.initialDate,
       this.onAddFood,
+      this.onSmartLog,
       this.onOpenDiary,
       this.onOpenWorkout});
   @override
@@ -268,6 +270,13 @@ class TodayScreenState extends State<TodayScreen> with WidgetsBindingObserver {
                                     : null,
                                 icon: const Icon(Icons.add),
                                 label: const Text('Add food')),
+                          if (widget.onSmartLog != null)
+                            TextButton.icon(
+                                onPressed: data.dayLock == null
+                                    ? () => widget.onSmartLog!(data.date)
+                                    : null,
+                                icon: const Icon(Icons.edit_note),
+                                label: const Text('Smart Log')),
                           if (data.foods.isEmpty &&
                               data.fluids.isEmpty &&
                               data.missingFoods == 0)

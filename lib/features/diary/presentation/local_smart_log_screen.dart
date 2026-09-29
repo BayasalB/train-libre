@@ -2,24 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../data/database_helper.dart';
+import '../../../services/ai_meal_validation.dart';
+import '../../../services/voice/voice_dictation_service.dart';
+import '../../../util/permission_dialogs.dart';
 import '../data/local_smart_food_log.dart';
 import '../data/smart_log_ai_fallback.dart';
 import '../data/smart_log_ai_provider.dart';
+import '../data/smart_log_photo_adapter.dart';
 import '../domain/models/food_alias.dart';
 import '../domain/models/food_item.dart';
 import '../domain/models/nutrition_values.dart';
 import '../domain/models/saved_food_metadata.dart';
+import '../domain/models/smart_log_review.dart';
 import '../domain/use_cases/parse_local_food_log.dart';
 import '../../settings/presentation/ai_settings_screen.dart';
+import 'ai_meal_capture_screen.dart';
 import 'create_food_screen.dart';
+import 'dialogs/voice_dictation_sheet.dart';
 
 /// Local text logging with an explicit, optional network fallback.
 class LocalSmartLogScreen extends StatefulWidget {
   final DateTime? initialDate;
   final LocalSmartFoodLog? service;
   final SmartLogAiFallback? aiFallback;
+  final Future<String?> Function(String currentText)? voiceTranscriptForTesting;
+  final Future<AiMealCandidate?> Function(BuildContext context)?
+      photoCaptureForTesting;
   const LocalSmartLogScreen(
-      {super.key, this.initialDate, this.service, this.aiFallback});
+      {super.key,
+      this.initialDate,
+      this.service,
+      this.aiFallback,
+      this.voiceTranscriptForTesting,
+      this.photoCaptureForTesting});
 
   @override
   State<LocalSmartLogScreen> createState() => _LocalSmartLogScreenState();
@@ -27,13 +42,15 @@ class LocalSmartLogScreen extends StatefulWidget {
 
 class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
   final _text = TextEditingController();
+  final _textFocus = FocusNode();
   late final LocalSmartFoodLog _service =
       widget.service ?? LocalSmartFoodLog(DatabaseHelper.instance.dbInstance);
   late final SmartLogAiFallback _ai = widget.aiFallback ??
       SmartLogAiFallback(_service, ConfiguredSmartLogAiProvider());
   late DateTime _date = widget.initialDate ?? DateTime.now();
   String _meal = 'mealtypeSnack';
-  List<LocalFoodCandidate> _candidates = [];
+  List<SmartLogReviewItem> _review = [];
+  SmartLogInputSource _textSource = SmartLogInputSource.text;
   bool _busy = false;
   bool _hasPreview = false;
   bool _allowEstimate = false;
@@ -43,9 +60,27 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
   final Map<int, SmartLogAiSuggestion> _aiSuggestions = {};
   final Map<String, FoodItem> _acceptedEstimates = {};
 
+  List<LocalFoodCandidate> get _candidates =>
+      _review.map((item) => item.candidate).toList(growable: false);
+
+  void _replaceReview(List<SmartLogReviewItem> items) {
+    _review = List.of(items);
+    _hasPreview = true;
+    _aiAttempts = 0;
+    _aiError = null;
+    _aiSuggestions.clear();
+    _acceptedEstimates.clear();
+    _reviewId = const Uuid().v4();
+  }
+
+  void _setCandidate(int index, LocalFoodCandidate value) {
+    _review[index] = _review[index].copyWith(candidate: value);
+  }
+
   @override
   void dispose() {
     _text.dispose();
+    _textFocus.dispose();
     super.dispose();
   }
 
@@ -56,13 +91,14 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
       final result = await _service.preview(_text.text);
       if (mounted) {
         setState(() {
-          _candidates = result;
-          _hasPreview = true;
-          _aiAttempts = 0;
-          _aiError = null;
-          _aiSuggestions.clear();
-          _acceptedEstimates.clear();
-          _reviewId = const Uuid().v4();
+          _replaceReview([
+            for (final candidate in result)
+              SmartLogReviewItem(
+                candidate: candidate,
+                source: _textSource,
+                sourceDescription: candidate.rawSpan,
+              ),
+          ]);
         });
       }
     } catch (error) {
@@ -74,6 +110,126 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
 
   void _message(String value) => ScaffoldMessenger.of(context)
       .showSnackBar(SnackBar(content: Text(value)));
+
+  Future<void> _voice() async {
+    if (_busy) return;
+    try {
+      await _captureVoice();
+    } catch (error) {
+      if (mounted) {
+        _message('Voice unavailable: $error. Typed text is unchanged.');
+      }
+    }
+  }
+
+  Future<void> _captureVoice() async {
+    if (widget.voiceTranscriptForTesting != null) {
+      final text = await widget.voiceTranscriptForTesting!(_text.text);
+      if (!mounted || text == null) return;
+      _text.text = text;
+      setState(() => _textSource = SmartLogInputSource.voice);
+      if (text.trim().isNotEmpty) await _preview();
+      return;
+    }
+    if (!await VoiceDictationService.instance.hasPermissions()) {
+      if (!mounted) return;
+      final proceed = await showPrePermissionDialog(
+        context: context,
+        title: 'Voice Smart Log',
+        body:
+            'Microphone and speech recognition permission are needed. Your device may use network transcription. The editable transcript is checked locally first; Smart Log AI remains optional.',
+        continueLabel: 'Continue',
+        cancelLabel: 'Cancel',
+      );
+      if (!proceed) return;
+    }
+    final availability = await VoiceDictationService.instance.prepare();
+    if (!mounted) return;
+    if (!availability.available) {
+      _message(
+          'Voice recognition unavailable (${availability.reason}). Type or edit food text instead.');
+      return;
+    }
+    final result = await showVoiceDictationSheet(
+      context: context,
+      initialText: _text.text,
+      exampleHint: '41g uurag, 80g ovyoos',
+      analyzeLabel: 'Preview locally',
+      allowAiTidy: false,
+    );
+    if (!mounted || result == null) return;
+    _text.text = result.text;
+    setState(() {
+      _textSource = SmartLogInputSource.voice;
+      _review = [];
+      _hasPreview = false;
+    });
+    if (result.analyzeNow && result.text.trim().isNotEmpty) await _preview();
+  }
+
+  Future<void> _photo() async {
+    if (_busy) return;
+    try {
+      if (!await _ai.provider.isConfigured()) {
+        if (mounted) {
+          _message(
+              'Configure an AI provider for photo analysis. Typed Smart Log still works offline.');
+        }
+        return;
+      }
+    } catch (error) {
+      if (mounted) _message('AI provider unavailable: $error');
+      return;
+    }
+    if (!mounted) return;
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Analyze a meal photo?'),
+        content: const Text(
+            'Photo analysis uses your selected AI provider and may require network access. Only the chosen meal photo and any text you enter in capture are sent; diary history, workouts, body measurements and progress photos are not attached. Portions are estimates.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue')),
+        ],
+      ),
+    );
+    if (approved != true || !mounted) return;
+    AiMealCandidate? result;
+    try {
+      result = widget.photoCaptureForTesting != null
+          ? await widget.photoCaptureForTesting!(context)
+          : await Navigator.of(context).push<AiMealCandidate>(
+              MaterialPageRoute(
+                  builder: (_) => AiMealCaptureScreen(
+                        initialDate: _date,
+                        returnCandidateToSmartLog: true,
+                      )),
+            );
+    } catch (error) {
+      if (mounted) _message('Photo analysis unavailable: $error');
+      return;
+    }
+    if (!mounted || result == null) return;
+    setState(() => _busy = true);
+    try {
+      final items = await SmartLogPhotoAdapter(_service).review(result);
+      if (!mounted) return;
+      setState(() {
+        _text.clear();
+        _textSource = SmartLogInputSource.text;
+        _replaceReview(items);
+      });
+    } catch (error) {
+      if (mounted) _message('Photo result could not be reviewed: $error');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   Future<void> _tryAi() async {
     if (_busy || !_ai.canOffer(_candidates)) return;
@@ -124,13 +280,13 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
             int.parse(suggestion.interpretation.sourceCandidateId.substring(1));
         grouped.putIfAbsent(sourceIndex, () => []).add(suggestion);
       }
-      final updated = <LocalFoodCandidate>[];
+      final updated = <SmartLogReviewItem>[];
       final shown = <int, SmartLogAiSuggestion>{};
       for (var i = 0; i < _candidates.length; i++) {
-        final original = _candidates[i];
+        final original = _review[i].candidate;
         final interpretations = grouped[i];
         if (interpretations == null) {
-          updated.add(original);
+          updated.add(_review[i]);
           continue;
         }
         for (final suggestion in interpretations) {
@@ -158,11 +314,16 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
             ],
           );
           shown[updated.length] = suggestion;
-          updated.add(candidate);
+          updated.add(_review[i].copyWith(
+            candidate: candidate,
+            source: _review[i].source == SmartLogInputSource.photo
+                ? SmartLogInputSource.photo
+                : SmartLogInputSource.aiAssisted,
+          ));
         }
       }
       setState(() {
-        _candidates = updated;
+        _review = updated;
         _aiSuggestions
           ..clear()
           ..addAll(shown);
@@ -183,11 +344,11 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
     final food = _aiSuggestions[index]?.suggestedFood;
     if (food == null) return;
     setState(() {
-      final old = _candidates[index];
+      final old = _review[index].candidate;
       if (old.food != null) {
         _acceptedEstimates.remove(old.food!.barcode);
       }
-      _candidates[index] = old.copyWith(matches: [food]);
+      _setCandidate(index, old.copyWith(matches: [food]));
     });
   }
 
@@ -210,8 +371,8 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
             existing.fat == values.fatPer100 &&
             existing.isLiquid ==
                 (interpreted.unit == LocalFoodUnit.milliliters)) {
-          setState(() => _candidates[index] =
-              _candidates[index].copyWith(matches: [existing]));
+          setState(() => _setCandidate(
+              index, _candidates[index].copyWith(matches: [existing])));
           return;
         }
       }
@@ -219,7 +380,7 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
       if (!mounted || _candidates[index].food != null) return;
       setState(() {
         _acceptedEstimates[food.barcode] = food;
-        _candidates[index] = _candidates[index].copyWith(matches: [food]);
+        _setCandidate(index, _candidates[index].copyWith(matches: [food]));
       });
     } catch (error) {
       _message('$error');
@@ -280,19 +441,21 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
         _message('Enter a positive finite quantity.');
       } else {
         setState(() {
-          _candidates[index] = old.copyWith(
-            quantity: value,
-            unit: unit,
-            action: action,
-            warnings: old.warnings
-                .where((w) =>
-                    !w.startsWith('Quantity missing') &&
-                    !w.startsWith('Quantity must be positive') &&
-                    !w.startsWith('Multiple quantities') &&
-                    !w.startsWith('Ambiguous comma quantity') &&
-                    !w.startsWith('Action unclear'))
-                .toList(),
-          );
+          _setCandidate(
+              index,
+              old.copyWith(
+                quantity: value,
+                unit: unit,
+                action: action,
+                warnings: old.warnings
+                    .where((w) =>
+                        !w.startsWith('Quantity missing') &&
+                        !w.startsWith('Quantity must be positive') &&
+                        !w.startsWith('Multiple quantities') &&
+                        !w.startsWith('Ambiguous comma quantity') &&
+                        !w.startsWith('Action unclear'))
+                    .toList(),
+              ));
         });
       }
     }
@@ -301,7 +464,10 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
 
   Future<void> _selectFood(int index) async {
     final query = TextEditingController(text: _candidates[index].foodQuery);
-    List<FoodItem> options = _candidates[index].matches;
+    List<FoodItem> options = [
+      ..._candidates[index].matches,
+      ..._review[index].suggestedFoods,
+    ];
     var loading = false;
     final choice = await showDialog<FoodItem>(
         context: context,
@@ -366,13 +532,15 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
     query.dispose();
     if (choice != null && mounted) {
       final prior = _candidates[index].food;
-      setState(() => _candidates[index] = _candidates[index].copyWith(
+      setState(() => _setCandidate(
+          index,
+          _candidates[index].copyWith(
             matches: [choice],
             warnings: _candidates[index]
                 .warnings
                 .where((warning) => !warning.startsWith('Food name missing'))
                 .toList(),
-          ));
+          )));
       if (prior != null) _acceptedEstimates.remove(prior.barcode);
     }
   }
@@ -383,8 +551,16 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
     try {
       await _ai.confirm(
           reviewId: _reviewId,
-          candidates: _candidates,
-          acceptedEstimates: _acceptedEstimates,
+          candidates: _review
+              .where((item) => item.included)
+              .map((item) => item.candidate)
+              .toList(),
+          acceptedEstimates: {
+            for (final entry in _acceptedEstimates.entries)
+              if (_review.any((item) =>
+                  item.included && item.candidate.food?.barcode == entry.key))
+                entry.key: entry.value,
+          },
           date: _date,
           mealType: _meal);
       if (mounted) Navigator.pop(context, true);
@@ -397,13 +573,9 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final consumed =
-        _candidates.where((c) => c.action == LocalFoodAction.consumed).toList();
-    final canConfirm = consumed.isNotEmpty && consumed.every((c) => c.canLog);
-    final total = consumed.fold(
-        const NutritionValues(),
-        (NutritionValues sum, candidate) =>
-            sum + (candidate.nutrition ?? const NutritionValues()));
+    final summary = SmartLogReviewSummary(_review);
+    final canConfirm = summary.canConfirm;
+    final total = summary.totals;
     return Scaffold(
       appBar: AppBar(title: const Text('Smart Log')),
       body: SafeArea(
@@ -413,6 +585,7 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
         const SizedBox(height: 12),
         TextField(
             controller: _text,
+            focusNode: _textFocus,
             maxLines: 3,
             decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -421,7 +594,8 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
               if (_hasPreview) {
                 setState(() {
                   _hasPreview = false;
-                  _candidates = [];
+                  _review = [];
+                  _textSource = SmartLogInputSource.text;
                   _aiSuggestions.clear();
                   _acceptedEstimates.clear();
                   _aiError = null;
@@ -430,6 +604,26 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
               }
             }),
         const SizedBox(height: 12),
+        Wrap(spacing: 8, runSpacing: 4, children: [
+          OutlinedButton.icon(
+            onPressed: _busy ? null : () => _textFocus.requestFocus(),
+            icon: const Icon(Icons.keyboard),
+            label: const Text('Type'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _busy ? null : _voice,
+            icon: const Icon(Icons.mic_outlined),
+            label: const Text('Voice'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _busy ? null : _photo,
+            icon: const Icon(Icons.photo_camera_outlined),
+            label: const Text('Photo'),
+          ),
+        ]),
+        const Text(
+            'Voice transcription may use the device network. Typed Smart Log needs no connection.'),
+        const SizedBox(height: 8),
         FilledButton.icon(
             onPressed: _busy ? null : _preview,
             icon: const Icon(Icons.preview_outlined),
@@ -464,7 +658,7 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
               onChanged: (m) {
                 if (m != null) setState(() => _meal = m);
               }),
-          for (var i = 0; i < _candidates.length; i++) _candidateCard(i),
+          for (var i = 0; i < _review.length; i++) _candidateCard(i),
           if (_ai.canOffer(_candidates)) ...[
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -516,7 +710,8 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
   }
 
   Widget _candidateCard(int index) {
-    final c = _candidates[index];
+    final review = _review[index];
+    final c = review.candidate;
     final ai = _aiSuggestions[index];
     final nutrition = c.nutrition;
     final title = c.food?.name ?? c.foodQuery;
@@ -528,11 +723,45 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
               children: [
                 Text(title.isEmpty ? c.rawSpan : title,
                     style: Theme.of(context).textTheme.titleMedium),
+                Wrap(spacing: 6, runSpacing: 4, children: [
+                  Chip(label: Text(review.source.name.toUpperCase())),
+                  Chip(
+                    label: Text(c.action.name),
+                    backgroundColor: c.action == LocalFoodAction.consumed
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : Theme.of(context).colorScheme.secondaryContainer,
+                  ),
+                  Chip(
+                    label: Text(c.resolution.name),
+                    backgroundColor: c.resolution == LocalFoodResolution.matched
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : Theme.of(context).colorScheme.errorContainer,
+                  ),
+                ]),
+                Text(review.sourceDescription),
                 Text(
-                    '${c.quantity == null ? '?' : formatFoodQuantity(c.quantity!)} ${c.unit.name} · ${c.action.name} · ${c.resolution.name}'),
+                    '${c.quantity == null ? '?' : formatFoodQuantity(c.quantity!)} ${c.unit.name}'),
+                if (review.confidence != null)
+                  Text(
+                      'Recognition confidence ${(review.confidence! * 100).toStringAsFixed(0)}%'),
+                for (final warning in review.sourceWarnings)
+                  Text(warning,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary)),
                 if (nutrition != null)
                   Text(
                       '${nutrition.calories.toStringAsFixed(0)} kcal · P ${nutrition.protein.toStringAsFixed(1)} · C ${nutrition.carbs.toStringAsFixed(1)} · F ${nutrition.fat.toStringAsFixed(1)}'),
+                if (c.food != null)
+                  Text(c.food!.metadata.verified
+                      ? 'Verified local Saved Food nutrition'
+                      : 'Local Saved Food · ${c.food!.nutritionSource.name}'),
+                if (review.suggestedFoods.length == 1 && c.food == null)
+                  TextButton(
+                    onPressed: () => setState(() => _setCandidate(
+                        index, c.copyWith(matches: review.suggestedFoods))),
+                    child: Text(
+                        'Link local Saved Food: ${review.suggestedFoods.single.name}'),
+                  ),
                 if (ai != null) ...[
                   Text(
                       'AI suggestion · confidence ${(ai.interpretation.confidence * 100).toStringAsFixed(0)}%'),
@@ -561,7 +790,13 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
                   Text(warning,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.error)),
-                Row(children: [
+                Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+                  Checkbox(
+                    value: review.included,
+                    onChanged: (value) => setState(() => _review[index] =
+                        review.copyWith(included: value ?? false)),
+                  ),
+                  const Text('Include'),
                   TextButton(
                       onPressed: () => _edit(index), child: const Text('Edit')),
                   TextButton(

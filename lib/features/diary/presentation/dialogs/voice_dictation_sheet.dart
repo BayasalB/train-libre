@@ -40,6 +40,7 @@ Future<VoiceDictationResult?> showVoiceDictationSheet({
   String? initialText,
   required String exampleHint,
   required String analyzeLabel,
+  bool allowAiTidy = true,
 }) {
   return showGlassBottomMenu<VoiceDictationResult>(
     context: context,
@@ -48,6 +49,7 @@ Future<VoiceDictationResult?> showVoiceDictationSheet({
       initialText: initialText ?? '',
       exampleHint: exampleHint,
       analyzeLabel: analyzeLabel,
+      allowAiTidy: allowAiTidy,
     ),
   );
 }
@@ -58,11 +60,13 @@ class _VoiceDictationView extends StatefulWidget {
   final String initialText;
   final String exampleHint;
   final String analyzeLabel;
+  final bool allowAiTidy;
 
   const _VoiceDictationView({
     required this.initialText,
     required this.exampleHint,
     required this.analyzeLabel,
+    required this.allowAiTidy,
   });
 
   @override
@@ -285,7 +289,8 @@ class _VoiceDictationViewState extends State<_VoiceDictationView> {
 
     // Rules cannot fix a misheard food name — "Sriracha" comes back as "Sir
     // Ratscher" and no dictionary of filler words will ever catch that.
-    final tidyEnabled = await VoiceDictationSettings.instance.isAiTidyEnabled();
+    final tidyEnabled = widget.allowAiTidy &&
+        await VoiceDictationSettings.instance.isAiTidyEnabled();
     if (!mounted) return;
     if (!tidyEnabled) {
       unawaited(TelemetryService.instance.trackVoiceDictationCompleted(

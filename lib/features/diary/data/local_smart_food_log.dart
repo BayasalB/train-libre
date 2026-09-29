@@ -1,8 +1,10 @@
-import '../../../data/drift_database.dart';
+import '../../../data/drift_database.dart' show AppDatabase;
 import '../domain/models/food_alias.dart';
 import '../domain/models/food_entry.dart';
 import '../domain/models/food_item.dart';
+import '../domain/models/meal_entry.dart';
 import '../domain/use_cases/parse_local_food_log.dart';
+import '../../../services/telemetry/telemetry_service.dart';
 import 'sources/diary_local_data_source.dart';
 import 'sources/food_alias_local_data_source.dart';
 import 'sources/product_local_data_source.dart';
@@ -70,7 +72,10 @@ class LocalSmartFoodLog {
   /// One transaction for all entries; the diary checks Day Lock and makes
   /// immutable historical nutrition snapshots for every inserted food.
   Future<List<int>> confirm(List<LocalFoodCandidate> candidates,
-      {required DateTime date, required String mealType}) async {
+      {required DateTime date,
+      required String mealType,
+      MealEntry? mealEntry,
+      String telemetrySource = FoodLogSource.manualSearch}) async {
     if (candidates.isEmpty) throw StateError('Nothing to log.');
     if (!const {
       'mealtypeBreakfast',
@@ -79,6 +84,12 @@ class LocalSmartFoodLog {
       'mealtypeSnack'
     }.contains(mealType)) {
       throw ArgumentError.value(mealType, 'mealType', 'Unknown diary meal');
+    }
+    if (mealEntry != null &&
+        (mealEntry.mealType != mealType ||
+            !mealEntry.consumedAt.isAtSameMomentAs(date))) {
+      throw ArgumentError(
+          'Meal metadata must match the reviewed date and type.');
     }
     final consumed = candidates
         .where((candidate) => candidate.action == LocalFoodAction.consumed)
@@ -89,10 +100,15 @@ class LocalSmartFoodLog {
     }
     return db.transaction(() async {
       final ids = <int>[];
+      if (mealEntry != null) await diary.insertMealEntry(mealEntry);
       for (final candidate in consumed) {
         final current =
             await products.getProductByBarcode(candidate.food!.barcode);
         if (current == null ||
+            current.name != candidate.food!.name ||
+            current.brand != candidate.food!.brand ||
+            current.source != candidate.food!.source ||
+            current.isLiquid != candidate.food!.isLiquid ||
             current.calories != candidate.food!.calories ||
             current.protein != candidate.food!.protein ||
             current.carbs != candidate.food!.carbs ||
@@ -108,15 +124,23 @@ class LocalSmartFoodLog {
             current.nutritionSource != candidate.food!.nutritionSource ||
             current.metadata.verified != candidate.food!.metadata.verified ||
             current.metadata.verifiedAt !=
-                candidate.food!.metadata.verifiedAt) {
+                candidate.food!.metadata.verifiedAt ||
+            current.metadata.notes != candidate.food!.metadata.notes ||
+            current.metadata.productPhotoRef !=
+                candidate.food!.metadata.productPhotoRef ||
+            current.metadata.labelPhotoRef !=
+                candidate.food!.metadata.labelPhotoRef) {
           throw StateError('Saved Food changed since preview. Preview again.');
         }
-        ids.add(await diary.insertFoodEntry(FoodEntry(
-          barcode: candidate.food!.barcode,
-          timestamp: date,
-          quantityInGrams: candidate.amountInFoodUnit!,
-          mealType: mealType,
-        )));
+        ids.add(await diary.insertFoodEntry(
+            FoodEntry(
+              barcode: candidate.food!.barcode,
+              timestamp: date,
+              quantityInGrams: candidate.amountInFoodUnit!,
+              mealType: mealType,
+              mealEntryId: mealEntry?.id,
+            ),
+            telemetrySource: telemetrySource));
       }
       return ids;
     });

@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../../data/database_helper.dart';
 import '../../../generated/app_localizations.dart';
-import '../domain/models/food_entry.dart';
 import '../domain/models/food_item.dart';
 import '../domain/models/meal_entry.dart';
-import '../domain/repositories/diary_repository.dart';
+import '../domain/use_cases/parse_local_food_log.dart';
+import '../data/local_smart_food_log.dart';
 import '../data/meal_photo_store.dart';
 import '../domain/models/meal_capture_meta.dart';
 import '../../../services/ai_meal_validation.dart';
@@ -657,9 +657,10 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
     if (!mounted) return;
     setState(() => _isSaving = true);
 
-    final db = DatabaseHelper.instance;
-    final diaryRepo = context.read<IDiaryRepository>();
+    final diary = LocalSmartFoodLog(DatabaseHelper.instance.dbInstance);
     var saved = false;
+    MealPhotoPaths? photoPaths;
+    final extraPhotoPaths = <String>[];
 
     try {
       final mealEntryId = const Uuid().v4();
@@ -669,8 +670,6 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
 
       // The captured file lives in a temporary directory the system may purge,
       // so it has to be copied into durable storage before its path is stored.
-      MealPhotoPaths? photoPaths;
-      final extraPhotoPaths = <String>[];
       for (var i = 0; i < widget.originalImages.length; i++) {
         final saved =
             await MealPhotoStore.instance.save(widget.originalImages[i]);
@@ -697,23 +696,39 @@ class _AiMealReviewScreenState extends State<AiMealReviewScreen> {
         captureMeta: captureMeta.isEmpty ? null : captureMeta.toJson(),
         source: widget.originalImages.isEmpty ? 'aiText' : 'aiPhoto',
       );
-      await diaryRepo.insertMealEntry(mealEntry);
-
-      for (final item in savePlan.matchedItems) {
-        final food = item.match.bestMatch!;
-
-        final entry = FoodEntry(
-          barcode: food.barcode,
-          quantityInGrams: item.candidate.grams,
-          timestamp: _selectedTimestamp,
+      // The legacy rich meal editor keeps its photo/depth/meal metadata, but
+      // confirmation now shares Smart Log's stale-food, snapshot, lock and
+      // transaction boundary. A failure cannot strand a meal without foods.
+      await diary.confirm([
+        for (final item in savePlan.matchedItems)
+          LocalFoodCandidate(
+            rawSpan: item.candidate.name,
+            normalizedText: item.candidate.name,
+            foodQuery: item.candidate.name,
+            quantity: item.candidate.grams,
+            unit: item.match.bestMatch!.isLiquid == true
+                ? LocalFoodUnit.milliliters
+                : LocalFoodUnit.grams,
+            action: LocalFoodAction.consumed,
+            matches: [item.match.bestMatch!],
+          ),
+      ],
+          date: _selectedTimestamp,
           mealType: _selectedMealType,
-          mealEntryId: mealEntryId,
-        );
-        await db.insertFoodEntry(entry,
-            telemetrySource: FoodLogSource.aiCapture);
-      }
+          mealEntry: mealEntry,
+          telemetrySource: FoodLogSource.aiCapture);
       saved = true;
     } catch (error) {
+      try {
+        await MealPhotoStore.instance.delete(
+          photoPath: photoPaths?.photoPath,
+          thumbPath: photoPaths?.thumbPath,
+          extraPaths: extraPhotoPaths,
+        );
+      } catch (_) {
+        // Keep the original database failure visible. Orphan media can be
+        // removed by the existing media-store prune operation later.
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

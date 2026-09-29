@@ -48,11 +48,14 @@ import '../../../util/permission_dialogs.dart';
 class AiMealCaptureScreen extends StatefulWidget {
   final DateTime? initialDate;
   final String? initialMealType;
+  /// Smart Log receives analysis only; its own review performs every write.
+  final bool returnCandidateToSmartLog;
 
   const AiMealCaptureScreen({
     super.key,
     this.initialDate,
     this.initialMealType,
+    this.returnCandidateToSmartLog = false,
   });
 
   @override
@@ -148,6 +151,7 @@ class _AiMealCaptureScreenState extends State<AiMealCaptureScreen>
   @override
   void initState() {
     super.initState();
+    if (widget.returnCandidateToSmartLog) _barcodeDetectionEnabled = false;
     unawaited(TelemetryService.instance
         .trackScreenView(screenName: ScreenName.aiMealCapture));
     WidgetsBinding.instance.addObserver(this);
@@ -161,6 +165,7 @@ class _AiMealCaptureScreenState extends State<AiMealCaptureScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      if (widget.returnCandidateToSmartLog) return;
       final tourCompleted =
           await AiMealCaptureTourService.instance.isTourCompleted();
       if (!tourCompleted && mounted) {
@@ -372,6 +377,7 @@ class _AiMealCaptureScreenState extends State<AiMealCaptureScreen>
   /// returning the plain "something was saved" flag keeps the contract the
   /// callers already expect.
   Future<void> _logDetectedBarcode() async {
+    if (widget.returnCandidateToSmartLog) return;
     final code = _detectedBarcode;
     if (code == null || _isLoggingBarcode) return;
 
@@ -619,6 +625,12 @@ class _AiMealCaptureScreenState extends State<AiMealCaptureScreen>
 
   Future<void> _analyze() async {
     if (!_hasInput) return;
+    if (widget.returnCandidateToSmartLog && _images.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add a photo for Smart Log photo review.')),
+      );
+      return;
+    }
     setState(() => _isAnalyzing = true);
     _startAiWaitingHaptics();
     await _suspendCamera();
@@ -755,6 +767,16 @@ class _AiMealCaptureScreenState extends State<AiMealCaptureScreen>
       _stopAiWaitingHaptics();
       if (mounted) {
         setState(() => _isAnalyzing = false);
+      }
+
+      if (widget.returnCandidateToSmartLog) {
+        // No meal entry, food entry or photo metadata is written here. The
+        // caller converts this candidate to the protected Smart Log review.
+        _dismissAnalysisScreen();
+        if (mounted) {
+          Navigator.of(context).pop(validationOutcome.validation.candidate);
+        }
+        return;
       }
 
       // Smoothly contract cloud back into circle and pause before organic vapor dispersion

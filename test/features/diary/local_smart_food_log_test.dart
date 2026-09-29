@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Variable;
@@ -6,12 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:train_libre/data/database_helper.dart';
-import 'package:train_libre/data/drift_database.dart';
+import 'package:train_libre/data/drift_database.dart' show AppDatabase;
 import 'package:train_libre/features/diary/data/local_smart_food_log.dart';
 import 'package:train_libre/features/diary/data/sources/food_alias_local_data_source.dart';
 import 'package:train_libre/features/diary/data/sources/product_local_data_source.dart';
 import 'package:train_libre/features/diary/domain/models/food_alias.dart';
 import 'package:train_libre/features/diary/domain/models/food_item.dart';
+import 'package:train_libre/features/diary/domain/models/meal_entry.dart';
 import 'package:train_libre/features/diary/domain/models/saved_food_metadata.dart';
 import 'package:train_libre/features/diary/domain/use_cases/parse_local_food_log.dart';
 import 'package:train_libre/features/diary/presentation/local_smart_log_screen.dart';
@@ -172,6 +174,38 @@ void main() {
     expect((await log.preview('1 serving uurag')).single.canLog, isFalse);
   });
 
+  test('overflowing serving or nutrition cannot enter preview totals or diary',
+      () async {
+    await products.insertProduct(FoodItem(
+      barcode: 'huge-serving',
+      name: 'Huge Serving',
+      calories: 1,
+      protein: 1,
+      carbs: 1,
+      fat: 1,
+      metadata: const SavedFoodMetadata(servingSize: 1e308, servingUnit: 'g'),
+    ));
+    final serving = (await log.preview('2 serving Huge Serving')).single;
+    expect(serving.amountInFoodUnit, isNull);
+    expect(serving.canLog, isFalse);
+    await products.insertProduct(FoodItem(
+      barcode: 'huge-nutrition',
+      name: 'Huge Nutrition',
+      calories: 1e308,
+      protein: 1,
+      carbs: 1,
+      fat: 1,
+    ));
+    final nutrition = (await log.preview('1000g Huge Nutrition')).single;
+    expect(nutrition.canLog, isFalse);
+    await expectLater(
+        log.confirm([serving, nutrition],
+            date: DateTime(2026, 9, 25), mealType: 'mealtypeSnack'),
+        throwsStateError);
+    expect(
+        await db.customSelect('SELECT * FROM nutrition_logs').get(), isEmpty);
+  });
+
   test('ambiguous alias requires explicit selection', () async {
     await aliases.save('oats', const FoodAliasDraft(alias: 'uurag'));
     final c = (await log.preview('41g uurag')).single;
@@ -292,6 +326,67 @@ void main() {
     expect(c.food?.barcode, 'whey');
     expect(c.quantity, 45.5);
     expect(c.canLog, isTrue);
+  });
+
+  test('reviewed photo portion source and label snapshot survive restart',
+      () async {
+    final date = DateTime(2026, 9, 25, 12);
+    final candidate = (await log.preview('45.5g uurag')).single;
+    await log.confirm([candidate],
+        date: date,
+        mealType: 'mealtypeSnack',
+        mealEntry: MealEntry(
+          id: 'photo-origin-restart',
+          consumedAt: date,
+          mealType: 'mealtypeSnack',
+          source: 'smartLogPhoto',
+          captureMeta: jsonEncode({
+            'smartLogInput': 'photo',
+            'portionOrigin': 'image_estimate_reviewed',
+          }),
+        ));
+    await db.close();
+    connect();
+    final meal = await db
+        .customSelect('SELECT source, capture_meta FROM meal_entries')
+        .getSingle();
+    expect(meal.read<String>('source'), 'smartLogPhoto');
+    expect(jsonDecode(meal.read<String>('capture_meta'))['portionOrigin'],
+        'image_estimate_reviewed');
+    final archive = await db
+        .customSelect(
+            'SELECT nutrition_source, calories FROM off_products_archive')
+        .getSingle();
+    expect(archive.read<String>('nutrition_source'), 'label');
+    expect(archive.read<double>('calories'), 288.97);
+    final row = await db
+        .customSelect('SELECT amount, meal_entry_id FROM nutrition_logs')
+        .getSingle();
+    expect(row.read<double>('amount'), 45.5);
+    expect(row.read<String>('meal_entry_id'), 'photo-origin-restart');
+  });
+
+  test('local preview performance with a realistic Saved Food library',
+      () async {
+    for (var index = 0; index < 500; index++) {
+      await products.insertProduct(FoodItem(
+        barcode: 'saved-$index',
+        name: 'Saved product $index',
+        calories: 100 + index.toDouble(),
+        protein: 10,
+        carbs: 20,
+        fat: 5,
+      ));
+    }
+    final timer = Stopwatch()..start();
+    final candidates = await log.preview('40,4g uurag, 80,4g ovyos');
+    timer.stop();
+    expect(candidates, hasLength(2));
+    expect(candidates.every((candidate) => candidate.canLog), isTrue);
+    // An observation, not a flaky timing gate on shared CI hardware.
+    // ignore: avoid_print
+    print('Phase 4D local preview: 502 foods, 2 candidates, '
+        '${timer.elapsedMilliseconds} ms');
   });
 
   testWidgets('review UI blocks unknown food and previews matched nutrition',

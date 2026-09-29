@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +21,7 @@ import 'package:train_libre/features/diary/domain/models/smart_log_review.dart';
 import 'package:train_libre/features/diary/domain/use_cases/parse_local_food_log.dart';
 import 'package:train_libre/features/diary/presentation/local_smart_log_screen.dart';
 import 'package:train_libre/features/today/data/day_lock_repository.dart';
+import 'package:train_libre/features/today/data/today_repository.dart';
 import 'package:train_libre/services/ai_meal_validation.dart';
 
 class _NoNetworkAi implements SmartLogAiProvider {
@@ -114,6 +117,164 @@ void main() {
     ]);
     expect(blocked.canConfirm, isFalse);
     expect(blocked.totals.calories, summary.totals.calories);
+  });
+
+  test('decimal mixed meal reaches reactive Today totals without rounding',
+      () async {
+    await products.insertProduct(FoodItem(
+        barcode: 'oats',
+        name: 'Hercules Oats',
+        calories: 360,
+        protein: 12,
+        carbs: 60,
+        fat: 7));
+    await products.insertProduct(FoodItem(
+        barcode: 'pb',
+        name: 'Peanut Butter',
+        calories: 600,
+        protein: 25,
+        carbs: 20,
+        fat: 50));
+    await FoodAliasLocalDataSource(db)
+        .save('oats', const FoodAliasDraft(alias: 'ovyoos'));
+    final items = await local
+        .preview('40,4g uurag uusan; 80,4g ovyos; peanut butter 10,7g; '
+            '38,8g uurag beldsen; 3 sharsan undug boliloo');
+    expect(items, hasLength(5));
+    expect(items.map((item) => item.quantity).toList(),
+        [40.4, 80.4, 10.7, 38.8, 3]);
+    expect(items.map((item) => item.action).toList(), [
+      LocalFoodAction.consumed,
+      LocalFoodAction.consumed,
+      LocalFoodAction.consumed,
+      LocalFoodAction.planned,
+      LocalFoodAction.cancelled,
+    ]);
+    final summary = SmartLogReviewSummary([
+      for (final item in items)
+        SmartLogReviewItem(
+            candidate: item,
+            source: SmartLogInputSource.text,
+            sourceDescription: item.rawSpan),
+    ]);
+    final expected = items
+        .take(3)
+        .fold(0.0, (double total, item) => total + item.nutrition!.calories);
+    expect(summary.totals.calories, closeTo(expected, 1e-9));
+    expect(summary.canConfirm, isTrue);
+    final today = TodayRepository(db);
+    final changed =
+        today.watch(day).firstWhere((data) => data.foods.length == 3);
+    await fallback.confirm(
+        reviewId: 'mixed-meal',
+        candidates: items,
+        acceptedEstimates: {},
+        date: day,
+        mealType: 'mealtypeSnack');
+    final result = await changed;
+    expect(result.nutrition.summary.calories, closeTo(expected, 1e-9));
+    expect(
+        result.nutrition.summary.protein,
+        closeTo(
+            items.take(3).fold<double>(
+                0.0, (double total, item) => total + item.nutrition!.protein),
+            1e-9));
+    expect(result.foods.map((food) => food.entry.quantityInGrams).toList(),
+        [40.4, 80.4, 10.7]);
+    expect(ai.calls, 0);
+  });
+
+  test('third stale candidate rolls back first two entries and archives',
+      () async {
+    await products.insertProduct(FoodItem(
+        barcode: 'oats',
+        name: 'Hercules Oats',
+        calories: 360,
+        protein: 12,
+        carbs: 60,
+        fat: 7));
+    await products.insertProduct(FoodItem(
+        barcode: 'pb',
+        name: 'Peanut Butter',
+        calories: 600,
+        protein: 25,
+        carbs: 20,
+        fat: 50));
+    final items = await local
+        .preview('40.4g uurag, 80.4g Hercules Oats, Peanut Butter 10.7g');
+    expect(items.every((item) => item.canLog), isTrue);
+    await products.updateProduct(FoodItem(
+        barcode: 'pb',
+        name: 'Peanut Butter',
+        calories: 620,
+        protein: 25,
+        carbs: 20,
+        fat: 50));
+    await expectLater(
+        fallback.confirm(
+            reviewId: 'rollback-three',
+            candidates: items,
+            acceptedEstimates: {},
+            date: day,
+            mealType: 'mealtypeSnack'),
+        throwsStateError);
+    expect(
+        await db.customSelect('SELECT * FROM nutrition_logs').get(), isEmpty);
+    expect(await db.customSelect('SELECT * FROM off_products_archive').get(),
+        isEmpty);
+    expect((await TodayRepository(db).load(day)).nutrition.summary.calories, 0);
+    expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
+  });
+
+  test('all input sources use the same repository Day Lock boundary', () async {
+    final candidate = (await local.preview('45.5g uurag')).single;
+    await DayLockRepository(db).lock(day);
+    for (final source in SmartLogInputSource.values) {
+      final reviewed = SmartLogReviewItem(
+          candidate: candidate,
+          source: source,
+          sourceDescription: candidate.rawSpan);
+      await expectLater(
+          fallback.confirm(
+              reviewId: 'locked-${source.name}',
+              candidates: [reviewed.candidate],
+              acceptedEstimates: {},
+              date: day,
+              mealType: 'mealtypeSnack'),
+          throwsA(isA<DayLockedException>()));
+    }
+    expect(
+        await db.customSelect('SELECT * FROM nutrition_logs').get(), isEmpty);
+  });
+
+  test('repeated and overlapping Confirm attempts write only one entry',
+      () async {
+    final candidate = (await local.preview('45.5g uurag')).single;
+    final first = fallback.confirm(
+        reviewId: 'one-preview',
+        candidates: [candidate],
+        acceptedEstimates: {},
+        date: day,
+        mealType: 'mealtypeSnack');
+    await expectLater(
+        fallback.confirm(
+            reviewId: 'one-preview',
+            candidates: [candidate],
+            acceptedEstimates: {},
+            date: day,
+            mealType: 'mealtypeSnack'),
+        throwsStateError);
+    expect(await first, hasLength(1));
+    await expectLater(
+        fallback.confirm(
+            reviewId: 'one-preview',
+            candidates: [candidate],
+            acceptedEstimates: {},
+            date: day,
+            mealType: 'mealtypeSnack'),
+        throwsStateError);
+    expect(await db.customSelect('SELECT * FROM nutrition_logs').get(),
+        hasLength(1));
   });
 
   test('photo suggestion waits for explicit local link and uses exact label',
@@ -342,6 +503,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(await db.customSelect('SELECT * FROM nutrition_logs').get(),
         hasLength(1));
+    final meal = await db
+        .customSelect('SELECT source, capture_meta FROM meal_entries')
+        .getSingle();
+    expect(meal.read<String>('source'), 'smartLogPhoto');
+    expect(jsonDecode(meal.read<String>('capture_meta'))['portionOrigin'],
+        'image_estimate_reviewed');
+    final archive = await db
+        .customSelect('SELECT nutrition_source FROM off_products_archive')
+        .getSingle();
+    expect(archive.read<String>('nutrition_source'), 'label');
     expect(ai.calls, 0);
   });
 

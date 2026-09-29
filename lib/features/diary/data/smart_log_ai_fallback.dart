@@ -1,8 +1,9 @@
 import 'package:uuid/uuid.dart';
 
-import '../../../data/drift_database.dart';
+import '../../../data/drift_database.dart' show AppDatabase;
 import '../../today/data/day_lock_repository.dart';
 import '../domain/models/food_item.dart';
+import '../domain/models/meal_entry.dart';
 import '../domain/models/saved_food_metadata.dart';
 import '../domain/models/smart_log_ai_models.dart';
 import '../domain/use_cases/parse_local_food_log.dart';
@@ -133,6 +134,7 @@ class SmartLogAiFallback {
     required Map<String, FoodItem> acceptedEstimates,
     required DateTime date,
     required String mealType,
+    MealEntry? mealEntry,
   }) async {
     if (_confirmedReviews.contains(reviewId) ||
         !_pendingReviews.add(reviewId)) {
@@ -163,7 +165,8 @@ class SmartLogAiFallback {
           }
           await local.products.insertProduct(food);
         }
-        return local.confirm(candidates, date: date, mealType: mealType);
+        return local.confirm(candidates,
+            date: date, mealType: mealType, mealEntry: mealEntry);
       });
       _confirmedReviews.add(reviewId);
       return result;

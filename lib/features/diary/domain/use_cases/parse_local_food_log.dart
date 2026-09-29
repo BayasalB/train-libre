@@ -43,16 +43,22 @@ class LocalFoodCandidate {
   /// A piece is never assumed equivalent to a serving or package.
   double? get amountInFoodUnit {
     final selected = food;
-    if (selected == null || quantity == null || quantity! <= 0) return null;
+    if (selected == null ||
+        quantity == null ||
+        !quantity!.isFinite ||
+        quantity! <= 0) {
+      return null;
+    }
     final expected = selected.isLiquid == true ? 'ml' : 'g';
+    double? amount;
     switch (unit) {
       case LocalFoodUnit.grams:
-        return expected == 'g' ? quantity : null;
+        amount = expected == 'g' ? quantity : null;
       case LocalFoodUnit.milliliters:
-        return expected == 'ml' ? quantity : null;
+        amount = expected == 'ml' ? quantity : null;
       case LocalFoodUnit.serving:
         final size = selected.metadata.servingSize;
-        return size != null &&
+        amount = size != null &&
                 size.isFinite &&
                 size > 0 &&
                 selected.metadata.servingUnit == expected
@@ -60,8 +66,9 @@ class LocalFoodCandidate {
             : null;
       case LocalFoodUnit.piece:
       case LocalFoodUnit.unknown:
-        return null;
+        break;
     }
+    return amount != null && amount.isFinite && amount > 0 ? amount : null;
   }
 
   NutritionValues? get nutrition {
@@ -69,11 +76,24 @@ class LocalFoodCandidate {
     return amount == null ? null : food!.nutritionFor(amount);
   }
 
-  bool get canLog =>
-      action == LocalFoodAction.consumed &&
-      resolution == LocalFoodResolution.matched &&
-      amountInFoodUnit != null &&
-      warnings.isEmpty;
+  bool get canLog {
+    if (action != LocalFoodAction.consumed ||
+        resolution != LocalFoodResolution.matched ||
+        amountInFoodUnit == null ||
+        warnings.isNotEmpty) {
+      return false;
+    }
+    final values = nutrition!;
+    return [
+      values.calories,
+      values.protein,
+      values.carbs,
+      values.fat,
+      values.sugar,
+      values.fiber,
+      values.salt,
+    ].every((value) => value.isFinite && value >= 0);
+  }
 
   LocalFoodCandidate copyWith({
     double? quantity,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,6 +13,7 @@ import '../data/smart_log_ai_provider.dart';
 import '../data/smart_log_photo_adapter.dart';
 import '../domain/models/food_alias.dart';
 import '../domain/models/food_item.dart';
+import '../domain/models/meal_entry.dart';
 import '../domain/models/nutrition_values.dart';
 import '../domain/models/saved_food_metadata.dart';
 import '../domain/models/smart_log_review.dart';
@@ -549,6 +552,10 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
+      final photoPortionReviewed = _review.any((item) =>
+          item.included &&
+          item.source == SmartLogInputSource.photo &&
+          item.candidate.canLog);
       await _ai.confirm(
           reviewId: _reviewId,
           candidates: _review
@@ -562,7 +569,22 @@ class _LocalSmartLogScreenState extends State<LocalSmartLogScreen> {
                 entry.key: entry.value,
           },
           date: _date,
-          mealType: _meal);
+          mealType: _meal,
+          // The existing meal metadata records that a photo-origin portion
+          // was reviewed. Nutrition still comes from the selected Saved Food
+          // or a separately confirmed AI_ESTIMATE snapshot.
+          mealEntry: photoPortionReviewed
+              ? MealEntry(
+                  id: const Uuid().v4(),
+                  consumedAt: _date,
+                  mealType: _meal,
+                  source: 'smartLogPhoto',
+                  captureMeta: jsonEncode({
+                    'smartLogInput': 'photo',
+                    'portionOrigin': 'image_estimate_reviewed',
+                  }),
+                )
+              : null);
       if (mounted) Navigator.pop(context, true);
     } catch (error) {
       if (mounted) _message('Could not save: $error');

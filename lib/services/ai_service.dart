@@ -859,16 +859,19 @@ Repair the candidate. When database candidates are listed, pick the EXACT name f
     required String systemPrompt,
     List<File>? images,
     double temperature = 0.3,
+    bool trackMealScan = true,
   }) async {
     final requestId = const Uuid().v4();
     final providerEnum = await getSelectedProvider();
     final provider = providerEnum.name;
     final stopwatch = Stopwatch()..start();
 
-    unawaited(TelemetryService.instance.trackAiMealScanRequested(
-      requestId: requestId,
-      provider: provider,
-    ));
+    if (trackMealScan) {
+      unawaited(TelemetryService.instance.trackAiMealScanRequested(
+        requestId: requestId,
+        provider: provider,
+      ));
+    }
 
     try {
       String? apiKey;
@@ -975,24 +978,41 @@ Repair the candidate. When database candidates are listed, pick the EXACT name f
       }
 
       stopwatch.stop();
-      unawaited(TelemetryService.instance.trackAiMealScanCompleted(
-        requestId: requestId,
-        provider: provider,
-        latencyBucket: TelemetryBuckets.getLatencyBucket(stopwatch.elapsed),
-        success: true,
-      ));
+      if (trackMealScan) {
+        unawaited(TelemetryService.instance.trackAiMealScanCompleted(
+          requestId: requestId,
+          provider: provider,
+          latencyBucket: TelemetryBuckets.getLatencyBucket(stopwatch.elapsed),
+          success: true,
+        ));
+      }
 
       return rawResult;
     } catch (e) {
       stopwatch.stop();
-      unawaited(TelemetryService.instance.trackAiMealScanCompleted(
-        requestId: requestId,
-        provider: provider,
-        latencyBucket: TelemetryBuckets.getLatencyBucket(stopwatch.elapsed),
-        success: false,
-        errorCode: e.runtimeType.toString(),
-      ));
+      if (trackMealScan) {
+        unawaited(TelemetryService.instance.trackAiMealScanCompleted(
+          requestId: requestId,
+          provider: provider,
+          latencyBucket: TelemetryBuckets.getLatencyBucket(stopwatch.elapsed),
+          success: false,
+          errorCode: e.runtimeType.toString(),
+        ));
+      }
       rethrow;
     }
   }
+
+  /// Reuses the configured BYOK provider without exposing provider networking
+  /// to Smart Log or recording the request as a photo meal scan.
+  Future<String> generateSmartLogStructuredText({
+    required String systemPrompt,
+    required String userContent,
+  }) =>
+      _callSelectedProviderRaw(
+        userContent: userContent,
+        systemPrompt: systemPrompt,
+        temperature: 0.1,
+        trackMealScan: false,
+      );
 }

@@ -290,8 +290,9 @@ class _NutritionHubScreenState extends State<NutritionHubScreen> {
                 AppSectionHeader(title: l10n.nutritionSectionToolsAndLibrary),
                 ListTile(
                   leading: const Icon(Icons.edit_note),
-                  title: const Text('Smart Log · Offline'),
-                  subtitle: const Text('Type Mongolian or English food notes'),
+                  title: const Text('Smart Log'),
+                  subtitle: const Text(
+                      'Offline first · optional AI for unresolved food'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const LocalSmartLogScreen(),
                   )),

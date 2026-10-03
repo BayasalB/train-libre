@@ -1,0 +1,48 @@
+name: iOS unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/phase-1a-decimal-nutrition]
+    paths: [.github/workflows/ios-unsigned.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+      - name: Toolchain
+        run: |
+          flutter --version
+          xcodebuild -version
+          pod --version
+      - name: Dependencies
+        run: flutter pub get
+      - name: Build unsigned device app
+        run: flutter build ios --release --no-codesign
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          test -d build/ios/iphoneos/Runner.app
+          mkdir -p build/unsigned/Payload
+          cp -R build/ios/iphoneos/Runner.app build/unsigned/Payload/
+          cd build/unsigned
+          /usr/bin/zip -qry TrainLibre-unsigned.ipa Payload
+          /usr/bin/unzip -t TrainLibre-unsigned.ipa
+          shasum -a 256 TrainLibre-unsigned.ipa > TrainLibre-unsigned.ipa.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TrainLibre-unsigned-ios
+          path: |
+            build/unsigned/TrainLibre-unsigned.ipa
+            build/unsigned/TrainLibre-unsigned.ipa.sha256
+          if-no-files-found: error
+          retention-days: 14
